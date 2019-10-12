@@ -73,7 +73,7 @@ func (c *CreateCmd) Run(args ...string) (err error) {
 		return err
 	}
 
-	// using assetdir in gorpc.json
+	// Pass `-assetdir` to gorpc to use customized template dir, instead of the one specified in gorpc.json
 	if len(c.Assetdir) == 0 {
 		c.Assetdir = c.GoRPCConfig.AssetDir
 	}
