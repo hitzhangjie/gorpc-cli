@@ -37,17 +37,17 @@ func newCreateCmd() *CreateCmd {
 	cmd := Cmd{
 		usageLine: `gorpc create`,
 		descShort: `
-	how to create project:
-		gorpc create -protodir=. -protofile=*.proto -protocol=gorpc -alias
-		gorpc create -protofile=*.proto -protocol=gorpc`,
-		descLong: `
-	gorpc create:
-		-protodir, search path for protofile, default: "."
-		-protofile, protofile to handle
-		-protocol, protocol to use, including: gorpc, nrpc, ilive, sso, default: gorpc 
-		-lang, language including: go, java, cpp, default: go
-		-alias, enable alias mode, //@alias=${rpcName}, default: false
-		-rpconly, generate rpc stub only, default: false"`,
+how to create project:
+	gorpc create -protodir=. -protofile=*.proto -protocol=gorpc -alias
+	gorpc create -protofile=*.proto -protocol=gorpc`,
+	descLong: `
+gorpc create:
+	-protodir, search path for protofile, default: "."
+	-protofile, protofile to handle
+	-protocol, protocol to use, including: gorpc, nrpc, ilive, sso, default: gorpc 
+	-lang, language including: go, java, cpp, default: go
+	-alias, enable alias mode, //@alias=${rpcName}, default: false
+	-rpconly, generate rpc stub only, default: false"`,
 		flagSet: newCreateFlagSet(),
 	}
 
