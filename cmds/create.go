@@ -56,6 +56,7 @@ gorpc create:
 // Run 执行CreateCmd创建逻辑
 func (c *CreateCmd) Run(args ...string) (err error) {
 
+	// `gorpc create`, parse the arguments
 	c.initFlagSet()
 	c.parseFlagSet(args)
 
@@ -73,7 +74,7 @@ func (c *CreateCmd) Run(args ...string) (err error) {
 		return err
 	}
 
-	// Pass `-assetdir` to gorpc to use customized template dir, instead of the one specified in gorpc.json
+	// pass `-assetdir` to gorpc to use customized template dir, instead of the one specified in gorpc.json
 	if len(c.Assetdir) == 0 {
 		c.Assetdir = c.GoRPCConfig.AssetDir
 	}
@@ -81,10 +82,11 @@ func (c *CreateCmd) Run(args ...string) (err error) {
 	// init logging level
 	log.InitLogging(c.Verbose)
 
-	if !c.RpcOnly {
-		return c.create()
+	// if `-rpconly` specified, then only rpc stub need generated
+	if c.RpcOnly {
+		return c.generateRPCStub()
 	}
-	return c.generateRPCStub()
+	return c.create()
 }
 
 // initFlagSet 为CreateCmd创建专有的参数
