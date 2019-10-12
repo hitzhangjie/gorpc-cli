@@ -40,7 +40,7 @@ func newCreateCmd() *CreateCmd {
 how to create project:
 	gorpc create -protodir=. -protofile=*.proto -protocol=gorpc -alias
 	gorpc create -protofile=*.proto -protocol=gorpc`,
-	descLong: `
+		descLong: `
 gorpc create:
 	-protodir, search path for protofile, default: "."
 	-protofile, protofile to handle
@@ -54,41 +54,13 @@ gorpc create:
 	return &CreateCmd{cmd, params.NewOption()}
 }
 
-// newCreateFlagSet 为CreateCmd创建专有的参数
-func newCreateFlagSet() *flag.FlagSet {
-
-	fs := flag.NewFlagSet("createcmd", flag.ContinueOnError)
-
-	fs.Var(&params.RepeatedOption{}, "protodir", "search path of protofile")
-	fs.String("protofile", "any.proto", "protofile to handle")
-	fs.String("protocol", "gorpc", "protocol to use, gorpc, chick or swan")
-	fs.Bool("v", false, "verbose mode")
-	fs.String("assetdir", "", "search path of project template")
-	fs.Bool("alias", false, "rpcname alias mode")
-	fs.Bool("rpconly", false, "generate rpc stub only")
-	fs.String("lang", "go", "language, including go, java, cpp, etc")
-
-	return fs
-}
-
 // Run 执行CreateCmd创建逻辑
 func (c *CreateCmd) Run(args ...string) (err error) {
 
-	c.flagSet.Parse(args)
+	c.parseFlagSet(args)
 
-	var protofile string
-
-	params.LookupFlag(c.flagSet, "protodir", &c.Protodirs)
-	params.LookupFlag(c.flagSet, "protofile", &protofile)
-	params.LookupFlag(c.flagSet, "lang", &c.Language)
-	params.LookupFlag(c.flagSet, "protocol", &c.Protocol)
-	params.LookupFlag(c.flagSet, "alias", &c.AliasOn)
-	params.LookupFlag(c.flagSet, "rpconly", &c.RpcOnly)
-	params.LookupFlag(c.flagSet, "assetdir", &c.Assetdir)
-	params.LookupFlag(c.flagSet, "v", &c.Verbose)
-
-	// `-protofile=abc/d.proto`, works like `-protodir=abc -protofile=d.proto`ma
-	p, err := filepath.Abs(protofile)
+	// `-protofile=abc/d.proto`, works like `-protodir=abc -protofile=d.proto`
+	p, err := filepath.Abs(c.Protofile)
 	if err != nil {
 		panic(err)
 	}
@@ -113,6 +85,37 @@ func (c *CreateCmd) Run(args ...string) (err error) {
 		return c.create()
 	}
 	return c.generateRPCStub()
+}
+
+// newCreateFlagSet 为CreateCmd创建专有的参数
+func newCreateFlagSet() *flag.FlagSet {
+
+	fs := flag.NewFlagSet("createcmd", flag.ContinueOnError)
+
+	fs.Var(&params.RepeatedOption{}, "protodir", "search path of protofile")
+	fs.String("protofile", "any.proto", "protofile to handle")
+	fs.String("protocol", "gorpc", "protocol to use, gorpc, chick or swan")
+	fs.Bool("v", false, "verbose mode")
+	fs.String("assetdir", "", "search path of project template")
+	fs.Bool("alias", false, "rpcname alias mode")
+	fs.Bool("rpconly", false, "generate rpc stub only")
+	fs.String("lang", "go", "language, including go, java, cpp, etc")
+
+	return fs
+}
+
+func (c *CreateCmd) parseFlagSet(args []string) {
+
+	c.flagSet.Parse(args)
+
+	params.LookupFlag(c.flagSet, "protodir", &c.Protodirs)
+	params.LookupFlag(c.flagSet, "protofile", &c.Protofile)
+	params.LookupFlag(c.flagSet, "lang", &c.Language)
+	params.LookupFlag(c.flagSet, "protocol", &c.Protocol)
+	params.LookupFlag(c.flagSet, "alias", &c.AliasOn)
+	params.LookupFlag(c.flagSet, "rpconly", &c.RpcOnly)
+	params.LookupFlag(c.flagSet, "assetdir", &c.Assetdir)
+	params.LookupFlag(c.flagSet, "v", &c.Verbose)
 }
 
 func (c *CreateCmd) create() error {
