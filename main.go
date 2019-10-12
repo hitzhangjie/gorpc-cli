@@ -7,16 +7,20 @@ import (
 )
 
 func main() {
-	subcmds := cmds.SubCmds()
+
+	help, ok := cmds.SubCmd("help")
+	if !ok {
+		panic("gorpc <help> subcmd not registered")
+	}
 
 	if l := len(os.Args); l == 1 {
-		subcmds["help"].Run()
+		help.Run()
 		return
 	}
 
-	cmd, ok := subcmds[os.Args[1]]
+	cmd, ok := cmds.SubCmd(os.Args[1])
 	if !ok || cmd == nil {
-		subcmds["help"].Run()
+		help.Run()
 		return
 	}
 

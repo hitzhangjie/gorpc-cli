@@ -10,8 +10,12 @@ var (
 )
 
 // SubCmds return cmds registered subcmds.
-func SubCmds() map[string]Commander {
-	return cmds
+func SubCmd(subcmd string) (Commander, bool) {
+	mux.Lock()
+	defer mux.Unlock()
+
+	cmd, ok := cmds[subcmd]
+	return cmd, ok
 }
 
 func RegisterSubCmd(name string, commander Commander) {
