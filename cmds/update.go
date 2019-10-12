@@ -9,6 +9,7 @@ import (
 	"github.com/hitzhangjie/go-rpc-cmdline/parser/gomod"
 	"github.com/hitzhangjie/go-rpc-cmdline/tpl"
 	"github.com/hitzhangjie/go-rpc-cmdline/util/log"
+	"github.com/hitzhangjie/go-rpc-cmdline/util/pb"
 	"os"
 	"path"
 	"path/filepath"
@@ -39,40 +40,13 @@ gorpc update:
 	return &UpdateCmd{cmd, params.NewOption()}
 }
 
-func (c *UpdateCmd) initFlagSet() {
-
-	fs := flag.NewFlagSet("updatecmd", flag.ContinueOnError)
-
-	fs.Var(&params.RepeatedOption{}, "protodir", "search path of protofile")
-	fs.String("protofile", "any.proto", "protofile to handle")
-	fs.String("protocol", "gorpc", "protocol to use, gorpc, chick or swan")
-	//fs.Bool("httpon", false, "enable http mode")
-	fs.Bool("v", false, "verbose mode")
-	fs.String("assetdir", "", "search path of project template")
-	fs.Bool("alias", false, "rpcname alias mode")
-	//fs.Bool("rpconly", false, "generate rpc stub only")
-	fs.String("lang", "go", "language, including go, java, cpp, etc")
-
-	c.flagSet = fs
-}
-
 func (c *UpdateCmd) Run(args ...string) (err error) {
 
 	c.initFlagSet()
-	c.flagSet.Parse(args)
-
-	var protofile string
-
-	params.LookupFlag(c.flagSet, "protodir", &c.Protodirs)
-	params.LookupFlag(c.flagSet, "protofile", &protofile)
-	params.LookupFlag(c.flagSet, "lang", &c.Language)
-	params.LookupFlag(c.flagSet, "protocol", &c.Protocol)
-	params.LookupFlag(c.flagSet, "alias", &c.AliasOn)
-	params.LookupFlag(c.flagSet, "assetdir", &c.Assetdir)
-	params.LookupFlag(c.flagSet, "v", &c.Verbose)
+	c.parseFlagSet(args)
 
 	// `-protofile=abc/d.proto`, works like `-protodir=abc -protofile=d.proto`ma
-	p, err := filepath.Abs(protofile)
+	p, err := filepath.Abs(c.Protofile)
 	if err != nil {
 		panic(err)
 	}
@@ -96,14 +70,44 @@ func (c *UpdateCmd) Run(args ...string) (err error) {
 	return c.update()
 }
 
+func (c *UpdateCmd) initFlagSet() {
+
+	fs := flag.NewFlagSet("updatecmd", flag.ContinueOnError)
+
+	fs.Var(&params.RepeatedOption{}, "protodir", "search path of protofile")
+	fs.String("protofile", "any.proto", "protofile to handle")
+	fs.String("protocol", "gorpc", "protocol to use, gorpc, chick or swan")
+	//fs.Bool("httpon", false, "enable http mode")
+	fs.Bool("v", false, "verbose mode")
+	fs.String("assetdir", "", "search path of project template")
+	fs.Bool("alias", false, "rpcname alias mode")
+	//fs.Bool("rpconly", false, "generate rpc stub only")
+	fs.String("lang", "go", "language, including go, java, cpp, etc")
+
+	c.flagSet = fs
+}
+
+func (c *UpdateCmd) parseFlagSet(args []string) {
+
+	c.flagSet.Parse(args)
+
+	params.LookupFlag(c.flagSet, "protodir", &c.Protodirs)
+	params.LookupFlag(c.flagSet, "protofile", &c.Protofile)
+	params.LookupFlag(c.flagSet, "lang", &c.Language)
+	params.LookupFlag(c.flagSet, "protocol", &c.Protocol)
+	params.LookupFlag(c.flagSet, "alias", &c.AliasOn)
+	params.LookupFlag(c.flagSet, "assetdir", &c.Assetdir)
+	params.LookupFlag(c.flagSet, "v", &c.Verbose)
+}
+
 func (c *UpdateCmd) update() error {
 
 	// 检查pb中的导入路径
-	fpaths, err := parser.ImportDirs(&c.Protodirs, c.Protofile)
+	dir, err := pb.LocateProtoFile(&c.Protodirs, c.Protofile)
 	if err != nil {
 		return err
 	}
-	log.Info("Found protofile:%s in following dir:%v", c.Protofile, fpaths)
+	log.Info("Found protofile:%s in following dir:%v", c.Protofile, dir)
 
 	// 解析pb
 	fd, err := parser.ParseProtoFile(c.Option)
@@ -118,7 +122,7 @@ func (c *UpdateCmd) update() error {
 	}
 
 	// 代码生成
-	fp := path.Join(fpaths[0], c.Protofile)
+	fp := path.Join(dir, c.Protofile)
 
 	outputdir := path.Join(os.TempDir(), fd.PackageName)
 

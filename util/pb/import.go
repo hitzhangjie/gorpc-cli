@@ -1,4 +1,4 @@
-package parser
+package pb
 
 import (
 	"fmt"
@@ -9,15 +9,13 @@ import (
 )
 
 // pb导入路径解析，返回$protodir/$protofile下存在的文件目录列表
-func ImportDirs(protodirs *params.RepeatedOption, protofile string) ([]string, error) {
+func LocateProtoFile(protodirs *params.RepeatedOption, protofile string) (string, error) {
 
 	// `-protodir not specified` or `-protodir=.`
 	if len(*protodirs) == 0 || (len(*protodirs) == 1 && (*protodirs)[0] == ".") {
 		abs, _ := filepath.Abs(".")
-
 		//protodirs.Set(".")
-
-		return []string{abs}, nil
+		return abs, nil
 	}
 
 	// $protodir/$protofile
@@ -34,11 +32,11 @@ func ImportDirs(protodirs *params.RepeatedOption, protofile string) ([]string, e
 		}
 	}
 	if len(fpaths) == 0 {
-		return nil, fmt.Errorf("protofile:%s not found in dirs:%v", protofile, protodirs.String())
+		return "", fmt.Errorf("protofile:%s not found in dirs:%v", protofile, protodirs.String())
 	} else if len(fpaths) > 1 {
-		return nil, fmt.Errorf("protofile:%s found duplicate ones under dirs:%v", protofile, fpaths)
+		return "", fmt.Errorf("protofile:%s found duplicate ones under dirs:%v", protofile, fpaths)
 	}
-	return fpaths, nil
+	return fpaths[0], nil
 }
 
 // 字符串去重

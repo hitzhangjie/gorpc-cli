@@ -8,8 +8,6 @@ import (
 	"context"
 
    _ "github.com/hitzhangjie/go-rpc"
-   _ "github.com/hitzhangjie/go-rpc/http"
-
     "github.com/hitzhangjie/go-rpc/server"
     "github.com/hitzhangjie/go-rpc/client"
     "github.com/hitzhangjie/go-rpc/codec"

@@ -1,5 +1,5 @@
 {{- if eq .GoMod "" -}}
-module {{ (index .Services 0).Name }}
+module gorpc.{{ (index .Services 0).Name }}
 {{- else -}}
 module {{.GoMod}}
 {{- end }}

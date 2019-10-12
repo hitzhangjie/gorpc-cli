@@ -18,7 +18,7 @@ import (
 	"strings"
 )
 
-// CreateCmd 创建服务工程，或者创建rpcstub (-rpconly)
+// CreateCmd generate project or generate rpcstub(-rpconly)
 //
 // 1. create project:
 // 		gorpc create -protodir=<dir1> -protodir=<dir2> -protofile=greeter.proto -protocol=gorpc -v
@@ -31,7 +31,7 @@ type CreateCmd struct {
 	*params.Option
 }
 
-// newCreateCmd 创建一个CreateCmd
+// newCreateCmd build CreateCmd
 func newCreateCmd() *CreateCmd {
 
 	cmd := Cmd{
@@ -53,7 +53,7 @@ gorpc create:
 	return &CreateCmd{cmd, params.NewOption()}
 }
 
-// Run 执行CreateCmd创建逻辑
+// Run execute the CreateCmd logic
 func (c *CreateCmd) Run(args ...string) (err error) {
 
 	// `gorpc create`, parse the arguments
@@ -89,7 +89,7 @@ func (c *CreateCmd) Run(args ...string) (err error) {
 	return c.create()
 }
 
-// initFlagSet 为CreateCmd创建专有的参数
+// initFlagSet build flagset of CreateCmd
 func (c *CreateCmd) initFlagSet() {
 
 	fs := flag.NewFlagSet("createcmd", flag.ContinueOnError)
@@ -106,7 +106,7 @@ func (c *CreateCmd) initFlagSet() {
 	c.flagSet = fs
 }
 
-// parseFlagSet 解析CreateCmd专有的参数
+// parseFlagSet parse flagset of CreateCmd
 func (c *CreateCmd) parseFlagSet(args []string) {
 
 	c.flagSet.Parse(args)
@@ -123,12 +123,12 @@ func (c *CreateCmd) parseFlagSet(args []string) {
 
 func (c *CreateCmd) create() error {
 
-	// 检查pb中的导入路径
-	fpaths, err := parser.ImportDirs(&c.Protodirs, c.Protofile)
+	// locate the protofile `-protofile` in search path `-protodir`, returns the abs path
+	dir, err := pb.LocateProtoFile(&c.Protodirs, c.Protofile)
 	if err != nil {
 		return err
 	}
-	log.Info("Found protofile:%s in following dir:%v", c.Protofile, fpaths)
+	log.Info("Found protofile:%s in following dir:%v", c.Protofile, dir)
 
 	// 解析pb
 	fd, err := parser.ParseProtoFile(c.Option)
@@ -150,7 +150,7 @@ func (c *CreateCmd) create() error {
 		return err
 	}
 	// - 生成代码
-	protofileAbsPath := path.Join(fpaths[0], c.Protofile)
+	protofileAbsPath := path.Join(dir, c.Protofile)
 
 	err = tpl.GenerateFiles(fd, protofileAbsPath, outputdir, c.Option)
 	if err != nil {
@@ -224,7 +224,7 @@ func (c *CreateCmd) create() error {
 func (c *CreateCmd) generateRPCStub() error {
 
 	// 检查pb中的导入路径
-	fpaths, err := parser.ImportDirs(&c.Protodirs, c.Protofile)
+	fpaths, err := pb.LocateProtoFile(&c.Protodirs, c.Protofile)
 	if err != nil {
 		return err
 	}
