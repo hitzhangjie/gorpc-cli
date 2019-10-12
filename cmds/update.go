@@ -34,13 +34,12 @@ gorpc update:
 	-protofile, protofile to handle
 	-lang, language including: go, java, cpp, etc
 	-protocol, protocol to use, gorpc, chick or swan`,
-		flagSet: newUpdateFlagSet(),
 	}
 
 	return &UpdateCmd{cmd, params.NewOption()}
 }
 
-func newUpdateFlagSet() *flag.FlagSet {
+func (c *UpdateCmd) initFlagSet() {
 
 	fs := flag.NewFlagSet("updatecmd", flag.ContinueOnError)
 
@@ -54,11 +53,12 @@ func newUpdateFlagSet() *flag.FlagSet {
 	//fs.Bool("rpconly", false, "generate rpc stub only")
 	fs.String("lang", "go", "language, including go, java, cpp, etc")
 
-	return fs
+	c.flagSet = fs
 }
 
 func (c *UpdateCmd) Run(args ...string) (err error) {
 
+	c.initFlagSet()
 	c.flagSet.Parse(args)
 
 	var protofile string
