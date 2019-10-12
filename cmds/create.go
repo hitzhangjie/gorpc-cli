@@ -48,7 +48,6 @@ gorpc create:
 	-lang, language including: go, java, cpp, default: go
 	-alias, enable alias mode, //@alias=${rpcName}, default: false
 	-rpconly, generate rpc stub only, default: false"`,
-		flagSet: newCreateFlagSet(),
 	}
 
 	return &CreateCmd{cmd, params.NewOption()}
@@ -57,6 +56,7 @@ gorpc create:
 // Run 执行CreateCmd创建逻辑
 func (c *CreateCmd) Run(args ...string) (err error) {
 
+	c.initFlagSet()
 	c.parseFlagSet(args)
 
 	// `-protofile=abc/d.proto`, works like `-protodir=abc -protofile=d.proto`
@@ -87,8 +87,8 @@ func (c *CreateCmd) Run(args ...string) (err error) {
 	return c.generateRPCStub()
 }
 
-// newCreateFlagSet 为CreateCmd创建专有的参数
-func newCreateFlagSet() *flag.FlagSet {
+// initFlagSet 为CreateCmd创建专有的参数
+func (c *CreateCmd) initFlagSet() {
 
 	fs := flag.NewFlagSet("createcmd", flag.ContinueOnError)
 
@@ -101,9 +101,10 @@ func newCreateFlagSet() *flag.FlagSet {
 	fs.Bool("rpconly", false, "generate rpc stub only")
 	fs.String("lang", "go", "language, including go, java, cpp, etc")
 
-	return fs
+	c.flagSet = fs
 }
 
+// parseFlagSet 解析CreateCmd专有的参数
 func (c *CreateCmd) parseFlagSet(args []string) {
 
 	c.flagSet.Parse(args)
