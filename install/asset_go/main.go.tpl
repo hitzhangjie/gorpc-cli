@@ -15,7 +15,7 @@ type {{$svrName|title}}ServerImpl struct {}
 
 func main() {
 
-	s := gorpc.NewServer()
+	s := gorpc.NewService()
 
 	pb.Register{{$svrName|title}}Server(s, &{{$svrName|title}}ServerImpl{})
 	s.Serve()
