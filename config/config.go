@@ -11,9 +11,9 @@ import (
 	"path"
 	"path/filepath"
 
-	"github.com/hitzhangjie/gorpc-cli/bindata"
-	"github.com/hitzhangjie/gorpc-cli/util/compress"
-	"github.com/hitzhangjie/gorpc-cli/util/fs"
+	"github.com/hitzhangjie/gorpc/bindata"
+	"github.com/hitzhangjie/gorpc/util/compress"
+	"github.com/hitzhangjie/gorpc/util/fs"
 )
 
 // LanguageCfg 开发语言相关的配置信息，如对应的模板工程目录、模板工程中的serverstub文件、clientstub文件

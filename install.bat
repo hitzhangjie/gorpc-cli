@@ -1,4 +1,4 @@
-go mod init github.com/hitzhangjie/gorpc-cli
+go mod init github.com/hitzhangjie/gorpc
 
 go build -o gorpc.exe
 

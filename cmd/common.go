@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/hitzhangjie/gorpc-cli/params"
-	"github.com/hitzhangjie/gorpc-cli/util/fs"
+	"github.com/hitzhangjie/gorpc/params"
+	"github.com/hitzhangjie/gorpc/util/fs"
 )
 
 // getOutputDir return outputdir

@@ -22,13 +22,13 @@ endif
 endif
 
 all: *.go
-	@GO111MODULE=on go build -o gorpc -ldflags="-X github.com/hitzhangjie/gorpc-cli/config.GORPCCliVersion=$(rev)"
+	@GO111MODULE=on go build -o gorpc -ldflags="-X github.com/hitzhangjie/gorpc/config.GORPCCliVersion=$(rev)"
 
 experimental: *.go
-	@GO111MODULE=on go build -o gorpc -tags=experimental -ldflags="-X github.com/hitzhangjie/gorpc-cli/config.GORPCCliVersion=$(rev)"
+	@GO111MODULE=on go build -o gorpc -tags=experimental -ldflags="-X github.com/hitzhangjie/gorpc/config.GORPCCliVersion=$(rev)"
 
 debug: *.go
-	@GO111MODULE=on go build -o gorpc -gcflags="all=-N -l" -ldflags="-X github.com/hitzhangjie/gorpc-cli/config.GORPCCliVersion=$(rev)"
+	@GO111MODULE=on go build -o gorpc -gcflags="all=-N -l" -ldflags="-X github.com/hitzhangjie/gorpc/config.GORPCCliVersion=$(rev)"
 
 .PHONY: clean
 .PHONY: install

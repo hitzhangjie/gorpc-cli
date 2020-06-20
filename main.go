@@ -19,9 +19,9 @@ import (
 	"os"
 	"os/exec"
 
-	_ "github.com/hitzhangjie/gorpc-cli/bindata"
-	"github.com/hitzhangjie/gorpc-cli/cmd"
-	"github.com/hitzhangjie/gorpc-cli/util/log"
+	_ "github.com/hitzhangjie/gorpc/bindata"
+	"github.com/hitzhangjie/gorpc/cmd"
+	"github.com/hitzhangjie/gorpc/util/log"
 )
 
 func main() {

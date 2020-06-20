@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/hitzhangjie/gorpc-cli/util/lang"
+	"github.com/hitzhangjie/gorpc/util/lang"
 )
 
 // BaseNameWithoutExt return basename without extension of `filename`,

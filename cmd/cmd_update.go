@@ -25,10 +25,10 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
-	"github.com/hitzhangjie/gorpc-cli/descriptor"
-	"github.com/hitzhangjie/gorpc-cli/params"
-	"github.com/hitzhangjie/gorpc-cli/parser"
-	"github.com/hitzhangjie/gorpc-cli/tpl"
+	"github.com/hitzhangjie/gorpc/descriptor"
+	"github.com/hitzhangjie/gorpc/params"
+	"github.com/hitzhangjie/gorpc/parser"
+	"github.com/hitzhangjie/gorpc/tpl"
 )
 
 // updateCmd represents the update command

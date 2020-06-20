@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/hitzhangjie/gorpc-cli/util/style"
+	"github.com/hitzhangjie/gorpc/util/style"
 )
 
 var f1 string = `package main

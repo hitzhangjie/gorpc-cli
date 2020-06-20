@@ -6,7 +6,7 @@ import (
 
 	"github.com/iancoleman/strcase"
 
-	"github.com/hitzhangjie/gorpc-cli/util/lang"
+	"github.com/hitzhangjie/gorpc/util/lang"
 )
 
 var funcMap = template.FuncMap{

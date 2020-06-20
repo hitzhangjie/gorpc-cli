@@ -7,10 +7,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/hitzhangjie/gorpc-cli/descriptor"
-	"github.com/hitzhangjie/gorpc-cli/params"
-	"github.com/hitzhangjie/gorpc-cli/util/log"
-	"github.com/hitzhangjie/gorpc-cli/util/pb"
+	"github.com/hitzhangjie/gorpc/descriptor"
+	"github.com/hitzhangjie/gorpc/params"
+	"github.com/hitzhangjie/gorpc/util/log"
+	"github.com/hitzhangjie/gorpc/util/pb"
 
 	protobuf "github.com/golang/protobuf/protoc-gen-go/descriptor"
 	"github.com/jhump/protoreflect/desc"

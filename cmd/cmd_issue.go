@@ -41,7 +41,7 @@ var issueCmd = &cobra.Command{
 
 func openIssuesInBrowser() error {
 
-	fireAt := "https://github.com/hitzhangjie/gorpc-cli/issues"
+	fireAt := "https://github.com/hitzhangjie/gorpc/issues"
 
 	switch runtime.GOOS {
 	case "darwin":

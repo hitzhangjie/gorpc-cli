@@ -1,4 +1,4 @@
-module github.com/hitzhangjie/gorpc-cli
+module github.com/hitzhangjie/gorpc
 
 go 1.14
 
