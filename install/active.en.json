@@ -1,4 +1,48 @@
 {
+  "createCmdFlagAssetdir": {
+    "description": "usage of flag --assetdir",
+    "other": "path of project template"
+  },
+  "createCmdFlagForce": {
+    "description": "usage of flag --force",
+    "other": "enable overwritten existed code forcibly"
+  },
+  "createCmdFlagLang": {
+    "description": "usage of flag --lang",
+    "other": "programming language, including go, java, python"
+  },
+  "createCmdFlagMod": {
+    "description": "usage of flag --mod",
+    "other": "go module, default: ${pb.package}"
+  },
+  "createCmdFlagOutput": {
+    "description": "usage of flag --output",
+    "other": "output directory"
+  },
+  "createCmdFlagProtocol": {
+    "description": "usage of flag --protocol",
+    "other": "protocol to use, gorpc, http, etc"
+  },
+  "createCmdFlagProtodir": {
+    "description": "usage of flag --protodir",
+    "other": "include path of the target protofile"
+  },
+  "createCmdFlagProtofile": {
+    "description": "usage of flag --protofile",
+    "other": "protofile used as IDL of target service"
+  },
+  "createCmdFlagRpcOnly": {
+    "description": "usage of flag --rpconly",
+    "other": "generate rpc stub only"
+  },
+  "createCmdFlagSwagger": {
+    "description": "usage of flag --swagger",
+    "other": "enable swagger to gen swagger api document"
+  },
+  "createCmdFlagVerbose": {
+    "description": "usage of flag --verbose",
+    "other": "show verbose logging info"
+  },
   "createCmdUsage": {
     "description": "usage of createCmd",
     "other": "quickly create project or rpcstub, based on pb"

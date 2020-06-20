@@ -167,18 +167,17 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// createCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-	createCmd.Flags().StringArray("protodir", []string{"."}, "include path of the target protofile")
-	createCmd.Flags().StringP("protofile", "p", "", "protofile used as IDL of target service")
-	createCmd.Flags().String("protocol", "gorpc", "protocol to use, gorpc, http, etc")
-	createCmd.Flags().BoolP("verbose", "v", false, "show verbose logging info")
-	createCmd.Flags().String("assetdir", "", "path of project template")
-	createCmd.Flags().Bool("alias", false, "enable alias mode of rpc name")
-	createCmd.Flags().Bool("rpconly", false, "generate rpc stub only")
-	createCmd.Flags().String("lang", "go", "programming language, including go, java, python")
-	createCmd.Flags().StringP("mod", "m", "", "go module, default: ${pb.package}")
-	createCmd.Flags().StringP("output", "o", "", "output directory")
-	createCmd.Flags().BoolP("force", "f", false, "enable overwritten existed code forcibly")
-	createCmd.Flags().Bool("swagger", false, "enable swagger to gen swagger api document.")
+	createCmd.Flags().StringArray("protodir", []string{"."}, config.LoadTranslation("createCmdFlagProtodir", nil))
+	createCmd.Flags().StringP("protofile", "p", "", config.LoadTranslation("createCmdFlagProtofile", nil))
+	createCmd.Flags().String("protocol", "gorpc", config.LoadTranslation("createCmdFlagProtocol", nil))
+	createCmd.Flags().BoolP("verbose", "v", false, config.LoadTranslation("createCmdFlagVerbose", nil))
+	createCmd.Flags().String("assetdir", "", config.LoadTranslation("createCmdFlagAssetdir", nil))
+	createCmd.Flags().Bool("rpconly", false, config.LoadTranslation("createCmdFlagRpcOnly", nil))
+	createCmd.Flags().String("lang", "go", config.LoadTranslation("createCmdFlagLang", nil))
+	createCmd.Flags().StringP("mod", "m", "", config.LoadTranslation("createCmdFlagMod", nil))
+	createCmd.Flags().StringP("output", "o", "", config.LoadTranslation("createCmdFlagOutput", nil))
+	createCmd.Flags().BoolP("force", "f", false, config.LoadTranslation("createCmdFlagForce", nil))
+	createCmd.Flags().Bool("swagger", false, config.LoadTranslation("createCmdFlagSwagger", nil))
 }
 
 func loadCreateOption(flagSet *pflag.FlagSet) (*params.Option, error) {

@@ -39,6 +39,72 @@ var createCmdUsageLong = i18n.Message{
 - generate only the rpcstub, with option '--rpconly'.`,
 }
 
+var createCmdFlagProtodir = i18n.Message{
+	ID:          "createCmdFlagProtodir",
+	Description: "usage of flag --protodir",
+	Other:       `include path of the target protofile`,
+}
+
+var createCmdFlagProtofile = i18n.Message{
+	ID:          "createCmdFlagProtofile",
+	Description: "usage of flag --protofile",
+	Other:       `protofile used as IDL of target service`,
+}
+
+var createCmdFlagProtocol = i18n.Message{
+	ID:          "createCmdFlagProtocol",
+	Description: "usage of flag --protocol",
+	Other:       `protocol to use, gorpc, http, etc`,
+}
+
+var createCmdFlagVerbose = i18n.Message{
+	ID:          "createCmdFlagVerbose",
+	Description: "usage of flag --verbose",
+	Other:       `show verbose logging info`,
+}
+
+var createCmdFlagAssetdir = i18n.Message{
+	ID:          "createCmdFlagAssetdir",
+	Description: "usage of flag --assetdir",
+	Other:       `path of project template`,
+}
+
+var createCmdFlagRpcOnly = i18n.Message{
+	ID:          "createCmdFlagRpcOnly",
+	Description: "usage of flag --rpconly",
+	Other:       `generate rpc stub only`,
+}
+
+var createCmdFlagLang = i18n.Message{
+	ID:          "createCmdFlagLang",
+	Description: "usage of flag --lang",
+	Other:       `programming language, including go, java, python`,
+}
+
+var createCmdFlagMod = i18n.Message{
+	ID:          "createCmdFlagMod",
+	Description: "usage of flag --mod",
+	Other:       `go module, default: ${pb.package}`,
+}
+
+var createCmdFlagOutput = i18n.Message{
+	ID:          "createCmdFlagOutput",
+	Description: "usage of flag --output",
+	Other:       `output directory`,
+}
+
+var createCmdFlagForce = i18n.Message{
+	ID:          "createCmdFlagForce",
+	Description: "usage of flag --force",
+	Other:       `enable overwritten existed code forcibly`,
+}
+
+var createCmdFlagSwagger = i18n.Message{
+	ID:          "createCmdFlagSwagger",
+	Description: "usage of flag --swagger",
+	Other:       `enable swagger to gen swagger api document`,
+}
+
 // issue cmd
 var issueCmdUsage = i18n.Message{
 	ID:          "issueCmdUsage",

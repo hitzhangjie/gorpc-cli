@@ -1,4 +1,48 @@
 {
+  "createCmdFlagAssetdir": {
+    "description": "usage of flag --assetdir",
+    "other": "指定代码模板的路径"
+  },
+  "createCmdFlagForce": {
+    "description": "usage of flag --force",
+    "other": "强制覆盖已存在的代码"
+  },
+  "createCmdFlagLang": {
+    "description": "usage of flag --lang",
+    "other": "指定使用的编程语言, 如：go, java, python等"
+  },
+  "createCmdFlagMod": {
+    "description": "usage of flag --mod",
+    "other": "指定go module, 默认是: ${pb.package}"
+  },
+  "createCmdFlagOutput": {
+    "description": "usage of flag --output",
+    "other": "指定生成代码的输出路径"
+  },
+  "createCmdFlagProtocol": {
+    "description": "usage of flag --protocol",
+    "other": "指定使用的协议, 如：gorpc, http等"
+  },
+  "createCmdFlagProtodir": {
+    "description": "usage of flag --protodir",
+    "other": "指定pb文件的搜索路径，可指定多个，如：--protodir=x --protodir=y"
+  },
+  "createCmdFlagProtofile": {
+    "description": "usage of flag --protofile",
+    "other": "指定pb文件作为IDL来指导代码生成"
+  },
+  "createCmdFlagRpcOnly": {
+    "description": "usage of flag --rpconly",
+    "other": "仅生成rpcstub而非完整工程"
+  },
+  "createCmdFlagSwagger": {
+    "description": "usage of flag --swagger",
+    "other": "生成swagger api文档"
+  },
+  "createCmdFlagVerbose": {
+    "description": "usage of flag --verbose",
+    "other": "显示详细的运行日志"
+  },
   "createCmdUsage": {
     "description": "usage of createCmd",
     "other": "指定pb文件快速创建工程或rpcstub"

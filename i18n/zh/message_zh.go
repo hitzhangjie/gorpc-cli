@@ -39,6 +39,72 @@ gorpc create 有两种模式:
 - 生成被调服务的rpcstub，需指定'--rpconly'选项.`,
 }
 
+var createCmdFlagProtodir = i18n.Message{
+	ID:          "createCmdFlagProtodir",
+	Description: "usage of flag --protodir",
+	Other:       `指定pb文件的搜索路径，可指定多个，如：--protodir=x --protodir=y`,
+}
+
+var createCmdFlagProtofile = i18n.Message{
+	ID:          "createCmdFlagProtofile",
+	Description: "usage of flag --protofile",
+	Other:       `指定pb文件作为IDL来指导代码生成`,
+}
+
+var createCmdFlagProtocol = i18n.Message{
+	ID:          "createCmdFlagProtocol",
+	Description: "usage of flag --protocol",
+	Other:       `指定使用的协议, 如：gorpc, http等`,
+}
+
+var createCmdFlagVerbose = i18n.Message{
+	ID:          "createCmdFlagVerbose",
+	Description: "usage of flag --verbose",
+	Other:       `显示详细的运行日志`,
+}
+
+var createCmdFlagAssetdir = i18n.Message{
+	ID:          "createCmdFlagAssetdir",
+	Description: "usage of flag --assetdir",
+	Other:       `指定代码模板的路径`,
+}
+
+var createCmdFlagRpcOnly = i18n.Message{
+	ID:          "createCmdFlagRpcOnly",
+	Description: "usage of flag --rpconly",
+	Other:       `仅生成rpcstub而非完整工程`,
+}
+
+var createCmdFlagLang = i18n.Message{
+	ID:          "createCmdFlagLang",
+	Description: "usage of flag --lang",
+	Other:       `指定使用的编程语言, 如：go, java, python等`,
+}
+
+var createCmdFlagMod = i18n.Message{
+	ID:          "createCmdFlagMod",
+	Description: "usage of flag --mod",
+	Other:       `指定go module, 默认是: ${pb.package}`,
+}
+
+var createCmdFlagOutput = i18n.Message{
+	ID:          "createCmdFlagOutput",
+	Description: "usage of flag --output",
+	Other:       `指定生成代码的输出路径`,
+}
+
+var createCmdFlagForce = i18n.Message{
+	ID:          "createCmdFlagForce",
+	Description: "usage of flag --force",
+	Other:       `强制覆盖已存在的代码`,
+}
+
+var createCmdFlagSwagger = i18n.Message{
+	ID:          "createCmdFlagSwagger",
+	Description: "usage of flag --swagger",
+	Other:       `生成swagger api文档`,
+}
+
 // issue cmd
 var issueCmdUsage = i18n.Message{
 	ID:          "issueCmdUsage",
