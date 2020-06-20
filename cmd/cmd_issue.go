@@ -21,14 +21,15 @@ import (
 	"os/exec"
 	"runtime"
 
+	"github.com/hitzhangjie/gorpc/config"
 	"github.com/spf13/cobra"
 )
 
 // issueCmd represents the bug command
 var issueCmd = &cobra.Command{
 	Use:   "issue",
-	Short: "反馈一个issue",
-	Long:  `反馈一个issue.`,
+	Short: config.LoadTranslation("issueCmdUsage", nil),
+	Long:  config.LoadTranslation("issueCmdUsageLong", nil),
 	RunE: func(cmd *cobra.Command, args []string) error {
 
 		err := openIssuesInBrowser()

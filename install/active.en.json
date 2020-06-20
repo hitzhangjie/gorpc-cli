@@ -6,5 +6,33 @@
   "createCmdUsageLong": {
     "description": "usage of createCmd",
     "other": "quickly create project or rpcstub, based on pb.\n\n'gorpc create' works in 2 modes:\n- generate a complete project\n- generate only the rpcstub, with option '--rpconly'."
+  },
+  "issueCmdUsage": {
+    "description": "usage of issueCmd",
+    "other": "report an issue"
+  },
+  "issueCmdUsageLong": {
+    "description": "usage of issueCmd",
+    "other": "fire your browser at the issue page to report an issue."
+  },
+  "rpcCmdUsage": {
+    "description": "usage of rpcCmd",
+    "other": "send rpc request to server"
+  },
+  "rpcCmdUsageLong": {
+    "description": "usage of rpcCmd",
+    "other": "send rpc request to server.\n\nthe request header, request body can be specified via stdin \nor input file, just like the curl style. Besides, target \nserver address, network, timeout can be specified, too."
+  },
+  "versionCmdUsage": {
+    "description": "usage of versionCmd",
+    "other": "show gorpc version (commit hash)"
+  },
+  "versionCmdUsageLong": {
+    "description": "usage of versionCmd",
+    "other": "show gorpc version (commit hash)"
+  },
+  "versionMsgFormat": {
+    "description": "version msg format",
+    "other": "gorpc version: {{.Hash}}"
   }
 }

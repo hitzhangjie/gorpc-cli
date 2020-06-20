@@ -26,10 +26,14 @@ import (
 // versionCmd represents the version command
 var versionCmd = &cobra.Command{
 	Use:   "version",
-	Short: "显示gorpc命令的版本(commit hash)",
-	Long: `显示gorpc命令的版本（commit hash).`,
+	Short: config.LoadTranslation("versionCmdUsage", nil),
+	Long:  config.LoadTranslation("versionCmdUsageLong", nil),
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("gorpc 命令版本:", config.GORPCCliVersion)
+		data := map[string]interface{}{
+			"Hash": config.GORPCCliVersion,
+		}
+		trans := config.LoadTranslation("versionMsgFormat", data)
+		fmt.Println(trans)
 	},
 }
 

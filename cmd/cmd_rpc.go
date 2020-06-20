@@ -25,6 +25,7 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
+	"github.com/hitzhangjie/gorpc/config"
 	"github.com/jhump/protoreflect/desc/protoparse"
 	"github.com/jhump/protoreflect/dynamic"
 	"github.com/spf13/cobra"
@@ -37,8 +38,8 @@ import (
 // rpcCmd represents the rpc command
 var rpcCmd = &cobra.Command{
 	Use:   "rpc",
-	Short: "发送rpc请求给指定服务",
-	Long: `发送rpc请求给指定服务.`,
+	Short: config.LoadTranslation("rpcCmdUsage", nil),
+	Long:  config.LoadTranslation("rpcCmdUsageLong", nil),
 	RunE: func(cmd *cobra.Command, args []string) error {
 
 		// 检查参数

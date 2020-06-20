@@ -6,5 +6,33 @@
   "createCmdUsageLong": {
     "description": "usage of createCmd",
     "other": "指定pb文件快速创建工程或rpcstub，\n\n\t'gorpc create' 有两种模式:\n\t- 生成一个完整的服务工程\n\t- 生成被调服务的rpcstub，需指定'--rpconly'选项."
+  },
+  "issueCmdUsage": {
+    "description": "usage of issueCmd",
+    "other": "反馈一个issue"
+  },
+  "issueCmdUsageLong": {
+    "description": "usage of issueCmd",
+    "other": "浏览器打开issue页面，反馈一个issue."
+  },
+  "rpcCmdUsage": {
+    "description": "usage of rpcCmd",
+    "other": "发送rpc请求给指定服务"
+  },
+  "rpcCmdUsageLong": {
+    "description": "usage of rpcCmd",
+    "other": "发送rpc请求给指定服务.\n\n可以通过stdin输入协议请求头、请求体，也可以通过输入文件输入，就像curl\n一样。当然，也可以指定目的服务地址、网络类型、超时时间等."
+  },
+  "versionCmdUsage": {
+    "description": "usage of versionCmd",
+    "other": "显示gorpc命令的版本 (commit hash)"
+  },
+  "versionCmdUsageLong": {
+    "description": "usage of versionCmd",
+    "other": "显示gorpc命令的版本 (commit hash)"
+  },
+  "versionMsgFormat": {
+    "description": "version msg format",
+    "other": "gorpc 命令版本：{{.Hash}}"
   }
 }
