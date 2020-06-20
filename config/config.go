@@ -10,6 +10,7 @@ import (
 	"os/user"
 	"path"
 	"path/filepath"
+	"strings"
 
 	"github.com/hitzhangjie/gorpc/bindata"
 	"github.com/hitzhangjie/gorpc/util/compress"
@@ -39,9 +40,20 @@ func init() {
 		panic(err)
 	}
 
+	needReinstall := false
+
 	// 确定一个有效的模板路径，如果未安装则安装模板
 	installTo, err := TemplateInstallPath(paths)
-	if err == ErrTemplateNotFound {
+	if err != nil {
+		needReinstall = true
+	} else {
+		fp := filepath.Join(installTo, "VERSION")
+		if !hasSameTplVersion(fp) {
+			needReinstall = true
+		}
+	}
+
+	if needReinstall {
 		installTo = paths[0]
 		err = InstallTemplate(installTo)
 		if err != nil {
@@ -54,6 +66,22 @@ func init() {
 
 	// 加载i18n配置
 	initializeI18NMessages(installTo)
+}
+
+func hasSameTplVersion(fp string) bool {
+
+	buf, err := ioutil.ReadFile(fp)
+	if err != nil {
+		panic(err)
+	}
+	vals := strings.Split(string(buf), "=")
+	if len(vals) != 2 {
+		panic("invalid VERSION file")
+	}
+	if vals[1] != GORPCCliVersion {
+		return false
+	}
+	return true
 }
 
 func initializeConfig(installTo string) {

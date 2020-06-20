@@ -72,6 +72,8 @@ fmt:
 	@goimports -w -local github.com .
 
 prepare:
+	#step0: update the template version
+	@echo "VERSION=${rev}" > install/VERSION
 	#step1: update the GoRPCVersion
 	@echo "package config\n\nvar GORPCCliVersion string = \"${rev}\"" > config/version.go
 	#step2: extract the message
