@@ -33,6 +33,7 @@ debug: *.go
 .PHONY: clean
 .PHONY: install
 .PHONY: uninstall
+.PHONY: prepare
 
 install:
 ifeq ($(user),root)
@@ -70,7 +71,10 @@ fmt:
 	@gofmt -s -w .
 	@goimports -w -local github.com .
 
-static:
+prepare:
+	#update the GoRPCVersion
+	@echo "package config\n\nvar GORPCCliVersion string = \"${rev}\"" > config/version.go
+	#compress the templates
 	@rm bindata
 	@tar cvfz install.tgz install
 	@go run util/bindata.go -file install.tgz
