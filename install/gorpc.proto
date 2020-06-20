@@ -1,0 +1,9 @@
+syntax = "proto3";
+import "google/protobuf/descriptor.proto";
+package gorpc;
+
+option go_package = "github.com/hitzhangjie/gorpc";
+
+extend google.protobuf.MethodOptions {
+    string alias = 50001;
+}

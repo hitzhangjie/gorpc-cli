@@ -13,11 +13,14 @@ import (
 
 // LanguageCfg 开发语言相关的配置信息，如对应的模板工程目录、模板工程中的serverstub文件、clientstub文件
 type LanguageCfg struct {
-	Language      string   `json:"language"`        // required: 语言名称，如go、java
-	AssetDir      string   `json:"asset_dir"`       // required: 语言对应的工程目录
-	TplFileExt    string   `json:"tpl_file_ext"`    // required: 工程中模板文件的后缀名，如.tpl
-	RPCServerStub string   `json:"rpc_server_stub"` // optional: 工程中对应的rpc server stub文件名（按service.method分文件生成时有用)
-	RPCClientStub []string `json:"rpc_client_stub"` // required: 工程中对应的rpc client stub文件列表
+	Language          string   `json:"language"` // required: 语言名称，如go、java
+	LangFileExt       string   `json:"lang_file_ext"`
+	AssetDir          string   `json:"asset_dir"`            // required: 语言对应的工程目录
+	TplFileExt        string   `json:"tpl_file_ext"`         // required: 工程中模板文件的后缀名，如.tpl
+	RPCServerStub     string   `json:"rpc_server_stub"`      // optional: 工程中对应的rpc server stub文件名（按service.method分文件生成时有用)
+	RPCServerImplStub string   `json:"rpc_server_impl_stub"` // optional: 工程中对应的rpc server impl stub文件名（按service.method分文件生成时有用)
+	RPCServerTestStub string   `json:"rpc_server_test_stub"` // optional: 工程中对应的rpc server stub测试文件名（按service.method分文件生成时有用)
+	RPCClientStub     []string `json:"rpc_client_stub"`      // required: 工程中对应的rpc client stub文件列表
 }
 
 // configs 所有语言的配置信息，汇总在此
@@ -27,7 +30,7 @@ func init() {
 
 	// 加载gorpc安装目录下的配置文件gorpc.json
 	dir, err := gorpcInstallPrefix()
-	fin, err := os.Open(path.Join(dir, "gorpc.json"))
+	fin, err := os.Open(filepath.Join(dir, "gorpc.json"))
 	if err != nil {
 		panic(err)
 	}
@@ -66,9 +69,14 @@ func gorpcInstallPrefix() (dir string, err error) {
 	}
 	if u.Username != "root" {
 		dir = filepath.Join(u.HomeDir, ".gorpc")
-	} else {
-		dir = "/etc/gorpc"
+		fin, err := os.Lstat(dir)
+		if err == nil && fin.IsDir() {
+			return dir, nil
+		}
 	}
+	// if user==root || user != root && ~/.gorpc not exist, fallback to /etc/gorpc
+	dir = "/etc/gorpc"
+
 	return
 }
 
@@ -83,12 +91,15 @@ func validate(lang string, cfg *LanguageCfg) error {
 		return errors.New("invalid language, check config 'gorpc.json'")
 	}
 	cfg.Language = lang
+	if cfg.LangFileExt == "" {
+		cfg.LangFileExt = lang
+	}
 	// asset dir
 	if len(cfg.AssetDir) == 0 {
 		return errors.New("invalid asset_dir, check config 'gorpc.json'")
 	}
 	if !path.IsAbs(cfg.AssetDir) {
-		cfg.AssetDir = path.Join(dir, cfg.AssetDir)
+		cfg.AssetDir = filepath.Join(dir, cfg.AssetDir)
 	}
 	// tpl_file_ext
 	if len(cfg.TplFileExt) == 0 {
@@ -101,27 +112,4 @@ func validate(lang string, cfg *LanguageCfg) error {
 		return errors.New("invalid rpc_client_stub, check config 'gorpc.json'")
 	}
 	return nil
-}
-
-func gorpcInstallPrefixV2() (string, error) {
-
-	// 先检查~/.gorpc是否存在
-	h := os.Getenv("HOME")
-	p := filepath.Join(h, ".gorpc")
-	_, err := os.Lstat(p)
-	if err == nil {
-		return p, nil
-	}
-
-	// 不存在则继续检查/etc/gorpc
-	if !os.IsNotExist(err) {
-		return "", err
-	}
-
-	p = "/etc/gorpc"
-	_, err = os.Lstat(p)
-	if err == nil {
-		return p, nil
-	}
-	return "", err
 }

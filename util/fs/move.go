@@ -3,7 +3,6 @@ package fs
 import (
 	"io/ioutil"
 	"os"
-	"path"
 	"path/filepath"
 	"syscall"
 )
@@ -27,10 +26,10 @@ import (
 // |     |             |          |             |          | - Yes, mv `src` to dst/basename(src) |
 // |     |             |          |             |          | - No, mv `src` to dst/basename(src)  |
 // ------------------------------------------------------------------------------------------------
+// | 4   | True        | File     | True        | File     | mv `src` to dst                      |
+// ------------------------------------------------------------------------------------------------
 //
 // when move a directory, actions are following:
-// ------------------------------------------------------------------------------------------------
-// | 4   | True        | File     | True        | File     | mv `src` to dst                      |
 // ------------------------------------------------------------------------------------------------
 // | 5   | True        | Folder   | False       | -        | if dir(dst) existed:                 |
 // |     |             |          |             |          | - Yes, is dir, mv `src` to dir(dst)  |
@@ -88,7 +87,7 @@ func moveFile(src, dst string) error {
 			return os.Rename(src, dst)
 		}
 
-		p := path.Join(dst, filepath.Base(src))
+		p := filepath.Join(dst, filepath.Base(src))
 		return os.Rename(src, p)
 	}
 
@@ -131,7 +130,7 @@ func moveDirectory(src, dst string) error {
 			return &os.PathError{"lstat", dst, syscall.EEXIST}
 		}
 
-		target := path.Join(dst, filepath.Base(src))
+		target := filepath.Join(dst, filepath.Base(src))
 		inf, err := os.Lstat(target)
 		if err != nil {
 			if os.IsNotExist(err) {

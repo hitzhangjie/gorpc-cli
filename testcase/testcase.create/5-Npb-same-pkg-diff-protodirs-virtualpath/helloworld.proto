@@ -1,0 +1,9 @@
+syntax = "proto3";
+package helloworld;
+
+import "request.proto";
+import "response.proto";
+
+service HelloWorld {
+    rpc Hello(Request) returns(Response);
+}

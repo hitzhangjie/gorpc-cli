@@ -1,0 +1,27 @@
+syntax = "proto3";
+package helloworld;
+
+import "gorpc.proto";
+import "swagger.proto";
+
+message HelloReq{
+    string msg = 1;
+}
+message HelloRsp{
+    int32 err_code = 1;
+    string err_msg = 2;
+}
+
+service helloworld_svr {
+    rpc Hello(HelloReq) returns(HelloRsp) {
+        option(gorpc.alias) = "/api/v1/helloworld";
+
+        option(gorpc.swagger) = {
+            title : "你好世界"
+            method: "get"
+            description:
+                "入参：msg\n"
+                "作用：用于演示 helloword\n"
+        };
+    };
+}

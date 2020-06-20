@@ -1,0 +1,14 @@
+syntax = "proto3";
+package helloworld;
+
+// HelloReq request
+message HelloReq{}
+
+// HelloRsp response
+message HelloRsp{}
+
+// helloworld_svr handle hello request and echo message
+service helloworld_svr {
+    // Hello say hello
+    rpc Hello(HelloReq) returns(HelloRsp);
+}

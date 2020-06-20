@@ -2,34 +2,32 @@ package tpl
 
 import (
 	"fmt"
-	"github.com/hitzhangjie/go-rpc-cmdline/log"
-	"github.com/hitzhangjie/go-rpc-cmdline/params"
-	"github.com/hitzhangjie/go-rpc-cmdline/parser"
 	"os"
-	"path"
 	"path/filepath"
 	"strings"
 	"text/template"
 
+	"github.com/hitzhangjie/gorpc-cli/descriptor"
+	"github.com/hitzhangjie/gorpc-cli/params"
+	"github.com/hitzhangjie/gorpc-cli/util/fs"
+
+	"github.com/iancoleman/strcase"
 	"github.com/pkg/errors"
+
+	"github.com/hitzhangjie/gorpc-cli/util/log"
 )
 
-func GenerateFiles(fd *parser.FileDescriptor, protofilePath, outputdir string, option *params.Option) (err error) {
-
-	serviceIdx := 0
-	if len(fd.Services) > 1 {
-		// todo 忽略多余的service定义
-		log.Info("You have defined more than one service which will be ignored")
-	}
+// GenerateFiles 处理go模板文件，并输出到目录outputdir中
+func GenerateFiles(fd *descriptor.FileDescriptor, option *params.Option, outputdir string) (err error) {
 
 	// 准备输出目录
-	if err := prepareOutputdir(outputdir); err != nil {
+	if err := fs.PrepareOutputdir(outputdir); err != nil {
 		return fmt.Errorf("GenerateFiles prepareOutputdir:%v", err)
 	}
 
 	// 遍历模板文件进行处理
 	f := func(path string, info os.FileInfo, err error) error {
-		return fileEntryHandler(path, info, err, &mixedOptions{fd, serviceIdx, outputdir, option})
+		return processTemplateFile(path, info, err, &mixedOptions{fd, option, outputdir /*serviceIdx,*/})
 	}
 
 	err = filepath.Walk(option.Assetdir, f)
@@ -40,26 +38,10 @@ func GenerateFiles(fd *parser.FileDescriptor, protofilePath, outputdir string, o
 	return nil
 }
 
-func prepareOutputdir(outputdir string) (err error) {
-
-	_, err = os.Lstat(outputdir)
-	if err != nil {
-		if os.IsNotExist(err) {
-			err = os.MkdirAll(outputdir, os.ModePerm)
-			if err != nil {
-				return err
-			}
-		} else {
-			return err
-		}
-	}
-	return nil
-}
-
-func GenerateFile(fd *parser.FileDescriptor, infile, outfile string, option *params.Option, rpcIndex ...int) (err error) {
+func GenerateFile(fd *descriptor.FileDescriptor, infile, outfile string, option *params.Option, serviceIndex ...int) (err error) {
 
 	assetdir := option.Assetdir
-	if !path.IsAbs(assetdir) {
+	if !filepath.IsAbs(assetdir) {
 		return errors.New("assetdir must be specified an absolute path")
 	}
 
@@ -81,7 +63,8 @@ func GenerateFile(fd *parser.FileDescriptor, infile, outfile string, option *par
 	// template execute and populate the output file
 	var tplInstance *template.Template
 
-	baseName := path.Base(infile)
+	baseName := filepath.Base(infile)
+
 	if funcMap == nil {
 		tplInstance, err = template.New(baseName).ParseFiles(tplFilePath)
 	} else {
@@ -92,17 +75,17 @@ func GenerateFile(fd *parser.FileDescriptor, infile, outfile string, option *par
 		return err
 	}
 
-	// 将需要的descriptor信息、命令行控制参数信息、其他分文件需要的rpcindex信息传入
+	// 将需要的descriptor信息、命令行控制参数信息、其他分文件需要的serviceIndex信息传入
 	err = tplInstance.Execute(fout, struct {
-		*parser.FileDescriptor
+		*descriptor.FileDescriptor
 		*params.Option
-		RPCIndex int
+		ServiceIndex int
 	}{
 		fd,
 		option,
 		func() int {
-			if len(rpcIndex) != 0 {
-				return rpcIndex[0]
+			if len(serviceIndex) != 0 {
+				return serviceIndex[0]
 			}
 			return 999999
 		}(),
@@ -115,59 +98,95 @@ func GenerateFile(fd *parser.FileDescriptor, infile, outfile string, option *par
 	return nil
 }
 
-// fileEntryHandler 处理模板文件
-func fileEntryHandler(entry string, info os.FileInfo, err error, options *mixedOptions) error {
-
-	fd := options.FileDescriptor
-	option := options.Option
-	outputdir := options.OutputDir
-	serviceIdx := options.ServiceIdx
+// processTemplateFile 处理模板文件
+func processTemplateFile(entry string, info os.FileInfo, err error, options *mixedOptions) error {
 
 	// if incoming error encounter, return at once
 	if err != nil {
 		return err
 	}
 
-	// ignore ${asset_dir}
-	var relPath string
-	if relPath = strings.TrimPrefix(entry, option.Assetdir); len(relPath) == 0 {
+	fd := options.FileDescriptor
+	option := options.Option
+	outputdir := options.OutputDir
+	//serviceIdx := options.ServiceIdx
+
+	// keep same files/folders hierarchy in the outputdir/assetdir
+	relativePath := strings.TrimPrefix(entry, option.Assetdir)
+	if len(relativePath) == 0 {
 		return nil
 	}
-	relPath = strings.TrimPrefix(relPath, "/")
+	relativePath = strings.TrimPrefix(relativePath, string(filepath.Separator))
 
-	log.Debug("entry srcPath:%s", entry)
-
+	log.Debug("file entry srcPath:%s", entry)
 	// 如果server stub需要分文件，则指定rpc_server_stub模板文件名
-	sd := fd.Services[serviceIdx]
-	if relPath == option.GoRPCConfig.RPCServerStub {
-		for idx, rpc := range sd.RPC {
-			outPath := filepath.Join(outputdir, relPath)
-			dir := filepath.Dir(outPath)
-			base := sd.Name + "_" + rpc.Name + "." + option.GoRPCConfig.Language
+	if relativePath == option.TrpcCfg.RPCServerStub {
+		outPath := filepath.Join(outputdir, relativePath)
+		dir := filepath.Dir(outPath)
+		for idx, sd := range fd.Services {
+			base := strcase.ToSnake(sd.Name) + "." + option.TrpcCfg.LangFileExt
+			switch option.TrpcCfg.Language {
+			case "java":
+				base = strcase.ToCamel(sd.Name) + "." + option.TrpcCfg.Language
+			}
 			outPath = filepath.Join(dir, base)
 			if err := GenerateFile(fd, entry, outPath, option, idx); err != nil {
 				return err
 			}
+			continue
+		}
+		return nil
+	}
+	// 如果server stub需要分文件，则指定rpc_server_impl_stub模板文件名
+	if relativePath == option.TrpcCfg.RPCServerImplStub {
+		outPath := filepath.Join(outputdir, relativePath)
+		dir := filepath.Dir(outPath)
+		for idx, sd := range fd.Services {
+			base := strings.ToLower(sd.Name) + "." + option.TrpcCfg.LangFileExt
+			switch option.TrpcCfg.Language {
+			case "java":
+				base = strcase.ToCamel(sd.Name) + "Impl." + option.TrpcCfg.LangFileExt
+			}
+			outPath = filepath.Join(dir, base)
+			if err := GenerateFile(fd, entry, outPath, option, idx); err != nil {
+				return err
+			}
+			continue
+		}
+		return nil
+	}
+	// {{service}}.go 测试文件{{service}}_test.go
+	if relativePath == option.TrpcCfg.RPCServerTestStub {
+		outPath := filepath.Join(outputdir, relativePath)
+		dir := filepath.Dir(outPath)
+		for idx, sd := range fd.Services {
+			base := strcase.ToSnake(sd.Name) + "_test." + option.TrpcCfg.LangFileExt
+			outPath = filepath.Join(dir, base)
+			if err := GenerateFile(fd, entry, outPath, option, idx); err != nil {
+				return err
+			}
+			log.Debug("entry destPath: %s", outPath)
+			continue
 		}
 		return nil
 	}
 
-	outPath := filepath.Join(outputdir, relPath)
-	log.Debug("entry destPath: %s", outPath)
+	outPath := filepath.Join(outputdir, relativePath)
+	log.Debug("file entry destPath: %s", outPath)
 
 	// if `entry` is directory, create the same entry in `outputdir`
 	if info.IsDir() {
 		return os.MkdirAll(outPath, os.ModePerm)
 	}
-	outPath = strings.TrimSuffix(outPath, option.GoRPCConfig.TplFileExt)
+	outPath = strings.TrimSuffix(outPath, option.TrpcCfg.TplFileExt)
 
 	return GenerateFile(fd, entry, outPath, option)
 }
 
 // mixedOptions 将众多选项聚集在一起，简化方法签名
 type mixedOptions struct {
-	*parser.FileDescriptor
-	ServiceIdx int
-	OutputDir  string
+	*descriptor.FileDescriptor
 	*params.Option
+	OutputDir string
+	//ServiceIdx int
 }

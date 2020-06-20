@@ -1,0 +1,16 @@
+syntax = "proto3";
+import "google/protobuf/descriptor.proto";
+package gorpc;
+
+option go_package = "github.com/hitzhangjie/gorpc";
+
+extend google.protobuf.MethodOptions {
+    SwaggerRule swagger = 50101;
+}
+
+// to gen swagger json
+message SwaggerRule {
+    string title = 50103;
+    string method = 50104;
+    string description = 50105;
+}

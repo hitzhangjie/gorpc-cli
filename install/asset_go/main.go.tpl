@@ -1,22 +1,47 @@
+{{- $pkgName := .PackageName -}}
+{{- $goPkgOption := "" -}}
+{{- with .FileOptions.go_package -}}
+  {{- $goPkgOption = . -}}
+{{- end -}}
 package main
 
 import (
-	gorpc "github.com/hitzhangjie/go-rpc"
+	_ "github.com/hitzhangjie/gorpc-config-tconf"
+	_ "github.com/hitzhangjie/gorpc-filter/debuglog"
+	_ "github.com/hitzhangjie/gorpc-filter/recovery"
+	_ "github.com/hitzhangjie/gorpc-log-atta"
+	_ "github.com/hitzhangjie/gorpc-metrics-m007"
+	_ "github.com/hitzhangjie/gorpc-metrics-runtime"
+	_ "github.com/hitzhangjie/gorpc-naming-polaris"
+	_ "github.com/hitzhangjie/gorpc-opentracing-tjg"
+	_ "github.com/hitzhangjie/gorpc-selector-cl5"
+	_ "go.uber.org/automaxprocs"
 
-	{{ with .FileOptions.go_package }}
-	pb "{{.}}"
-	{{ else }}
-	pb "{{.PackageName}}"
-	{{ end }}
+	"github.com/hitzhangjie/gorpc/log"
+
+	gorpc "github.com/hitzhangjie/gorpc"
+    {{ if ne $goPkgOption "" -}}
+   	pb "{{$goPkgOption}}"
+    {{- else -}}
+    pb "{{$pkgName}}"
+	{{- end }}
 )
 
-{{- $svrName := (index .Services 0).Name }}
-type {{$svrName|title}}ServerImpl struct {}
+{{range $index, $service := .Services}}
+{{- $svrName := $service.Name | camelcase | untitle -}}
+type {{$svrName}}ServiceImpl struct {}
+{{end}}
 
 func main() {
 
-	s := gorpc.NewService()
+	s := gorpc.NewServer()
 
-	pb.Register{{$svrName|title}}Server(s, &{{$svrName|title}}ServerImpl{})
-	s.Serve()
+    {{range $index, $service := .Services}}
+    {{- $svrNameCamelCase := $service.Name | camelcase -}}
+	pb.Register{{$svrNameCamelCase}}Service(s, &{{$svrNameCamelCase|untitle}}ServiceImpl{})
+	{{end}}
+
+	if err := s.Serve(); err != nil {
+		log.Fatal(err)
+	}
 }

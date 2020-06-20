@@ -1,0 +1,11 @@
+syntax = "proto3";
+package helloworld;
+
+import "gorpc.proto";
+
+message HelloReq{}
+message HelloRsp{}
+
+service helloworld_svr {
+    rpc Hello(HelloReq) returns(HelloRsp) {option (gorpc.alias) = "/AnotherRpcName"; };
+}

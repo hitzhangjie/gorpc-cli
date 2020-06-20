@@ -1,8 +1,13 @@
+{{- $pkgName := .PackageName -}}
+{{- $goPkgOption := "" -}}
 {{- with .FileOptions.go_package -}}
-module {{.}}
+  {{- $goPkgOption = . -}}
+{{- end -}}
+
+{{- if ne $goPkgOption "" -}}
+module {{$goPkgOption}}
 {{- else -}}
-module {{$.PackageName}}
+module {{$pkgName}}
 {{- end }}
 
 go 1.12
-

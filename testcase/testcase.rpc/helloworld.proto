@@ -1,0 +1,14 @@
+syntax = "proto3";
+package helloworld;
+
+message HelloReq{
+    string msg = 1;
+}
+message HelloRsp{
+    int32 err_code = 1;
+    string err_msg = 2;
+}
+
+service helloworld_svr {
+    rpc Hello(HelloReq) returns(HelloRsp);
+}

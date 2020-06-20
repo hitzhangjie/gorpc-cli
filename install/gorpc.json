@@ -3,6 +3,7 @@
     "asset_dir": "asset_go",
     "tpl_file_ext": ".tpl",
     "rpc_server_stub": "service_rpc.go.tpl",
+    "rpc_server_test_stub": "service_rpc_test.go.tpl",
     "rpc_client_stub": [
       "rpc/gorpc.go.tpl"
     ],

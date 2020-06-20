@@ -1,20 +1,34 @@
 package tpl
 
 import (
-	"github.com/hitzhangjie/go-rpc-cmdline/parser"
+	"strings"
 	"text/template"
+
+	"github.com/iancoleman/strcase"
+
+	"github.com/hitzhangjie/gorpc-cli/util/lang"
 )
 
 var funcMap = template.FuncMap{
-	"simplify":   parser.PBSimplifyGoType,
-	"gopkg":      parser.PBGoPackage,
-	"gotype":     parser.PBGoType,
-	"export":     parser.GoExport,
-	"gofulltype": parser.GoFullyQualifiedType,
-	"title":      parser.Title,
-	"untitle":    parser.UnTitle,
-	"trimright":  parser.TrimRight,
-	"splitList":  parser.SplitList,
-	"last":       parser.Last,
-	"hasprefix":  parser.HasPrefix,
+	"simplify":       lang.PBSimplifyGoType,
+	"gopkg":          lang.PBGoPackage,
+	"gopkg_simple":   lang.PBValidGoPackage,
+	"gotype":         lang.PBGoType,
+	"export":         lang.GoExport,
+	"gofulltype":     lang.GoFullyQualifiedType,
+	"title":          lang.Title,
+	"untitle":        lang.UnTitle,
+	"trimright":      lang.TrimRight,
+	"trimleft":       lang.TrimLeft,
+	"splitList":      lang.SplitList,
+	"last":           lang.Last,
+	"hasprefix":      lang.HasPrefix,
+	"hassuffix":      lang.HasSuffix,
+	"contains":       strings.Contains,
+	"sub":            lang.Sub,
+	"camelcase":      strcase.ToCamel,
+	"lowercamelcase": strcase.ToLowerCamel,
+	"lower":          strings.ToLower,
+	"snakecase":      strcase.ToSnake,
+	"secvtpl":        lang.CheckSECVTpl,
 }

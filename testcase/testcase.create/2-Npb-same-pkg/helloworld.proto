@@ -1,0 +1,8 @@
+syntax = "proto3";
+package hello;
+
+import "message.proto";
+
+service hello_svr {
+    rpc Hello (HelloReq) returns (HelloRsp);
+}
