@@ -67,3 +67,17 @@ var versionMsgFormat = i18n.Message{
 	Description: "version msg format",
 	Other:       "gorpc version: {{.Hash}}",
 }
+
+var updateCmdUsage = i18n.Message{
+	ID:          "updateCmdUsage",
+	Description: "usage of updateCmd",
+	Other:       "update gorpc template to the newest version",
+}
+
+var updateCmdUsageLong = i18n.Message{
+	ID:          "updateCmdUsageLong",
+	Description: "usage of updateCmd",
+	Other: `update gorpc template to the newest version.
+
+by default, go get -u only update the binary, not the template.`,
+}

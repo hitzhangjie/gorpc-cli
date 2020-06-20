@@ -23,6 +23,14 @@
     "description": "usage of rpcCmd",
     "other": "send rpc request to server.\n\nthe request header, request body can be specified via stdin \nor input file, just like the curl style. Besides, target \nserver address, network, timeout can be specified, too."
   },
+  "updateCmdUsage": {
+    "description": "usage of updateCmd",
+    "other": "update gorpc template to the newest version"
+  },
+  "updateCmdUsageLong": {
+    "description": "usage of updateCmd",
+    "other": "update gorpc template to the newest version.\n\nby default, go get -u only update the binary, not the template."
+  },
   "versionCmdUsage": {
     "description": "usage of versionCmd",
     "other": "show gorpc version (commit hash)"

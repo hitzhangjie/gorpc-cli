@@ -23,6 +23,14 @@
     "description": "usage of rpcCmd",
     "other": "发送rpc请求给指定服务.\n\n可以通过stdin输入协议请求头、请求体，也可以通过输入文件输入，就像curl\n一样。当然，也可以指定目的服务地址、网络类型、超时时间等."
   },
+  "updateCmdUsage": {
+    "description": "usage of updateCmd",
+    "other": "更新gorpc代码模板到最新版本"
+  },
+  "updateCmdUsageLong": {
+    "description": "usage of updateCmd",
+    "other": "更新gorpc代码模板到最新版本. \n\n默认地, 通过\"go get -u\"更新，只是更新了gorpc命令，但没有更新代码模板"
+  },
   "versionCmdUsage": {
     "description": "usage of versionCmd",
     "other": "显示gorpc命令的版本 (commit hash)"

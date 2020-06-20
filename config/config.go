@@ -34,16 +34,16 @@ var configs = map[string]*LanguageCfg{}
 func init() {
 
 	// 当前用户对应的模板候选目录列表
-	paths, err := templateSearchPath()
+	paths, err := TemplateSearchPath()
 	if err != nil {
 		panic(err)
 	}
 
 	// 确定一个有效的模板路径，如果未安装则安装模板
-	installTo, err := templateInstallPath(paths)
+	installTo, err := TemplateInstallPath(paths)
 	if err == ErrTemplateNotFound {
 		installTo = paths[0]
-		err = installTemplate(installTo)
+		err = InstallTemplate(installTo)
 		if err != nil {
 			panic(err)
 		}
@@ -80,7 +80,7 @@ func initializeConfig(installTo string) {
 	}
 }
 
-func installTemplate(installTo string) error {
+func InstallTemplate(installTo string) error {
 
 	tmpDir := filepath.Join(os.TempDir(), "gorpc")
 
@@ -116,9 +116,9 @@ func GetLanguageCfg(lang string) (*LanguageCfg, error) {
 
 var ErrTemplateNotFound = errors.New("template not found")
 
-// templateSearchPath 获取gorpc安装路径
+// TemplateSearchPath 获取gorpc安装路径
 // root安装到/etc/gorpc，非root用户安装到$HOME/.gorpc
-func templateSearchPath() (dirs []string, err error) {
+func TemplateSearchPath() (dirs []string, err error) {
 
 	u, err := user.Current()
 	if err != nil {
@@ -133,8 +133,8 @@ func templateSearchPath() (dirs []string, err error) {
 	return candidateDirs, nil
 }
 
-// templateInstallPath 确定一个有效的模板路径
-func templateInstallPath(dirs []string) (dir string, err error) {
+// TemplateInstallPath 确定一个有效的模板路径
+func TemplateInstallPath(dirs []string) (dir string, err error) {
 	for _, d := range dirs {
 		if fin, err := os.Lstat(d); err == nil && fin.IsDir() {
 			return d, nil
@@ -145,12 +145,12 @@ func templateInstallPath(dirs []string) (dir string, err error) {
 
 func validate(lang string, cfg *LanguageCfg) error {
 
-	dirs, err := templateSearchPath()
+	dirs, err := TemplateSearchPath()
 	if err != nil {
 		return err
 	}
 
-	dir, err := templateInstallPath(dirs)
+	dir, err := TemplateInstallPath(dirs)
 	if err != nil {
 		return err
 	}
