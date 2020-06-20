@@ -120,14 +120,14 @@ func processTemplateFile(entry string, info os.FileInfo, err error, options *mix
 
 	log.Debug("file entry srcPath:%s", entry)
 	// 如果server stub需要分文件，则指定rpc_server_stub模板文件名
-	if relativePath == option.TrpcCfg.RPCServerStub {
+	if relativePath == option.GoRPCCfg.RPCServerStub {
 		outPath := filepath.Join(outputdir, relativePath)
 		dir := filepath.Dir(outPath)
 		for idx, sd := range fd.Services {
-			base := strcase.ToSnake(sd.Name) + "." + option.TrpcCfg.LangFileExt
-			switch option.TrpcCfg.Language {
+			base := strcase.ToSnake(sd.Name) + "." + option.GoRPCCfg.LangFileExt
+			switch option.GoRPCCfg.Language {
 			case "java":
-				base = strcase.ToCamel(sd.Name) + "." + option.TrpcCfg.Language
+				base = strcase.ToCamel(sd.Name) + "." + option.GoRPCCfg.Language
 			}
 			outPath = filepath.Join(dir, base)
 			if err := GenerateFile(fd, entry, outPath, option, idx); err != nil {
@@ -138,14 +138,14 @@ func processTemplateFile(entry string, info os.FileInfo, err error, options *mix
 		return nil
 	}
 	// 如果server stub需要分文件，则指定rpc_server_impl_stub模板文件名
-	if relativePath == option.TrpcCfg.RPCServerImplStub {
+	if relativePath == option.GoRPCCfg.RPCServerImplStub {
 		outPath := filepath.Join(outputdir, relativePath)
 		dir := filepath.Dir(outPath)
 		for idx, sd := range fd.Services {
-			base := strings.ToLower(sd.Name) + "." + option.TrpcCfg.LangFileExt
-			switch option.TrpcCfg.Language {
+			base := strings.ToLower(sd.Name) + "." + option.GoRPCCfg.LangFileExt
+			switch option.GoRPCCfg.Language {
 			case "java":
-				base = strcase.ToCamel(sd.Name) + "Impl." + option.TrpcCfg.LangFileExt
+				base = strcase.ToCamel(sd.Name) + "Impl." + option.GoRPCCfg.LangFileExt
 			}
 			outPath = filepath.Join(dir, base)
 			if err := GenerateFile(fd, entry, outPath, option, idx); err != nil {
@@ -156,11 +156,11 @@ func processTemplateFile(entry string, info os.FileInfo, err error, options *mix
 		return nil
 	}
 	// {{service}}.go 测试文件{{service}}_test.go
-	if relativePath == option.TrpcCfg.RPCServerTestStub {
+	if relativePath == option.GoRPCCfg.RPCServerTestStub {
 		outPath := filepath.Join(outputdir, relativePath)
 		dir := filepath.Dir(outPath)
 		for idx, sd := range fd.Services {
-			base := strcase.ToSnake(sd.Name) + "_test." + option.TrpcCfg.LangFileExt
+			base := strcase.ToSnake(sd.Name) + "_test." + option.GoRPCCfg.LangFileExt
 			outPath = filepath.Join(dir, base)
 			if err := GenerateFile(fd, entry, outPath, option, idx); err != nil {
 				return err
@@ -178,7 +178,7 @@ func processTemplateFile(entry string, info os.FileInfo, err error, options *mix
 	if info.IsDir() {
 		return os.MkdirAll(outPath, os.ModePerm)
 	}
-	outPath = strings.TrimSuffix(outPath, option.TrpcCfg.TplFileExt)
+	outPath = strings.TrimSuffix(outPath, option.GoRPCCfg.TplFileExt)
 
 	return GenerateFile(fd, entry, outPath, option)
 }

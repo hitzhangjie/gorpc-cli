@@ -32,7 +32,6 @@ import (
 
 	"github.com/hitzhangjie/gorpc/client"
 	"github.com/hitzhangjie/gorpc/codec"
-	"github.com/hitzhangjie/gorpc/naming/registry"
 )
 
 // rpcCmd represents the rpc command
@@ -57,7 +56,6 @@ var rpcCmd = &cobra.Command{
 		// 准备发起rpc请求
 		ctx := gorpc.BackgroundContext()
 		msg := gorpc.Message(ctx)
-		node := &registry.Node{}
 
 		msg.WithClientRPCName(string(opts.reqhead.GetFunc()))
 		msg.WithCalleeServiceName(string(opts.reqhead.GetCallee()))
@@ -69,7 +67,6 @@ var rpcCmd = &cobra.Command{
 			client.WithTimeout(opts.timeout),
 			client.WithTarget(opts.target),
 			client.WithNamespace(opts.namespace),
-			client.WithSelectorNode(node),
 		}
 
 		var pb bool

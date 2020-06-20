@@ -174,7 +174,7 @@ func getParameters(rpc *descriptor.RPCDescriptor, msgMap map[string]ModelStruct)
 func getServiceMessage(nfd *descriptor.FileDescriptor, option *params.Option) (map[string]ModelStruct, error) {
 	protodirs := option.Protodirs
 
-	p, err := pb.LocateTrpcProto()
+	p, err := pb.LocateGoRPCProto()
 	if err != nil {
 		return nil, err
 	}
@@ -220,7 +220,7 @@ func getImportMessage(nfd *descriptor.FileDescriptor, option *params.Option) (ma
 
 	protodirs := option.Protodirs
 
-	p, err := pb.LocateTrpcProto()
+	p, err := pb.LocateGoRPCProto()
 	if err != nil {
 		return nil, err
 	}

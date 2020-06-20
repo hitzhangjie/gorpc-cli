@@ -204,12 +204,12 @@ func loadCreateOption(flagSet *pflag.FlagSet) (*params.Option, error) {
 	option.Protodirs = append(option.Protodirs, filepath.Dir(target))
 
 	// 加载gorpc.json中定义的语言相关的配置
-	option.TrpcCfg, err = config.GetLanguageCfg(option.Language)
+	option.GoRPCCfg, err = config.GetLanguageCfg(option.Language)
 	if err != nil {
 		return nil, fmt.Errorf("load config via gorpc.json error: %v", err)
 	}
 	if len(option.Assetdir) == 0 {
-		option.Assetdir = option.TrpcCfg.AssetDir
+		option.Assetdir = option.GoRPCCfg.AssetDir
 	}
 
 	// 判断gomod
@@ -283,7 +283,7 @@ func create(fd *descriptor.FileDescriptor, option *params.Option) (outputdir str
 	stub := filepath.Join(outputdir, "stub")
 
 	// - move outputdir/rpc to outputdir/stub/dir($gopkgdir)
-	fileOption := fmt.Sprintf("%s_package", option.TrpcCfg.Language)
+	fileOption := fmt.Sprintf("%s_package", option.GoRPCCfg.Language)
 	pbPackage, err := parser.GetPbPackage(fd, fileOption)
 	if err != nil {
 		return
@@ -339,7 +339,7 @@ func create(fd *descriptor.FileDescriptor, option *params.Option) (outputdir str
 	}
 
 	// fixme 用抽象、泛化来解决特殊逻辑问题，这里为java调整pb路径的逻辑需要调整下，go的类似
-	err = changeProtofileDir(pbOutDir, option.TrpcCfg.Language)
+	err = changeProtofileDir(pbOutDir, option.GoRPCCfg.Language)
 	if err != nil {
 		return
 	}
@@ -414,7 +414,7 @@ func create(fd *descriptor.FileDescriptor, option *params.Option) (outputdir str
 	}
 
 	// Python 移动stub的setup.py
-	if option.TrpcCfg.Language == "python" {
+	if option.GoRPCCfg.Language == "python" {
 		// move stub/.../setup.py to stub/setup.py
 		setupFilePath := filepath.Join(pbOutDir, "setup.py")
 
@@ -428,7 +428,7 @@ func create(fd *descriptor.FileDescriptor, option *params.Option) (outputdir str
 	}
 
 	// Java格式化操作
-	if option.TrpcCfg.Language == "java" {
+	if option.GoRPCCfg.Language == "java" {
 		if err = javaFormat(outputdir, fd, option); err != nil {
 			return
 		}
@@ -464,10 +464,10 @@ func generateRPCStub(fd *descriptor.FileDescriptor, option *params.Option) (outp
 
 	// - 生成代码，只处理clientstub
 	generated := map[string]struct{}{}
-	for _, f := range option.TrpcCfg.RPCClientStub {
+	for _, f := range option.GoRPCCfg.RPCClientStub {
 		in := filepath.Join(option.Assetdir, f)
 		log.Debug("handle:%s", in)
-		out := filepath.Join(outputdir, strings.TrimSuffix(filepath.Base(in), option.TrpcCfg.TplFileExt))
+		out := filepath.Join(outputdir, strings.TrimSuffix(filepath.Base(in), option.GoRPCCfg.TplFileExt))
 		if err = tpl.GenerateFile(fd, in, out, option); err != nil {
 			return
 		}
@@ -735,7 +735,7 @@ func javaFormat(outputdir string, fd *descriptor.FileDescriptor, option *params.
 			dstPath := strings.TrimRight(fpath, "gorpcserver") + strings.ToLower(packageName)
 			DirMoveList = append(DirMoveList, DirMove{fpath, dstPath})
 		} else if !info.IsDir() && strings.HasSuffix(fpath, "service_api.java") {
-			dstPath := strings.TrimRight(fpath, "service_api.java") + strcase.ToCamel(serviceName) + "Api." + option.TrpcCfg.Language
+			dstPath := strings.TrimRight(fpath, "service_api.java") + strcase.ToCamel(serviceName) + "Api." + option.GoRPCCfg.Language
 			e = os.RemoveAll(dstPath)
 			log.Debug("file move, src: %s, dst: %s", fpath, dstPath)
 			e = fs.Move(fpath, dstPath)
