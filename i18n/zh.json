@@ -1,0 +1,8 @@
+{
+  "hello_world": "世界你好",
+  "messages": {
+    "description": "某人未读的邮件数量",
+    "one": "你好 {{.Name}}，您有 {{.Count}} 条消息未读。",
+    "other": "你好 {{.Name}}，您有 {{.Count}} 条消息未读。"
+  }
+}

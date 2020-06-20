@@ -50,6 +50,14 @@ func init() {
 	}
 
 	// 加载配置文件
+	initializeConfig(installTo)
+
+	// 加载i18n配置
+	initializeI18NMessages(installTo)
+}
+
+func initializeConfig(installTo string) {
+
 	fin, err := os.Open(filepath.Join(installTo, "gorpc.json"))
 	if err != nil {
 		panic(err)

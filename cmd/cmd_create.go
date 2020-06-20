@@ -51,12 +51,8 @@ var (
 // createCmd represents the create command
 var createCmd = &cobra.Command{
 	Use:   "create",
-	Short: "指定pb文件快速创建工程或rpcstub",
-	Long: `指定pb文件快速创建工程或rpcstub，
-
-'gorpc create' 有两种模式:
-- 生成一个完整的服务工程
-- 生成被调服务的rpcstub，需指定'-rpconly'选项.`,
+	Short: config.LoadTranslation("createCmdUsage", nil),
+	Long:  config.LoadTranslation("createCmdUsageLong", nil),
 
 	RunE: func(cmd *cobra.Command, args []string) error {
 

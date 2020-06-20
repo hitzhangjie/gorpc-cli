@@ -1,0 +1,10 @@
+{
+  "createCmdUsage": {
+    "description": "usage of createCmd",
+    "other": "quickly create project or rpcstub, based on pb"
+  },
+  "createCmdUsageLong": {
+    "description": "usage of createCmd",
+    "other": "quickly create project or rpcstub, based on pb.\n\n'gorpc create' works in 2 modes:\n- generate a complete project\n- generate only the rpcstub, with option '--rpconly'."
+  }
+}
