@@ -33,11 +33,11 @@
   },
   "updateCmdUsage": {
     "description": "usage of updateCmd",
-    "other": "更新gorpc代码模板到最新版本"
+    "other": "指定pb文件更新工程或者rpcstub"
   },
   "updateCmdUsageLong": {
     "description": "usage of updateCmd",
-    "other": "更新gorpc代码模板到最新版本. \n\n默认地, 通过\"go get -u\"更新，只是更新了gorpc命令，但没有更新代码模板"
+    "other": "指定pb文件快速更新工程或者rpcstub，当前未完全实现"
   },
   "versionCmdUsage": {
     "description": "usage of versionCmd",

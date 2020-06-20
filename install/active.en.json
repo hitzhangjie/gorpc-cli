@@ -33,11 +33,11 @@
   },
   "updateCmdUsage": {
     "description": "usage of updateCmd",
-    "other": "update gorpc template to the newest version"
+    "other": "quickly update gorpc template or rpcstub, based on pb"
   },
   "updateCmdUsageLong": {
     "description": "usage of updateCmd",
-    "other": "update gorpc template to the newest version.\n\nby default, go get -u only update the binary, not the template."
+    "other": "quickly update gorpc template or rpcstub, based on pb.\n\nso far, this feature hasn't beed fully implemented, coming soon."
   },
   "versionCmdUsage": {
     "description": "usage of versionCmd",

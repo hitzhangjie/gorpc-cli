@@ -91,13 +91,13 @@ var versionMsgFormat = i18n.Message{
 var updateCmdUsage = i18n.Message{
 	ID:          "updateCmdUsage",
 	Description: "usage of updateCmd",
-	Other:       "update gorpc template to the newest version",
+	Other:       "quickly update gorpc template or rpcstub, based on pb",
 }
 
 var updateCmdUsageLong = i18n.Message{
 	ID:          "updateCmdUsageLong",
 	Description: "usage of updateCmd",
-	Other: `update gorpc template to the newest version.
+	Other: `quickly update gorpc template or rpcstub, based on pb.
 
-by default, go get -u only update the binary, not the template.`,
+so far, this feature hasn't beed fully implemented, coming soon.`,
 }

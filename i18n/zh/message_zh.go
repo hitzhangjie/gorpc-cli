@@ -91,13 +91,11 @@ var versionMsgFormat = i18n.Message{
 var updateCmdUsage = i18n.Message{
 	ID:          "updateCmdUsage",
 	Description: "usage of updateCmd",
-	Other:       "更新gorpc代码模板到最新版本",
+	Other:       "指定pb文件更新工程或者rpcstub",
 }
 
 var updateCmdUsageLong = i18n.Message{
 	ID:          "updateCmdUsageLong",
 	Description: "usage of updateCmd",
-	Other: `更新gorpc代码模板到最新版本. 
-
-默认地, 通过"go get -u"更新，只是更新了gorpc命令，但没有更新代码模板`,
+	Other:       `指定pb文件快速更新工程或者rpcstub，当前未完全实现`,
 }
