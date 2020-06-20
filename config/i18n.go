@@ -59,7 +59,7 @@ func GetLocale() (string, error) {
 		if !ok {
 			//err = errors.New("env LANG not set")
 			//return "", err
-			return "en", nil
+			return "zh", nil
 		}
 		locale = strings.Split(envlang, ".")[0]
 	case "windows":
