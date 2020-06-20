@@ -125,7 +125,7 @@ func ParseProtoFile(option *params.Option) (*descriptor.FileDescriptor, error) {
 	// - 设置fileOptions
 	withErrorCheck(fillFileOptions(fd, fileDescriptor))
 	// - 设置service
-	withErrorCheck(fillServices(fd, fileDescriptor, option.AliasOn))
+	withErrorCheck(fillServices(fd, fileDescriptor))
 	// - 设置app server
 	withErrorCheck(fillAppServerName(fd, fileDescriptor))
 	// - 设置rpc请求响应类型对应的定义pb
@@ -253,7 +253,7 @@ func fillFileOptions(fd *desc.FileDescriptor, nfd *descriptor.FileDescriptor) er
 	return nil
 }
 
-func fillServices(fd *desc.FileDescriptor, nfd *descriptor.FileDescriptor, aliasMode bool) error {
+func fillServices(fd *desc.FileDescriptor, nfd *descriptor.FileDescriptor) error {
 
 	for _, sd := range fd.GetServices() {
 
@@ -287,7 +287,6 @@ func fillServices(fd *desc.FileDescriptor, nfd *descriptor.FileDescriptor, alias
 			nsd.RPC = append(nsd.RPC, rpc)
 
 			// check method option, if gorpc.alias exists, use it as rpc.baseCmd
-			hasMethodOptions := false
 			if v, err := proto.GetExtension(m.GetMethodOptions(), gorpc.E_Alias); err == nil {
 				s := v.(*string)
 				if s == nil {
@@ -297,44 +296,8 @@ func fillServices(fd *desc.FileDescriptor, nfd *descriptor.FileDescriptor, alias
 					if s != nil {
 						if cmd := strings.TrimSpace(*s); len(cmd) != 0 {
 							rpc.FullyQualifiedCmd = cmd
-							hasMethodOptions = true
 						}
 					}
-				}
-			}
-
-			if !hasMethodOptions && aliasMode {
-				// check comment //@alias=${rpcName}
-				annotation := "@alias="
-				hasLeadingAlias := strings.Contains(rpc.LeadingComments, annotation)
-				hasTrailingAlias := strings.Contains(rpc.TrailingComments, annotation)
-
-				if hasLeadingAlias && hasTrailingAlias {
-					return fmt.Errorf("service:%s, method:%s, leading and trailing aliases conflict", sd.GetName(), m.GetName())
-				}
-
-				if hasLeadingAlias {
-					s := strings.Split(rpc.LeadingComments, annotation)
-					if len(s) != 2 {
-						panic(fmt.Sprintf("invalid alias annotation:%s", rpc.LeadingComments))
-					}
-					cmd := s[1]
-					if len(cmd) == 0 {
-						panic(fmt.Sprintf("invalid alias annotation:%s", rpc.LeadingComments))
-					}
-					rpc.FullyQualifiedCmd = cmd
-				}
-
-				if hasTrailingAlias {
-					s := strings.Split(rpc.TrailingComments, annotation)
-					if len(s) != 2 {
-						panic(fmt.Sprintf("invalid alias annotation:%s", rpc.TrailingComments))
-					}
-					cmd := s[1]
-					if len(cmd) == 0 {
-						panic(fmt.Sprintf("invalid alias annotation:%s", rpc.TrailingComments))
-					}
-					rpc.FullyQualifiedCmd = cmd
 				}
 			}
 

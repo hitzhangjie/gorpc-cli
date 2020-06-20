@@ -9,7 +9,6 @@ type Option struct {
 	Protodirs    []string // pb import路径
 	Protofile    string   // protofile文件
 	ProtofileAbs string   // protofile绝对路径
-	AliasOn      bool     // 解析MethodOption或者注释中//@alias=别名，用来代替pb文件中rpc
 
 	// template option
 	Assetdir string // 服务模板路径

@@ -1,7 +1,7 @@
 syntax = "proto3";
 package gorpc.greeter;
 
-option go_package="github.com/gorpc.app/gorpc.greeter";
+option go_package = "github.com/gorpc.app/gorpc.greeter";
 
 import "helloworld/helloworld.proto";
 
@@ -33,15 +33,15 @@ message ByeRsp {
 service greeter {
 
     // Hello say hello
-    rpc Hello(HelloReq) returns(HelloRsp); // @alias=/greeter.greeter/Hello
+    rpc Hello (HelloReq) returns (HelloRsp);
 
     // Bye say bye
-    rpc Bye(ByeReq) returns(ByeRsp); // @alias=/greeter.greeter/Bye
+    rpc Bye (ByeReq) returns (ByeRsp);
 
     // Test Import ByeReq,Love
-    rpc TestImportV1(ByeReq) returns(helloworld.Love); // @alias=/greeter.greeter/testimport1
+    rpc TestImportV1 (ByeReq) returns (helloworld.Love);
 
     // Test Import Hate,Love
-    rpc TestImportV2(helloworld.Hate) returns(helloworld.Love); // @alias=/greeter.greeter/testimport2
+    rpc TestImportV2 (helloworld.Hate) returns (helloworld.Love);
 }
 

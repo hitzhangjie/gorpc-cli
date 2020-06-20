@@ -235,7 +235,6 @@ func loadCreateFlagsetToOption(flagSet *pflag.FlagSet) *params.Option {
 	option.Protofile, _ = flagSet.GetString("protofile")
 	option.Language, _ = flagSet.GetString("lang")
 	option.Protocol, _ = flagSet.GetString("protocol")
-	option.AliasOn, _ = flagSet.GetBool("alias")
 	option.RpcOnly, _ = flagSet.GetBool("rpconly")
 	option.Assetdir, _ = flagSet.GetString("assetdir")
 	option.Verbose, _ = flagSet.GetBool("verbose")
