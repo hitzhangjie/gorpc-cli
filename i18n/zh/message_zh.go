@@ -42,7 +42,7 @@ gorpc create 有两种模式:
 var createCmdFlagProtodir = i18n.Message{
 	ID:          "createCmdFlagProtodir",
 	Description: "usage of flag --protodir",
-	Other:       `指定pb文件的搜索路径，可指定多个，如：--protodir=x --protodir=y`,
+	Other:       `指定pb文件的搜索路径，可指定多个`,
 }
 
 var createCmdFlagProtofile = i18n.Message{

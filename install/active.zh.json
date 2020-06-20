@@ -25,7 +25,7 @@
   },
   "createCmdFlagProtodir": {
     "description": "usage of flag --protodir",
-    "other": "指定pb文件的搜索路径，可指定多个，如：--protodir=x --protodir=y"
+    "other": "指定pb文件的搜索路径，可指定多个"
   },
   "createCmdFlagProtofile": {
     "description": "usage of flag --protofile",
