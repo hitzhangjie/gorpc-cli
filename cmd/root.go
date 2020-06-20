@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/hitzhangjie/gorpc/config"
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -31,14 +32,8 @@ var cfgFile string
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "gorpc",
-	Short: "gorpc 是一个效率工具，方便gorpc服务的开发",
-	Long: `gorpc 是一个效率工具，方便gorpc服务的开发.
-
-例如: 
-- 指定pb文件，快速生成完整的工程，或者生成对应的rpcstub
-- 对目标服务发起rpc测试请求 
-
-尝试用gorpc框架+gorpc工具来编写你的下一个gorpc服务吧 !`,
+	Short: config.LoadTranslation("rootCmdUsage", nil),
+	Long:  config.LoadTranslation("rootCmdUsageLong", nil),
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	//Run: func(cmd *cobra.Command, args []string) {

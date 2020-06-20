@@ -2,6 +2,26 @@ package zh
 
 import "github.com/nicksnyder/go-i18n/v2/i18n"
 
+// root cmd
+var rootCmdUsage = i18n.Message{
+	ID:          "rootCmdUsage",
+	Description: "usage of rootCmd",
+	Other:       "gorpc 是一个效率工具，方便gorpc服务的开发",
+}
+
+var rootCmdUsageLong = i18n.Message{
+	ID:          "rootCmdUsageLong",
+	Description: "usage of rootCmd",
+	Other: `gorpc 是一个效率工具，方便gorpc服务的开发.
+
+例如:
+- 根据pb快速生成服务工程，或者rpcstub
+- 发送rpc请求到目的服务用以测试服务接口
+- 更新代码模板到最新版本
+- 快速打开项目issue页面报告一个issue
+- 更多 ...`,
+}
+
 // create cmd
 var createCmdUsage = i18n.Message{
 	ID:          "createCmdUsage",

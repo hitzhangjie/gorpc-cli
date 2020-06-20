@@ -2,6 +2,26 @@ package en
 
 import "github.com/nicksnyder/go-i18n/v2/i18n"
 
+// root cmd
+var rootCmdUsage = i18n.Message{
+	ID:          "rootCmdUsage",
+	Description: "usage of rootCmd",
+	Other:       "gorpc is an efficient too to speedup development",
+}
+
+var rootCmdUsageLong = i18n.Message{
+	ID:          "rootCmdUsageLong",
+	Description: "usage of rootCmd",
+	Other: `gorpc is an efficient too to speedup development.
+
+for example:
+- quickly generate project or rpcstub, based on pb
+- send rpc request to test the target server
+- update template to the newest version
+- quickly open issue page to report an issue
+- more ...`,
+}
+
 // create cmd
 var createCmdUsage = i18n.Message{
 	ID:          "createCmdUsage",

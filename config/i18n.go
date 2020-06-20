@@ -37,6 +37,7 @@ func initializeI18NMessages(dir string) {
 
 // LoadTranslation 加载对应当前locale的消息
 func LoadTranslation(messageID string, data map[string]interface{}) string {
+
 	translation := loc.MustLocalize(&i18n.LocalizeConfig{
 		MessageID:    messageID,
 		TemplateData: data,

@@ -15,6 +15,14 @@
     "description": "usage of issueCmd",
     "other": "fire your browser at the issue page to report an issue."
   },
+  "rootCmdUsage": {
+    "description": "usage of rootCmd",
+    "other": "gorpc is an efficient too to speedup development"
+  },
+  "rootCmdUsageLong": {
+    "description": "usage of rootCmd",
+    "other": "gorpc is an efficient too to speedup development.\n\nfor example:\n- quickly generate project or rpcstub, based on pb\n- send rpc request to test the target server\n- update template to the newest version\n- quickly open issue page to report an issue\n- more ..."
+  },
   "rpcCmdUsage": {
     "description": "usage of rpcCmd",
     "other": "send rpc request to server"

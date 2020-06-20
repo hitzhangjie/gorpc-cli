@@ -15,6 +15,14 @@
     "description": "usage of issueCmd",
     "other": "浏览器打开issue页面，反馈一个issue."
   },
+  "rootCmdUsage": {
+    "description": "usage of rootCmd",
+    "other": "gorpc 是一个效率工具，方便gorpc服务的开发"
+  },
+  "rootCmdUsageLong": {
+    "description": "usage of rootCmd",
+    "other": "gorpc 是一个效率工具，方便gorpc服务的开发.\n\n例如:\n- 根据pb快速生成服务工程，或者rpcstub\n- 发送rpc请求到目的服务用以测试服务接口\n- 更新代码模板到最新版本\n- 快速打开项目issue页面报告一个issue\n- 更多 ..."
+  },
   "rpcCmdUsage": {
     "description": "usage of rpcCmd",
     "other": "发送rpc请求给指定服务"
