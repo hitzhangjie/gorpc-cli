@@ -69,3 +69,9 @@ clean:
 fmt:
 	@gofmt -s -w .
 	@goimports -w -local github.com .
+
+static:
+	@rm bindata
+	@tar cvfz install.tgz install
+	@go run util/bindata.go -file install.tgz
+	@rm install.tgz

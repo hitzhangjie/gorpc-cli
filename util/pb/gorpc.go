@@ -5,6 +5,8 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+
+	"github.com/mitchellh/go-homedir"
 )
 
 // LocateGoRPCProto 定位gorpc.proto路径
@@ -15,17 +17,16 @@ func LocateGoRPCProto() (string, error) {
 		errNotFound = errors.New("cannot locate gorpc.proto.")
 	)
 
-	search = append(search, filepath.Join(os.Getenv("HOME"), ".gorpc"))
+	home, err := homedir.Dir()
+	if err != nil {
+		return "", err
+	}
+
+	search = append(search, filepath.Join(home, ".gorpc"))
 
 	switch runtime.GOOS {
 	case "linux", "darwin":
 		search = append(search, "/etc/gorpc")
-	case "windows":
-		userHomePath, err := homeWindows()
-		if err != nil {
-			return "", errors.New(errNotFound.Error() + err.Error())
-		}
-		search = append(search, filepath.Join(userHomePath, ".gorpc"))
 	}
 
 	for _, p := range search {

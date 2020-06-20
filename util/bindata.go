@@ -12,13 +12,14 @@ import (
 )
 
 var file = flag.String("file", "", "read `file` and store its content into $file.go")
+var outputdir = flag.String("outputdir", "bindata", "write $file.go under directory $outputdir")
 
 func main() {
 
 	flag.Parse()
 
-	if len(*file) == 0 {
-		panic("invalid filename")
+	if len(*file) == 0 || len(*outputdir) == 0 {
+		panic("invalid arguments: invalid file or outputdir")
 	}
 
 	buf, err := ioutil.ReadFile(*file)
@@ -27,23 +28,28 @@ func main() {
 	}
 
 	baseName := filepath.Base(*file)
-	target := fmt.Sprintf("static_%s.go", baseName)
 	targetVar := fmt.Sprintf("%sBytes", strcase.ToCamel(baseName))
 
-	tpl := fmt.Sprintf(`
-package bindata
+	tpl := fmt.Sprintf(`package bindata
 
 var %s = []uint8{
 {{ range $idx, $val := .Data }}{{$val}},{{ end }}
 }
 `, targetVar)
 
-	tplInstance, err := template.New(target).Parse(tpl)
+	targetBaseName := fmt.Sprintf("static_%s.go", baseName)
+	tplInstance, err := template.New(targetBaseName).Parse(tpl)
 	if err != nil {
 		panic(fmt.Errorf("parse template error: %v", err))
 	}
 
-	fout, err := os.OpenFile(target, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0666)
+	err = os.MkdirAll(*outputdir, 0777)
+	if err != nil {
+		panic(fmt.Errorf("create outputdir error: %v", err))
+	}
+
+	targetFilePath := filepath.Join(*outputdir, targetBaseName)
+	fout, err := os.OpenFile(targetFilePath, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0666)
 	if err != nil {
 		panic(fmt.Errorf("open file error: %v", err))
 	}
@@ -56,5 +62,7 @@ var %s = []uint8{
 		panic(fmt.Errorf("template execute error: %v", err))
 	}
 
-	fmt.Printf("ok, filedata stored to %s\n", target)
+	fmt.Printf("ok, filedata stored to %s\n", targetBaseName)
 }
+
+

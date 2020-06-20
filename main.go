@@ -19,6 +19,7 @@ import (
 	"os"
 	"os/exec"
 
+	_ "github.com/hitzhangjie/gorpc-cli/bindata"
 	"github.com/hitzhangjie/gorpc-cli/cmd"
 	"github.com/hitzhangjie/gorpc-cli/util/log"
 )

@@ -1,6 +1,7 @@
 package config
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -9,6 +10,10 @@ import (
 	"os/user"
 	"path"
 	"path/filepath"
+
+	"github.com/hitzhangjie/gorpc-cli/bindata"
+	"github.com/hitzhangjie/gorpc-cli/util/compress"
+	"github.com/hitzhangjie/gorpc-cli/util/fs"
 )
 
 // LanguageCfg 开发语言相关的配置信息，如对应的模板工程目录、模板工程中的serverstub文件、clientstub文件
@@ -28,9 +33,24 @@ var configs = map[string]*LanguageCfg{}
 
 func init() {
 
-	// 加载gorpc安装目录下的配置文件gorpc.json
-	dir, err := gorpcInstallPrefix()
-	fin, err := os.Open(filepath.Join(dir, "gorpc.json"))
+	// 当前用户对应的模板候选目录列表
+	paths, err := templateSearchPath()
+	if err != nil {
+		panic(err)
+	}
+
+	// 确定一个有效的模板路径，如果未安装则安装模板
+	installTo, err := templateInstallPath(paths)
+	if err == ErrTemplateNotFound {
+		installTo = paths[0]
+		err = installTemplate(installTo)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	// 加载配置文件
+	fin, err := os.Open(filepath.Join(installTo, "gorpc.json"))
 	if err != nil {
 		panic(err)
 	}
@@ -52,6 +72,31 @@ func init() {
 	}
 }
 
+func installTemplate(installTo string) error {
+
+	tmpDir := filepath.Join(os.TempDir(), "gorpc")
+
+	_ = os.RemoveAll(installTo)
+	_ = os.RemoveAll(tmpDir)
+
+	err := os.MkdirAll(tmpDir, os.ModePerm)
+	if err != nil {
+		panic(err)
+	}
+
+	err = compress.Untar(tmpDir, bytes.NewBuffer(bindata.InstallTgzBytes))
+	if err != nil {
+		return err
+	}
+
+	err = fs.Move(filepath.Join(tmpDir, "install"), installTo)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // GetLanguageCfg 加载开发语言对应的配置信息
 func GetLanguageCfg(lang string) (*LanguageCfg, error) {
 	cfg, ok := configs[lang]
@@ -61,28 +106,43 @@ func GetLanguageCfg(lang string) (*LanguageCfg, error) {
 	return cfg, nil
 }
 
-// gorpcInstallPrefix 获取gorpc安装路径，root安装到/etc/gorpc，非root用户安装到$HOME/.gorpc
-func gorpcInstallPrefix() (dir string, err error) {
+var ErrTemplateNotFound = errors.New("template not found")
+
+// templateSearchPath 获取gorpc安装路径
+// root安装到/etc/gorpc，非root用户安装到$HOME/.gorpc
+func templateSearchPath() (dirs []string, err error) {
+
 	u, err := user.Current()
 	if err != nil {
 		return
 	}
-	if u.Username != "root" {
-		dir = filepath.Join(u.HomeDir, ".gorpc")
-		fin, err := os.Lstat(dir)
-		if err == nil && fin.IsDir() {
-			return dir, nil
+
+	candidateDirs := []string{filepath.Join(u.HomeDir, ".gorpc"), "/etc/gorpc"}
+	if u.Username == "root" {
+		candidateDirs = []string{"/etc/gorpc"}
+	}
+
+	return candidateDirs, nil
+}
+
+// templateInstallPath 确定一个有效的模板路径
+func templateInstallPath(dirs []string) (dir string, err error) {
+	for _, d := range dirs {
+		if fin, err := os.Lstat(d); err == nil && fin.IsDir() {
+			return d, nil
 		}
 	}
-	// if user==root || user != root && ~/.gorpc not exist, fallback to /etc/gorpc
-	dir = "/etc/gorpc"
-
-	return
+	return "", ErrTemplateNotFound
 }
 
 func validate(lang string, cfg *LanguageCfg) error {
 
-	dir, err := gorpcInstallPrefix()
+	dirs, err := templateSearchPath()
+	if err != nil {
+		return err
+	}
+
+	dir, err := templateInstallPath(dirs)
 	if err != nil {
 		return err
 	}
