@@ -34,9 +34,9 @@ var createCmdUsageLong = i18n.Message{
 	Description: "usage of createCmd",
 	Other: `指定pb文件快速创建工程或rpcstub，
 
-	'gorpc create' 有两种模式:
-	- 生成一个完整的服务工程
-	- 生成被调服务的rpcstub，需指定'--rpconly'选项.`,
+gorpc create 有两种模式:
+- 生成一个完整的服务工程
+- 生成被调服务的rpcstub，需指定'--rpconly'选项.`,
 }
 
 // issue cmd

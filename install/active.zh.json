@@ -5,7 +5,7 @@
   },
   "createCmdUsageLong": {
     "description": "usage of createCmd",
-    "other": "指定pb文件快速创建工程或rpcstub，\n\n\t'gorpc create' 有两种模式:\n\t- 生成一个完整的服务工程\n\t- 生成被调服务的rpcstub，需指定'--rpconly'选项."
+    "other": "指定pb文件快速创建工程或rpcstub，\n\ngorpc create 有两种模式:\n- 生成一个完整的服务工程\n- 生成被调服务的rpcstub，需指定'--rpconly'选项."
   },
   "issueCmdUsage": {
     "description": "usage of issueCmd",
