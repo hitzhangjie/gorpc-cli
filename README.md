@@ -77,22 +77,24 @@ run `gorpc` or `gorpc help` to show the help message, you can run `gorpc help cr
 more details relevant to `gorpc create`.
 
 ```bash
-gorpc 是一个效率工具，方便gorpc服务的开发.
+gorpc is an efficient too to speedup development.
 
-例如: 
-- 指定pb文件，快速生成完整的工程，或者生成对应的rpcstub
-- 对目标服务发起rpc测试请求 
-
-尝试用gorpc框架+gorpc工具来编写你的下一个gorpc服务吧 !
+for example:
+- quickly generate project or rpcstub, based on pb
+- send rpc request to test the target server
+- update template to the newest version
+- quickly open issue page to report an issue
+- more ...
 
 Usage:
   gorpc [command]
 
 Available Commands:
-  create      指定pb文件快速创建工程或rpcstub
+  create      quickly create project or rpcstub, based on pb
   help        Help about any command
-  issue       反馈一个issue
-  version     显示gorpc命令的版本(commit hash)
+  issue       report an issue
+  update      quickly update gorpc template or rpcstub, based on pb
+  version     show gorpc version (commit hash)
 
 Flags:
   -h, --help   help for gorpc
