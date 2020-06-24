@@ -101,11 +101,45 @@ func moveFile(src, dst string) error {
 	if inf, err := os.Lstat(p); err != nil {
 		return err
 	} else {
+
+		// p is a symlink to valid directory
+		if inf.Mode() & os.ModeSymlink != 0 {
+			yes, err := isSymLinkTodir(p)
+			if err != nil {
+				return err
+			}
+			if !yes {
+				return &os.PathError{"lstat", p, syscall.EEXIST}
+			}
+			return os.Rename(src, dst)
+		}
+
+		// p isn't directory, neither
 		if !inf.IsDir() {
 			return &os.PathError{"lstat", p, syscall.EEXIST}
 		}
+
 		return os.Rename(src, dst)
 	}
+}
+
+// isSymLinkTodir 符号链接symlink是否指向一个有效的目录
+func isSymLinkTodir(symlink string) (yes bool, err error) {
+
+	linkTo, err := filepath.EvalSymlinks(symlink)
+	if err != nil {
+		return
+	}
+
+	fin, err := os.Lstat(linkTo)
+	if err != nil {
+		return
+	}
+
+	if !fin.IsDir() {
+		return false, nil
+	}
+	return true, nil
 }
 
 // moveDirectory move a directory `src` to `dst`
