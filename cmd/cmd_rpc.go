@@ -141,6 +141,12 @@ func init() {
 	rpcCmd.Flags().String("rspbody", "", "rpc response body message name: gorpc.test.helloworld.HelloReply")
 	rpcCmd.Flags().String("func", "", "rpc method name: /gorpc.test.helloworld.Greeter/SayHello, required")
 	rpcCmd.Flags().String("callee", "", "back server service name: gorpc.test.helloworld.Greeter")
+
+	rpcCmd.MarkFlagRequired("protofile")
+	rpcCmd.MarkFlagRequired("reqbody")
+	rpcCmd.MarkFlagRequired("rspbody")
+	rpcCmd.MarkFlagRequired("callee")
+	rpcCmd.MarkFlagRequired("callee")
 }
 
 type rpcOptions struct {

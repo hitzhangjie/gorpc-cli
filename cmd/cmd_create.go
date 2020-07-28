@@ -178,6 +178,8 @@ func init() {
 	createCmd.Flags().StringP("output", "o", "", config.LoadTranslation("createCmdFlagOutput", nil))
 	createCmd.Flags().BoolP("force", "f", false, config.LoadTranslation("createCmdFlagForce", nil))
 	createCmd.Flags().Bool("swagger", false, config.LoadTranslation("createCmdFlagSwagger", nil))
+
+	createCmd.MarkFlagRequired("protofile")
 }
 
 func loadCreateOption(flagSet *pflag.FlagSet) (*params.Option, error) {
