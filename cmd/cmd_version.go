@@ -20,7 +20,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/hitzhangjie/gorpc/config"
+	"github.com/hitzhangjie/gorpc-cli/config"
 )
 
 // versionCmd represents the version command

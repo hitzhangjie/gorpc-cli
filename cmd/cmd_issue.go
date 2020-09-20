@@ -21,7 +21,7 @@ import (
 	"os/exec"
 	"runtime"
 
-	"github.com/hitzhangjie/gorpc/config"
+	"github.com/hitzhangjie/gorpc-cli/config"
 	"github.com/spf13/cobra"
 )
 
@@ -42,7 +42,7 @@ var issueCmd = &cobra.Command{
 
 func openIssuesInBrowser() error {
 
-	fireAt := "https://github.com/hitzhangjie/gorpc/issues"
+	fireAt := "https://github.com/hitzhangjie/gorpc-cli/issues"
 
 	switch runtime.GOOS {
 	case "darwin":

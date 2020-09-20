@@ -7,9 +7,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/hitzhangjie/gorpc/descriptor"
-	"github.com/hitzhangjie/gorpc/util/lang"
-	"github.com/hitzhangjie/gorpc/util/log"
+	"github.com/hitzhangjie/gorpc-cli/descriptor"
+	"github.com/hitzhangjie/gorpc-cli/util/lang"
+	"github.com/hitzhangjie/gorpc-cli/util/log"
 )
 
 // Protoc process `protofile` to generate *.pb.go or *.java, which is specified by `language`
@@ -87,7 +87,7 @@ func makeGoOut(fd *descriptor.FileDescriptor, pbpkgMapping map[string]string, pr
 
 			// 1. google官方库就交给protoc、protoc-gen-go自行处理好了
 			// 2. 其他import的pb，如与protofile validGoPkg相同，那么protoreflect/jhump解析出pb对应的package为空
-			//    BUG: https://github.com/hitzhangjie/gorpc/issues/96 解决这里的循环依赖问题！
+			//    BUG: https://github.com/hitzhangjie/gorpc-cli/issues/96 解决这里的循环依赖问题！
 			if strings.HasPrefix(k, "google/protobuf") || len(v) == 0 {
 				continue
 			}
@@ -100,7 +100,7 @@ func makeGoOut(fd *descriptor.FileDescriptor, pbpkgMapping map[string]string, pr
 			//}
 			//pbpkg += ",M" + k + "=" + lang.PBValidGoPackage(v)
 
-			// ISSUE: https://github.com/hitzhangjie/gorpc/issues/129
+			// ISSUE: https://github.com/hitzhangjie/gorpc-cli/issues/129
 			//
 			// 如果指定go_package会简化很多问题，google/protobuf建议为pb文件添加go_package这个fileoption，并将在后续
 			// 新版protoc-gen-go中将其作为一个强制的约束。

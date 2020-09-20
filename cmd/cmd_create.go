@@ -29,17 +29,17 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
-	"github.com/hitzhangjie/gorpc/config"
-	"github.com/hitzhangjie/gorpc/descriptor"
-	"github.com/hitzhangjie/gorpc/params"
-	"github.com/hitzhangjie/gorpc/parser"
-	"github.com/hitzhangjie/gorpc/tpl"
-	"github.com/hitzhangjie/gorpc/util/fs"
-	"github.com/hitzhangjie/gorpc/util/lang"
-	"github.com/hitzhangjie/gorpc/util/log"
-	"github.com/hitzhangjie/gorpc/util/pb"
-	"github.com/hitzhangjie/gorpc/util/style"
-	"github.com/hitzhangjie/gorpc/util/swagger"
+	"github.com/hitzhangjie/gorpc-cli/config"
+	"github.com/hitzhangjie/gorpc-cli/descriptor"
+	"github.com/hitzhangjie/gorpc-cli/params"
+	"github.com/hitzhangjie/gorpc-cli/parser"
+	"github.com/hitzhangjie/gorpc-cli/tpl"
+	"github.com/hitzhangjie/gorpc-cli/util/fs"
+	"github.com/hitzhangjie/gorpc-cli/util/lang"
+	"github.com/hitzhangjie/gorpc-cli/util/log"
+	"github.com/hitzhangjie/gorpc-cli/util/pb"
+	"github.com/hitzhangjie/gorpc-cli/util/style"
+	"github.com/hitzhangjie/gorpc-cli/util/swagger"
 )
 
 var (
@@ -478,7 +478,7 @@ func generateRPCStub(fd *descriptor.FileDescriptor, option *params.Option) (outp
 	// 将stub文件gorpc.go重命名
 	basename := fs.BaseNameWithoutExt(fd.FilePath)
 
-	// fix issue: https://github.com/hitzhangjie/gorpc/issues/178
+	// fix issue: https://github.com/hitzhangjie/gorpc-cli/issues/178
 	//
 	// 通过generated记录生成的文件列表，解决上述issue，有可能会尝试去重命名path/to/go/pkg/mod/.../gorpc.go，
 	// 这是错误的，只应该遍历生成的文件列表并对生成的gorpc.go进行重命名。
@@ -499,7 +499,7 @@ func generateRPCStub(fd *descriptor.FileDescriptor, option *params.Option) (outp
 	//	return err
 	//}
 
-	for fpath, _ := range generated {
+	for fpath := range generated {
 		if fname := filepath.Base(fpath); fname != "gorpc.go" {
 			continue
 		}
@@ -598,7 +598,7 @@ func handleDependencies(fd *descriptor.FileDescriptor, option *params.Option, pb
 	}
 
 	includeDirs := []string{}
-	for fname, _ := range fd.Pb2ImportPath {
+	for fname := range fd.Pb2ImportPath {
 		dir, _ := filepath.Split(fname)
 		includeDirs = append(includeDirs, dir)
 	}

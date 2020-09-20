@@ -7,14 +7,14 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/hitzhangjie/gorpc/descriptor"
-	"github.com/hitzhangjie/gorpc/params"
-	"github.com/hitzhangjie/gorpc/util/fs"
+	"github.com/hitzhangjie/gorpc-cli/descriptor"
+	"github.com/hitzhangjie/gorpc-cli/params"
+	"github.com/hitzhangjie/gorpc-cli/util/fs"
 
 	"github.com/iancoleman/strcase"
 	"github.com/pkg/errors"
 
-	"github.com/hitzhangjie/gorpc/util/log"
+	"github.com/hitzhangjie/gorpc-cli/util/log"
 )
 
 // GenerateFiles 处理go模板文件，并输出到目录outputdir中

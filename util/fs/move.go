@@ -103,7 +103,7 @@ func moveFile(src, dst string) error {
 	} else {
 
 		// p is a symlink to valid directory
-		if inf.Mode() & os.ModeSymlink != 0 {
+		if inf.Mode()&os.ModeSymlink != 0 {
 			yes, err := isSymLinkTodir(p)
 			if err != nil {
 				return err

@@ -16,7 +16,7 @@ import (
     "testing"
 
 	gorpc "github.com/hitzhangjie/gorpc"
-	_ "github.com/hitzhangjie/gorpc/http"
+	_ "github.com/hitzhangjie/gorpc-cli/http"
 	_ "github.com/hitzhangjie/gorpc-selector-cl5"
 
     "github.com/golang/mock/gomock"

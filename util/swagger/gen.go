@@ -7,10 +7,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/hitzhangjie/gorpc/descriptor"
-	"github.com/hitzhangjie/gorpc/params"
-	"github.com/hitzhangjie/gorpc/util/log"
-	"github.com/hitzhangjie/gorpc/util/pb"
+	"github.com/hitzhangjie/gorpc-cli/descriptor"
+	"github.com/hitzhangjie/gorpc-cli/params"
+	"github.com/hitzhangjie/gorpc-cli/util/log"
+	"github.com/hitzhangjie/gorpc-cli/util/pb"
 
 	protobuf "github.com/golang/protobuf/protoc-gen-go/descriptor"
 	"github.com/jhump/protoreflect/desc"
@@ -227,7 +227,7 @@ func getImportMessage(nfd *descriptor.FileDescriptor, option *params.Option) (ma
 	protodirs = append(protodirs, p)
 
 	msgMap := make(map[string]ModelStruct)
-	for fname, _ := range nfd.Pb2ImportPath {
+	for fname := range nfd.Pb2ImportPath {
 		// 跳过google官方提供的pb文件，gorpc扩展文件，swagger 扩展文件
 		if strings.HasPrefix(fname, "google/protobuf") || fname == "gorpc.proto" || fname == "swagger.proto" {
 			continue

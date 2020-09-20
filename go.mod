@@ -1,11 +1,10 @@
-module github.com/hitzhangjie/gorpc
+module github.com/hitzhangjie/gorpc-cli
 
 go 1.14
 
 require (
 	github.com/edwingeng/deque v0.0.0-20190917121042-56c0672d3354 // indirect
 	github.com/golang/protobuf v1.4.2
-	github.com/hitzhangjie/gorpc-framework v0.0.0-20200620090837-df63515c78d5 // indirect
 	github.com/iancoleman/strcase v0.0.0-20191112232945-16388991a334
 	github.com/jhump/protoreflect v1.6.1
 	github.com/mitchellh/go-homedir v1.1.0

@@ -18,7 +18,7 @@ package cmd
 import (
 	"os"
 
-	"github.com/hitzhangjie/gorpc/config"
+	"github.com/hitzhangjie/gorpc-cli/config"
 	"github.com/spf13/cobra"
 )
 

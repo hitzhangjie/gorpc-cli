@@ -19,12 +19,12 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/hitzhangjie/gorpc/config"
+	"github.com/hitzhangjie/gorpc-cli/config"
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/hitzhangjie/gorpc/util/log"
+	"github.com/hitzhangjie/gorpc-cli/util/log"
 )
 
 var cfgFile string

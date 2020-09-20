@@ -8,7 +8,7 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/hitzhangjie/gorpc/descriptor"
+	"github.com/hitzhangjie/gorpc-cli/descriptor"
 )
 
 // PBSimplifyGoType determine whether to use fullyQualifiedPackageName or not,
@@ -135,7 +135,7 @@ func GoFullyQualifiedType(pbFullyQualifiedType string, nfd *descriptor.FileDescr
 	//pkg := fulltyp[0:idx]
 	typ := fulltyp[idx+1:]
 
-	//BUG: https://github.com/hitzhangjie/gorpc/issues/184
+	//BUG: https://github.com/hitzhangjie/gorpc-cli/issues/184
 	//多个pb文件，package directive相同，但是go_package不同，这种情况下，nfd.Pkg2ValidGoPkg中的package directive
 	//到go_package的映射关系是错误的，这里需要具体到文件名才可以。
 	//但是，jhump/protoreflect解析出来的rpc的RequestType就是${package-directive}.RequestType这种形式的，没有指明

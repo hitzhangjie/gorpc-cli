@@ -25,14 +25,14 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/hitzhangjie/gorpc/config"
+	"github.com/hitzhangjie/gorpc-cli/config"
 	"github.com/jhump/protoreflect/desc/protoparse"
 	"github.com/jhump/protoreflect/dynamic"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
-	"github.com/hitzhangjie/gorpc/client"
-	"github.com/hitzhangjie/gorpc/codec"
+	"github.com/hitzhangjie/gorpc-cli/client"
+	"github.com/hitzhangjie/gorpc-cli/codec"
 )
 
 // rpcCmd represents the rpc command

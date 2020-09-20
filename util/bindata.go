@@ -64,5 +64,3 @@ var %s = []uint8{
 
 	fmt.Printf("ok, filedata stored to %s\n", targetBaseName)
 }
-
-

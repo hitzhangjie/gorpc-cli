@@ -1,7 +1,7 @@
 package params
 
 import (
-	"github.com/hitzhangjie/gorpc/config"
+	"github.com/hitzhangjie/gorpc-cli/config"
 )
 
 type Option struct {
