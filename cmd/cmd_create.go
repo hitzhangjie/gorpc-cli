@@ -145,7 +145,6 @@ func init() {
 	createCmd.Flags().BoolP("verbose", "v", false, config.LoadTranslation("createCmdFlagVerbose", nil))
 	createCmd.Flags().String("assetdir", "", config.LoadTranslation("createCmdFlagAssetdir", nil))
 	createCmd.Flags().Bool("rpconly", false, config.LoadTranslation("createCmdFlagRpcOnly", nil))
-	createCmd.Flags().String("lang", "go", config.LoadTranslation("createCmdFlagLang", nil))
 	createCmd.Flags().StringP("mod", "m", "", config.LoadTranslation("createCmdFlagMod", nil))
 	createCmd.Flags().StringP("output", "o", "", config.LoadTranslation("createCmdFlagOutput", nil))
 	createCmd.Flags().BoolP("force", "f", false, config.LoadTranslation("createCmdFlagForce", nil))
@@ -531,8 +530,7 @@ func handleDependencies(fd *descriptor.FileDescriptor, option *params.Option, pb
 		}
 
 		// 跳过google官方提供的pb文件，gorpc扩展文件，swagger 扩展文件
-		if strings.HasPrefix(fname, "google/protobuf") ||
-			fname == "gorpc.proto" || fname == "validate.proto" || fname == "swagger.proto" {
+		if strings.HasPrefix(fname, "google/protobuf") || fname == "gorpc.proto" || fname == "swagger.proto" {
 			continue
 		}
 
