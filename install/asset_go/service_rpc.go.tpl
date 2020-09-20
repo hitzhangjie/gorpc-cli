@@ -23,10 +23,6 @@ import (
 	{{- $rpcReqType = (gofulltype $rpcReqType $.FileDescriptor) -}}
 {{- end -}}
 
-{{- if secvtpl $importedPkg -}}
-{{`_ "github.com/hitzhangjie/gorpc-filter/validation"`}}
-{{- end -}}
-
 {{- if or (eq (trimright "." $rpcRspType) $pkgName) (eq (trimright "." (gofulltype $rpcRspType $.FileDescriptor)) $goPkgOption) -}}
 	{{- $rpcRspType = (printf "pb.%s" (splitList "." $rpcRspType|last|export)) -}}
 {{- else -}}

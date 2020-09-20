@@ -42,16 +42,6 @@ func Protoc(fd *descriptor.FileDescriptor, protodirs []string, protofile, langua
 		protodirs = append(protodirs, p)
 	}
 
-	// locate validate.proto
-	_, secvdep := pbpkgMapping["validate.proto"]
-	if secvdep {
-		secvp, err := LocateSECVProto()
-		if err != nil {
-			return err
-		}
-		protodirs = append(protodirs, secvp)
-	}
-
 	args := []string{}
 
 	// make --proto_path
@@ -183,64 +173,4 @@ func makeProtoPath(protodirs []string) ([]string, error) {
 		existed[protodir] = struct{}{}
 	}
 	return args, nil
-}
-
-// SECVProtoc 拼接命令，调用SECV插件生成go文件
-func SECVProtoc(protodirs []string, protofile string, language, outputdir string, pbpkgMapping map[string]string) error {
-
-	_, dep := pbpkgMapping["validate.proto"]
-
-	if dep {
-		secvp, err := LocateSECVProto()
-		if err != nil {
-			return err
-		}
-		protodirs = append(protodirs, secvp)
-	}
-
-	old, err := isOldProtocVersion()
-	if err != nil {
-		return err
-	}
-
-	wd, err := os.Getwd()
-	if err != nil {
-		return err
-	}
-
-	// --proto_path
-	args := []string{}
-	existed := map[string]struct{}{}
-	for _, protodir := range protodirs {
-
-		if _, ok := existed[protodir]; ok {
-			continue
-		}
-
-		if protodir == wd {
-			if old {
-				continue
-			}
-			args = append(args, fmt.Sprintf("--proto_path=%s", protodir))
-		} else {
-			args = append(args, fmt.Sprintf("--proto_path=%s", protodir))
-		}
-
-		existed[protodir] = struct{}{}
-	}
-
-	var out string
-	out = fmt.Sprintf("--secv_out=lang=%s:%s", language, "./")
-
-	args = append(args, out, protofile)
-
-	log.Debug("protoc %s", strings.Join(args, " "))
-
-	cmd := exec.Command("protoc", args...)
-	if output, err := cmd.CombinedOutput(); err != nil {
-		return fmt.Errorf("Run command: `%s`, error: %s", strings.Join(cmd.Args, " "), string(output))
-	}
-
-	return nil
-
 }

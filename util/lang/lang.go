@@ -224,17 +224,3 @@ func LoadGoMod() (mod string, err error) {
 	}
 	return
 }
-
-// CheckSECVTpl 检查是否启用Validation特性，来决定导出的模板内容
-func CheckSECVTpl(pkgMap map[string]string) bool {
-
-	isSECVEnabled := false
-
-	_, isKeyFound := pkgMap["validate"]
-
-	if isKeyFound {
-		isSECVEnabled = true
-	}
-
-	return isSECVEnabled
-}

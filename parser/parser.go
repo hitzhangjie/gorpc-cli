@@ -96,12 +96,6 @@ func ParseProtoFile(option *params.Option) (*descriptor.FileDescriptor, error) {
 	}
 	protodirs = append(protodirs, p)
 
-	// 适配SECV插件，检索插件目录
-	secvp, err := pb.LocateSECVProto()
-	if err == nil {
-		protodirs = append(protodirs, secvp)
-	}
-
 	// 解析pb
 	var fd *desc.FileDescriptor
 	if fds, err := parseProtoFile(option.Protofile, protodirs...); err != nil {
@@ -447,14 +441,3 @@ func GetPbPackage(fd *descriptor.FileDescriptor, fileOption string) (string, err
 	return pbPackage, nil
 }
 
-// CheckSECVEnabled 判断pb中是否定义了Validation规则
-func CheckSECVEnabled(nfd *descriptor.FileDescriptor) bool {
-
-	isSECVEnabled := false
-	_, isKeyFound := nfd.Pkg2ValidGoPkg["validate"]
-	if isKeyFound {
-		isSECVEnabled = true
-	}
-
-	return isSECVEnabled
-}

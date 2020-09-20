@@ -273,17 +273,6 @@ func create(fd *descriptor.FileDescriptor, option *params.Option) (outputdir str
 
 	pb2pkg := fd.Pb2ImportPath
 
-	// 检查pb中是否启用validation特性，并生成go文件
-	resultCheckSECV := parser.CheckSECVEnabled(fd)
-	if resultCheckSECV {
-		err = pb.SECVProtoc(option.Protodirs, option.Protofile, option.Language, pbOutDir, pb2pkg)
-		if err != nil {
-			removeDirAsNeeded(outputdir)
-			err = fmt.Errorf("GenerateFiles: %v", err)
-			return
-		}
-	}
-
 	// 处理-protofile指定的pb文件
 	err = pb.Protoc(fd, option.Protodirs, option.Protofile, option.Language, pbOutDir, pb2pkg)
 	if err != nil {
@@ -316,52 +305,6 @@ func create(fd *descriptor.FileDescriptor, option *params.Option) (outputdir str
 	src := filepath.Join(outputdir, "rpc")
 	defer os.RemoveAll(src)
 	dest := path.Join(stub, pbPackage)
-
-	// 找到生成的validate.pb.go文件，并移动到stub目录下
-	if resultCheckSECV {
-
-		err = filepath.Walk(pbPackage, func(fpath string, info os.FileInfo, err error) (e error) {
-
-			protoName := strings.Split(option.Protofile, ".")[0]
-			generatedName := protoName + ".pb.validate.go"
-			srcSameDirPath := "./" + outputdir + ".pb.validate.go"
-			_, checkSameDir := os.Stat(srcSameDirPath)
-
-			if checkSameDir != nil {
-
-				if fname := filepath.Base(fpath); fname == generatedName {
-					destDir := filepath.Join(dest, filepath.Base(fpath))
-					moveResult := fs.Move(fpath, destDir)
-
-					// - 生成结束后，删除validate所在的目录
-					parentDirArr := strings.Split(fpath, "/")
-					parentDir := parentDirArr[0]
-
-					err = os.RemoveAll(parentDir)
-
-					return moveResult
-				}
-
-				return nil
-
-			}
-
-			moveResult := fs.Move(srcSameDirPath, dest)
-
-			// - 生成结束后，删除validate所在的目录
-			parentDirArr := strings.Split(fpath, "/")
-			parentDir := parentDirArr[0]
-
-			err = os.RemoveAll(parentDir)
-
-			return moveResult
-
-		})
-
-		if err != nil {
-			return
-		}
-	}
 
 	err = filepath.Walk(src, func(fpath string, info os.FileInfo, err error) (e error) {
 

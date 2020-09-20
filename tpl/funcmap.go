@@ -30,5 +30,4 @@ var funcMap = template.FuncMap{
 	"lowercamelcase": strcase.ToLowerCamel,
 	"lower":          strings.ToLower,
 	"snakecase":      strcase.ToSnake,
-	"secvtpl":        lang.CheckSECVTpl,
 }
