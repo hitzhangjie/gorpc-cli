@@ -24,6 +24,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/hitzhangjie/gorpc-cli/plugins"
 	"github.com/iancoleman/strcase"
 
 	"github.com/spf13/cobra"
@@ -39,13 +40,13 @@ import (
 	"github.com/hitzhangjie/gorpc-cli/util/log"
 	"github.com/hitzhangjie/gorpc-cli/util/pb"
 	"github.com/hitzhangjie/gorpc-cli/util/style"
-	"github.com/hitzhangjie/gorpc-cli/util/swagger"
 )
 
 var (
-	createOption    *params.Option
-	createSuccess   bool
-	createOutputDir string
+	createOption     *params.Option
+	createSuccess    bool
+	createOutputDir  string
+	createDescriptor *descriptor.FileDescriptor
 )
 
 // createCmd represents the create command
@@ -53,9 +54,7 @@ var createCmd = &cobra.Command{
 	Use:   "create",
 	Short: config.LoadTranslation("createCmdUsage", nil),
 	Long:  config.LoadTranslation("createCmdUsageLong", nil),
-
-	RunE: func(cmd *cobra.Command, args []string) error {
-
+	PreRunE: func(cmd *cobra.Command, args []string) error {
 		// 解析命令行参数
 		err := cmd.ParseFlags(args)
 		if err != nil {
@@ -68,44 +67,41 @@ var createCmd = &cobra.Command{
 			return fmt.Errorf("check flags error: %v", err)
 		}
 		createOption = option
+		return nil
+	},
+	RunE: func(cmd *cobra.Command, args []string) error {
 
 		// 初始化日志级别
-		log.InitLogging(option.Verbose)
-		log.Info("ready to process protofile: %s", option.ProtofileAbs)
+		log.InitLogging(createOption.Verbose)
+		log.Info("ready to process protofile: %s", createOption.ProtofileAbs)
 
 		// 解析pb
-		fd, err := parser.ParseProtoFile(option)
+		fd, err := parser.ParseProtoFile(createOption)
 		if err != nil {
-			return fmt.Errorf("Parse protofile: %s error: %v", option.Protofile, err)
+			return fmt.Errorf("Parse protofile: %s error: %v", createOption.Protofile, err)
 		}
-		fd.FilePath = option.ProtofileAbs
+		fd.FilePath = createOption.ProtofileAbs
 		fd.Dump()
 
 		// 创建工程
 		var outputdir string
-		if !option.RpcOnly {
-			outputdir, err = create(fd, option)
+		if !createOption.RpcOnly {
+			outputdir, err = create(fd, createOption)
 		} else {
-			outputdir, err = generateRPCStub(fd, option)
+			outputdir, err = generateRPCStub(fd, createOption)
 		}
 
 		if err != nil {
-			if !option.RpcOnly {
+			if !createOption.RpcOnly {
 				return fmt.Errorf("create gorpc project error: %v", err)
 			}
 			return fmt.Errorf("create gorpc stub error: %v", err)
 		}
 
-		// 生成 swagger 文档
-		if option.SwaggerOn {
-			if err = swagger.GenSwagger(fd, option); err != nil {
-				return fmt.Errorf("create swagger api document error: %v", err)
-			}
-		}
-
-		createOption = option
+		createOption = createOption
 		createOutputDir = outputdir
 		createSuccess = true
+		createDescriptor = fd
 
 		return nil
 	},
@@ -115,38 +111,14 @@ var createCmd = &cobra.Command{
 			return nil
 		}
 
-		if createOption.Language != "go" {
-			return nil
-		}
-
 		err := os.Chdir(createOutputDir)
 		if err != nil {
 			return err
 		}
 
-		// run mockgen to generate interface mock stub
-		// fixme if `go build` not run first, `go generate` which calls `mockgen`,
-		// it's really time consuming, so forget it so far.
-		//
-		//_, err = exec.LookPath("mockgen")
-		//if err != nil {
-		//	log.Error("please install mockgen in order to generate mockstub")
-		//} else {
-		//	c := exec.Command("go", "generate")
-		//	if buf, err := c.CombinedOutput(); err != nil {
-		//		log.Error("run mockgen error: %v,\n%s", err, string(buf))
-		//		return err
-		//	}
-		//}
-
-		// run goimports to format your code
-		goimports, err := exec.LookPath("goimports")
-		if err != nil {
-			log.Error("please install goimports in order to format code")
-		} else {
-			c := exec.Command(goimports, "-w", ".")
-			if buf, err := c.CombinedOutput(); err != nil {
-				log.Error("run goimports error: %v,\n%s", err, string(buf))
+		for _, p := range plugins.Plugins {
+			err := p.Run(createDescriptor, createOption)
+			if err != nil {
 				return err
 			}
 		}
