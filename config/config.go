@@ -13,7 +13,7 @@ import (
 	"strings"
 
 	"github.com/hitzhangjie/gorpc-cli/bindata"
-	"github.com/hitzhangjie/gorpc-cli/util/fs"
+	"github.com/hitzhangjie/fs"
 	"github.com/hitzhangjie/tar"
 )
 

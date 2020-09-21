@@ -6,7 +6,8 @@ import (
 	"strings"
 
 	"github.com/hitzhangjie/gorpc-cli/params"
-	"github.com/hitzhangjie/gorpc-cli/util/fs"
+
+	"github.com/hitzhangjie/fs"
 )
 
 // getOutputDir return outputdir

@@ -9,12 +9,11 @@ import (
 
 	"github.com/hitzhangjie/gorpc-cli/descriptor"
 	"github.com/hitzhangjie/gorpc-cli/params"
-	"github.com/hitzhangjie/gorpc-cli/util/fs"
+	"github.com/hitzhangjie/gorpc-cli/util/log"
 
+	"github.com/hitzhangjie/fs"
 	"github.com/iancoleman/strcase"
 	"github.com/pkg/errors"
-
-	"github.com/hitzhangjie/gorpc-cli/util/log"
 )
 
 // GenerateFiles 处理go模板文件，并输出到目录outputdir中
