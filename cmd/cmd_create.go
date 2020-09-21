@@ -71,7 +71,9 @@ var createCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 
 		// 初始化日志级别
-		log.InitLogging(createOption.Verbose)
+		if createOption.Verbose {
+			log.SetFlags(log.LVerbose)
+		}
 		log.Info("ready to process protofile: %s", createOption.ProtofileAbs)
 
 		// 解析pb

@@ -10,8 +10,13 @@ var (
 	verbose bool
 )
 
-func InitLogging(v bool) {
-	verbose = v
+const (
+	LVerbose = 1 << 10
+)
+
+func SetFlags(flags int) {
+	//log.SetFlags(flags)
+	verbose = (flags & LVerbose) != 0
 }
 
 // Info print logging info at level INFO, if flag verbose true, filename and lineno will be logged.

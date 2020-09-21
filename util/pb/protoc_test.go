@@ -38,7 +38,8 @@ func TestProtoc(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			for _, lang := range languages {
-				err := Protoc(tt.args.protodirs, tt.args.protofile, lang, outputdir, tt.args.pbpkgMapping)
+				// TODO: nil fd
+				err := Protoc(nil, tt.args.protodirs, tt.args.protofile, lang, outputdir, tt.args.pbpkgMapping)
 				if err != nil {
 					t.Errorf("Protoc() error = %v", err)
 				}
