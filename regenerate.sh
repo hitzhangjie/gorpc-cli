@@ -1,5 +1,9 @@
 #!/bin/bash -e
 
+# step-1: reformat the code
+gofmt -s -w .
+goimports -w -local github.com .
+
 #step0: update the template version
 echo "VERSION=${rev}" > install/VERSION
 

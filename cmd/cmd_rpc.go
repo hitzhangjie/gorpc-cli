@@ -24,15 +24,16 @@ import (
 	"strings"
 	"time"
 
+	"git.code.oa.com/go-neat/tencent/polaris/selector"
+	"git.code.oa.com/trpc-go/trpc-go/client"
+	"git.code.oa.com/trpc-go/trpc-go/codec"
+
 	"github.com/golang/protobuf/proto"
 	"github.com/hitzhangjie/gorpc-cli/config"
 	"github.com/jhump/protoreflect/desc/protoparse"
 	"github.com/jhump/protoreflect/dynamic"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
-
-	"github.com/hitzhangjie/gorpc-cli/client"
-	"github.com/hitzhangjie/gorpc-cli/codec"
 )
 
 // rpcCmd represents the rpc command

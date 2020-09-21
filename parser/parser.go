@@ -440,4 +440,3 @@ func GetPbPackage(fd *descriptor.FileDescriptor, fileOption string) (string, err
 
 	return pbPackage, nil
 }
-

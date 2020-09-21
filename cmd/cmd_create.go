@@ -24,22 +24,21 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/hitzhangjie/gorpc-cli/plugins"
-	"github.com/iancoleman/strcase"
-
-	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
-
 	"github.com/hitzhangjie/gorpc-cli/config"
 	"github.com/hitzhangjie/gorpc-cli/descriptor"
 	"github.com/hitzhangjie/gorpc-cli/params"
 	"github.com/hitzhangjie/gorpc-cli/parser"
+	"github.com/hitzhangjie/gorpc-cli/plugins"
 	"github.com/hitzhangjie/gorpc-cli/tpl"
 	"github.com/hitzhangjie/gorpc-cli/util/fs"
 	"github.com/hitzhangjie/gorpc-cli/util/lang"
 	"github.com/hitzhangjie/gorpc-cli/util/log"
 	"github.com/hitzhangjie/gorpc-cli/util/pb"
 	"github.com/hitzhangjie/gorpc-cli/util/style"
+
+	"github.com/iancoleman/strcase"
+	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 )
 
 var (
