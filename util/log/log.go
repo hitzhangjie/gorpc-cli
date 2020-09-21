@@ -2,6 +2,7 @@ package log
 
 import (
 	"fmt"
+	"log"
 	"runtime"
 	"strings"
 )
@@ -11,11 +12,19 @@ var (
 )
 
 const (
+	// LVerbose 显示详细日志信息
 	LVerbose = 1 << 10
 )
 
+func init() {
+	// clear the datetime prefix in default logger
+	// `go: x &^ y` is equal to `c: x & ~y`
+	log.SetFlags(log.Flags() &^ (log.Ldate | log.Ltime))
+}
+
+// SetFlags 设置log选项
 func SetFlags(flags int) {
-	//log.SetFlags(flags)
+	log.SetFlags(log.Flags() | flags)
 	verbose = (flags & LVerbose) != 0
 }
 
@@ -23,9 +32,9 @@ func SetFlags(flags int) {
 func Info(format string, vals ...interface{}) {
 	fn, _ := callerAddress(3)
 	if verbose {
-		fmt.Printf("%s[Info][%s] %s%s\n", COLOR_GREEN, fn, fmt.Sprintf(format, vals...), COLOR_RESET)
+		log.Printf("%s[Info][%s] %s%s", COLOR_GREEN, fn, fmt.Sprintf(format, vals...), COLOR_RESET)
 	} else {
-		fmt.Printf("%s%s%s\n", COLOR_GREEN, fmt.Sprintf(format, vals...), COLOR_RESET)
+		log.Printf("%s%s%s", COLOR_GREEN, fmt.Sprintf(format, vals...), COLOR_RESET)
 	}
 }
 
@@ -33,7 +42,7 @@ func Info(format string, vals ...interface{}) {
 func Debug(format string, vals ...interface{}) {
 	fn, _ := callerAddress(3)
 	if verbose {
-		fmt.Printf("%s[Debug][%s] %s%s\n", COLOR_PINK, fn, fmt.Sprintf(format, vals...), COLOR_RESET)
+		log.Printf("%s[Debug][%s] %s%s", COLOR_PINK, fn, fmt.Sprintf(format, vals...), COLOR_RESET)
 	}
 }
 
@@ -41,9 +50,9 @@ func Debug(format string, vals ...interface{}) {
 func Error(format string, vals ...interface{}) {
 	fn, _ := callerAddress(3)
 	if verbose {
-		fmt.Printf("%s[Error][%s] %s%s\n", COLOR_RED, fn, fmt.Sprintf(format, vals...), COLOR_RESET)
+		log.Printf("%s[Error][%s] %s%s", COLOR_RED, fn, fmt.Sprintf(format, vals...), COLOR_RESET)
 	} else {
-		fmt.Printf("%s%s%s\n", COLOR_RED, fmt.Sprintf(format, vals...), COLOR_RESET)
+		log.Printf("%s%s%s", COLOR_RED, fmt.Sprintf(format, vals...), COLOR_RESET)
 	}
 }
 
