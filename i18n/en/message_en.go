@@ -137,7 +137,7 @@ var rpcCmdUsageLong = i18n.Message{
 	Other: `send rpc request to server.
 
 the request header, request body can be specified via stdin 
-or input file, just like the curl style. Besides, target 
+or input file, just like the curl gostyle. Besides, target 
 server address, network, timeout can be specified, too.`,
 }
 

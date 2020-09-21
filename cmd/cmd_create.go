@@ -32,11 +32,10 @@ import (
 	"github.com/hitzhangjie/gorpc-cli/tpl"
 	"github.com/hitzhangjie/gorpc-cli/util/lang"
 	"github.com/hitzhangjie/gorpc-cli/util/pb"
-	"github.com/hitzhangjie/gorpc-cli/util/style"
 
 	"github.com/hitzhangjie/fs"
+	"github.com/hitzhangjie/gostyle"
 	"github.com/hitzhangjie/log"
-	"github.com/iancoleman/strcase"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
@@ -326,29 +325,8 @@ func create(fd *descriptor.FileDescriptor, option *params.Option) (outputdir str
 		return
 	}
 
-	// Python 移动stub的setup.py
-	if option.GoRPCCfg.Language == "python" {
-		// move stub/.../setup.py to stub/setup.py
-		setupFilePath := filepath.Join(pbOutDir, "setup.py")
-
-		var fin os.FileInfo
-		if fin, err = os.Stat(setupFilePath); err == nil && !fin.IsDir() {
-			log.Debug("move setup.py file from %s to %s", setupFilePath, stubDir)
-			if err = fs.Move(setupFilePath, stubDir); err != nil {
-				return
-			}
-		}
-	}
-
-	// Java格式化操作
-	if option.GoRPCCfg.Language == "java" {
-		if err = javaFormat(outputdir, fd, option); err != nil {
-			return
-		}
-	}
-
 	// 格式化操作
-	if err = style.GoFmtDir(outputdir); err != nil {
+	if err = gostyle.FormatSourceDir(outputdir, option.Language); err != nil {
 		return
 	}
 
@@ -385,7 +363,7 @@ func generateRPCStub(fd *descriptor.FileDescriptor, option *params.Option) (outp
 			return
 		}
 
-		if err = style.Format(out, option); err != nil {
+		if err = gostyle.FormatSource(out, option.Language); err != nil {
 			return
 		}
 
@@ -607,37 +585,4 @@ func handleDependencies(fd *descriptor.FileDescriptor, option *params.Option, pb
 type DirMove struct {
 	Src string
 	Dst string
-}
-
-// java生成代码格式化处理，当前先hardcode，后续考虑通过脚本配置实现
-func javaFormat(outputdir string, fd *descriptor.FileDescriptor, option *params.Option) (err error) {
-	log.Debug("******************************java format begin***********************************")
-	serviceName := fd.Services[0].Name
-	packageName := serviceName
-	if javaPackage, ok := fd.FileOptions["java_package"].(string); ok {
-		ss := strings.Split(javaPackage, ".")
-		packageName = filepath.Join(ss...) // java路径调整 suggest from youngwwang
-		//idx := len(ss) - 1
-		//packageName = ss[idx]
-	}
-	var DirMoveList []DirMove
-	err = filepath.Walk(outputdir, func(fpath string, info os.FileInfo, err error) (e error) {
-		if info.IsDir() && strings.HasSuffix(fpath, "gorpcserver") {
-			dstPath := strings.TrimRight(fpath, "gorpcserver") + strings.ToLower(packageName)
-			DirMoveList = append(DirMoveList, DirMove{fpath, dstPath})
-		} else if !info.IsDir() && strings.HasSuffix(fpath, "service_api.java") {
-			dstPath := strings.TrimRight(fpath, "service_api.java") + strcase.ToCamel(serviceName) + "Api." + option.GoRPCCfg.Language
-			e = os.RemoveAll(dstPath)
-			log.Debug("file move, src: %s, dst: %s", fpath, dstPath)
-			e = fs.Move(fpath, dstPath)
-		}
-		return
-	})
-	for _, dirMove := range DirMoveList {
-		log.Debug("dir copy, src: %s, dst: %s", dirMove.Src, dirMove.Dst)
-		err = fs.Copy(dirMove.Src, dirMove.Dst)
-		err = os.RemoveAll(dirMove.Src)
-	}
-	log.Debug("******************************java format finish***********************************")
-	return
 }

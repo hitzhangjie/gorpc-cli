@@ -32,7 +32,7 @@ func PBSimplifyGoType(fullTypeName string, goPackageName string) string {
 	return fullTypeName
 }
 
-// PBGoType convert `t` to go style (like a.b.c.hello, it'll be changed to a_b_c.Hello)
+// PBGoType convert `t` to go gostyle (like a.b.c.hello, it'll be changed to a_b_c.Hello)
 func PBGoType(t string) string {
 
 	var prefix string
