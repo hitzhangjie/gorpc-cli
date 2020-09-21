@@ -105,6 +105,12 @@ var createCmdFlagSwagger = i18n.Message{
 	Other:       `生成swagger api文档`,
 }
 
+var createCmdFlagMock = i18n.Message{
+	ID: "createCmdFlagMock",
+	Description: "usage of flag --mock",
+	Other: `mockgen生成接口测试代码`,
+}
+
 // issue cmd
 var issueCmdUsage = i18n.Message{
 	ID:          "issueCmdUsage",

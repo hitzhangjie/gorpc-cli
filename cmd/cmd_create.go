@@ -149,6 +149,7 @@ func init() {
 	createCmd.Flags().StringP("output", "o", "", config.LoadTranslation("createCmdFlagOutput", nil))
 	createCmd.Flags().BoolP("force", "f", false, config.LoadTranslation("createCmdFlagForce", nil))
 	createCmd.Flags().Bool("swagger", false, config.LoadTranslation("createCmdFlagSwagger", nil))
+	createCmd.Flags().Bool("mock", false, config.LoadTranslation("createCmdFlagMock", nil))
 
 	createCmd.MarkFlagRequired("protofile")
 }

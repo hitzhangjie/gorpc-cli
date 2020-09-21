@@ -102,7 +102,13 @@ var createCmdFlagForce = i18n.Message{
 var createCmdFlagSwagger = i18n.Message{
 	ID:          "createCmdFlagSwagger",
 	Description: "usage of flag --swagger",
-	Other:       `enable swagger to gen swagger api document`,
+	Other:       `enable swagger to generate swagger api docs`,
+}
+
+var createCmdFlagMock = i18n.Message{
+	ID: "createCmdFlagMock",
+	Description: "usage of flag --mock",
+	Other: `enable mockgen to generate mock stub`,
 }
 
 // issue cmd
