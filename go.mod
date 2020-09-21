@@ -3,7 +3,10 @@ module github.com/hitzhangjie/gorpc-cli
 go 1.14
 
 require (
+	git.code.oa.com/go-neat/tencent v1.2.1
+	git.code.oa.com/trpc-go/trpc-go v0.3.6
 	github.com/golang/protobuf v1.4.2
+	github.com/hitzhangjie/tar v0.0.0-20200921101623-6151f636b722
 	github.com/iancoleman/strcase v0.0.0-20191112232945-16388991a334
 	github.com/jhump/protoreflect v1.6.1
 	github.com/mitchellh/go-homedir v1.1.0

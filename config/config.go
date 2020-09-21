@@ -13,8 +13,8 @@ import (
 	"strings"
 
 	"github.com/hitzhangjie/gorpc-cli/bindata"
-	"github.com/hitzhangjie/gorpc-cli/util/compress"
 	"github.com/hitzhangjie/gorpc-cli/util/fs"
+	"github.com/hitzhangjie/tar"
 )
 
 // LanguageCfg 开发语言相关的配置信息，如对应的模板工程目录、模板工程中的serverstub文件、clientstub文件
@@ -120,7 +120,7 @@ func InstallTemplate(installTo string) error {
 		panic(err)
 	}
 
-	err = compress.Untar(tmpDir, bytes.NewBuffer(bindata.InstallTgzBytes))
+	err = tar.Untar(tmpDir, bytes.NewBuffer(bindata.InstallTgzBytes))
 	if err != nil {
 		return err
 	}

@@ -24,6 +24,29 @@ import (
 	"github.com/hitzhangjie/gorpc-cli/util/log"
 )
 
+// Dependency 依赖工具
+type Dependency struct {
+	Name    string
+	Version string
+}
+
+var (
+	dependencies []*Dependency
+)
+
+func loadDependencies(path string) ([]*Dependency, error) {
+	return []*Dependency{
+		{
+			Name:    "protoc",
+			Version: "v3.6.0+",
+		},
+		{
+			Name:    "protoc-gen-go",
+			Version: "",
+		},
+	}, nil
+}
+
 func main() {
 
 	// 检查protoc有没有安装

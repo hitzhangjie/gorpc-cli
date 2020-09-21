@@ -65,6 +65,7 @@ func Protoc(fd *descriptor.FileDescriptor, protodirs []string, protofile, langua
 	return nil
 }
 
+// TODO: 这里需要做成插件化的，支持不同语言采用不同实现
 func makeGoOut(fd *descriptor.FileDescriptor, pbpkgMapping map[string]string, protofile string, language string, outputdir string) string {
 
 	//protofileValidGoPkg := pbpkgMapping[protofile]
