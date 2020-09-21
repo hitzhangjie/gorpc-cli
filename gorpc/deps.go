@@ -63,8 +63,6 @@ func checkDependencies(deps []*dependency) error {
 
 func checkVersion(version, required string) error {
 
-	fmt.Println(version, required)
-
 	if len(version) != 0 && version[0] == 'v' || version[0] == 'V' {
 		version = version[1:]
 	}
