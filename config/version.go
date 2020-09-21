@@ -1,3 +1,3 @@
 package config
 
-var GORPCCliVersion string = "81de3a1"
+var GORPCCliVersion string = "77bb21d"

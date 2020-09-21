@@ -1,6 +1,5 @@
 {{- $pkgName := .PackageName -}}
 {{- $goPkgName := .PackageName -}}
-{{- $importedPkg := .Pkg2ValidGoPkg -}}
 {{- $imports := .Imports -}}
 {{- $goPkgOption := "" -}}
 {{- with .FileOptions.go_package -}}

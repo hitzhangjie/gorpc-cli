@@ -20,12 +20,6 @@ type FileDescriptor struct {
 	Pb2ValidGoPkg map[string]string // k=pb文件名, v=protoc处理后package名
 	Pb2ImportPath map[string]string // k=pb文件名，v=go代码中对应importpath
 
-	//Deprecated
-	Pkg2ValidGoPkg map[string]string // k=pb文件package directive, v=protoc处理后package名
-
-	//Deprecated
-	Pkg2ImportPath map[string]string // k=pb文件package directive, v=go代码中对应importpath
-
 	RpcMessageType map[string]string // k=pb定义的pkg.typ，v=有效的go中的pkg.typ
 
 	fd *desc.FileDescriptor // 原始descriptor

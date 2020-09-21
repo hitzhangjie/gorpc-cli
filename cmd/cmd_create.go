@@ -296,12 +296,6 @@ func create(fd *descriptor.FileDescriptor, option *params.Option) (outputdir str
 		return
 	}
 
-	// fixme 用抽象、泛化来解决特殊逻辑问题，这里为java调整pb路径的逻辑需要调整下，go的类似
-	err = changeProtofileDir(pbOutDir, option.GoRPCCfg.Language)
-	if err != nil {
-		return
-	}
-
 	// - 将outputdir/rpc移动到outputdir/$gopkgdir/
 	src := filepath.Join(outputdir, "rpc")
 	defer os.RemoveAll(src)
@@ -477,11 +471,7 @@ func handleDependencies(fd *descriptor.FileDescriptor, option *params.Option, pb
 		includeDirs = append(includeDirs, dir)
 	}
 
-	// 计算所依赖文件的package
-	//dependPackage := map[string]string{}
-	//for k, p := range fd.Pb2ImportPath {
-	//	dependPackage[k] = p
-	//}
+	// 逐一处理依赖的其他pb文件
 	for fname, importPath := range fd.Pb2ImportPath {
 
 		// 如果是${protofile}跳过不处理
@@ -527,9 +517,6 @@ func handleDependencies(fd *descriptor.FileDescriptor, option *params.Option, pb
 			}
 		}
 
-		//if err := pb.Protoc(searchPath, fname, option.Language, pbOutDir, pb2ValidGoPkg); err != nil {
-		//	return fmt.Errorf("GenerateFiles: %v", err)
-		//}
 		if err := pb.Protoc(fd, searchPath, fname, option.Language, pbOutDir, fd.Pb2ImportPath); err != nil {
 			return fmt.Errorf("GenerateFiles: %v", err)
 		}
@@ -558,7 +545,8 @@ func handleDependencies(fd *descriptor.FileDescriptor, option *params.Option, pb
 			continue
 		}
 
-		// fixme 移动到createCmd.PostRun
+		// TODO 移动到createCmd.PostRun
+
 		// 执行go mod init, 与pbPackage相同也不用初始化
 		if option.Language != "go" {
 			continue
@@ -580,9 +568,4 @@ func handleDependencies(fd *descriptor.FileDescriptor, option *params.Option, pb
 	}
 
 	return nil
-}
-
-type DirMove struct {
-	Src string
-	Dst string
 }

@@ -55,7 +55,6 @@ func GetLocale() (string, error) {
 	switch runtime.GOOS {
 	case "linux", "darwin":
 		// Check the LANG environment variable, common on UNIX.
-		// XXX: we can easily override as a nice feature/bug.
 		envlang, ok := os.LookupEnv("LANG")
 		if !ok {
 			return "en", nil

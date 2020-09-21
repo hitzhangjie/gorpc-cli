@@ -4,6 +4,7 @@ import (
 	"github.com/hitzhangjie/gorpc-cli/config"
 )
 
+// Option 命令选项、配置选项
 type Option struct {
 	// pb option
 	Protodirs    []string // pb import路径
@@ -32,12 +33,4 @@ type Option struct {
 
 	// swagger option
 	SwaggerOn bool // 解析 MethodOption 的swagger
-}
-
-var option = &Option{}
-
-func NewOption() *Option {
-	return &Option{
-		Protodirs: []string{},
-	}
 }

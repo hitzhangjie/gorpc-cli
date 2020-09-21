@@ -77,7 +77,7 @@
   },
   "rpcCmdUsageLong": {
     "description": "usage of rpcCmd",
-    "other": "send rpc request to server.\n\nthe request header, request body can be specified via stdin \nor input file, just like the curl style. Besides, target \nserver address, network, timeout can be specified, too."
+    "other": "send rpc request to server.\n\nthe request header, request body can be specified via stdin \nor input file, just like the curl gostyle. Besides, target \nserver address, network, timeout can be specified, too."
   },
   "updateCmdUsage": {
     "description": "usage of updateCmd",

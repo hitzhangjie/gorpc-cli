@@ -3,7 +3,6 @@ package cmd
 import (
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/hitzhangjie/gorpc-cli/params"
 
@@ -36,31 +35,4 @@ func getOutputDir(options *params.Option) (string, error) {
 
 	b := fs.BaseNameWithoutExt(options.Protofile)
 	return filepath.Join(d, b), nil
-}
-
-// changeProtofileDir 不同语言希望pb存放位置不同，hardcode
-func changeProtofileDir(pbDir, language string) error {
-	var err error
-	switch language {
-	case "java":
-		var pbGenDir string
-		err = filepath.Walk(pbDir, func(fpath string, info os.FileInfo, err error) error {
-			if !info.IsDir() {
-				proPath := strings.Replace(pbDir, "/stub", "", -1)
-				return fs.Copy(fpath, filepath.Join(proPath, info.Name())) // java路径调整 suggest from youngwwang
-			} else {
-				if !strings.HasSuffix(fpath, "com") {
-					return nil
-				}
-				pbGenDir = fpath
-				return nil
-			}
-		})
-		// 移出pb生成的.java文件，删除pb生成的/com/github/gorpc/greeter/...文件夹
-		if pbGenDir != "" {
-			err = os.RemoveAll(pbGenDir)
-		}
-	default:
-	}
-	return err
 }

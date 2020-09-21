@@ -11,70 +11,13 @@ import (
 	"github.com/hitzhangjie/gorpc-cli/extension/swagger"
 	"github.com/hitzhangjie/gorpc-cli/params"
 	"github.com/hitzhangjie/gorpc-cli/util/lang"
-	"github.com/hitzhangjie/log"
 	"github.com/hitzhangjie/gorpc-cli/util/pb"
+	"github.com/hitzhangjie/log"
 
 	"github.com/golang/protobuf/proto"
 	"github.com/jhump/protoreflect/desc"
 	"github.com/jhump/protoreflect/desc/protoparse"
 )
-
-// parseProtoFile 调用jhump/protoreflect来解析pb文件，拿到proto文件描述信息
-func parseProtoFile(fname string, protodirs ...string) ([]*desc.FileDescriptor, error) {
-
-	parser := protoparse.Parser{
-		ImportPaths:           protodirs,
-		IncludeSourceCodeInfo: true,
-	}
-
-	return parser.ParseFiles(fname)
-}
-
-// checkRequirements 检查是否符合某些约束条件
-//
-// requirements:
-// - 必须指定`fileoption go_package`，且go_package结尾部分必须与package diretive指定的包名一致;
-// - 必须保证`packageName` === `serviceName`，如果有定义多个service只处理第一个service，其余忽略;
-// - service定义数量不能为0;
-func checkRequirements(fd *desc.FileDescriptor) error {
-
-	// fixme MUST: syntax = "proto3"
-	//if !fd.IsProto3() {
-	//	return errors.New("syntax isn't proto3")
-	//}
-
-	// fixme MUST: option go_package = "github.com/$group/$repo"
-	// fixme MUST: option go_package trailing part, must equal to package directive
-	//opts := fd.GetFileOptions()
-	//if opts == nil {
-	//	return errors.New(`FileOption 'go_package' missing`)
-	//}
-	//
-	//gopkg := opts.GetGoPackage()
-	//if len(gopkg) == 0 {
-	//	return errors.New(`FileOption 'go_package' missing`)
-	//} else {
-	//	var trailing string
-	//	idx := strings.LastIndex(gopkg, "/")
-	//
-	//	if idx < 0 {
-	//		trailing = gopkg
-	//	} else {
-	//		trailing = gopkg[idx+1:]
-	//	}
-	//
-	//	if trailing != fd.GetPackage() {
-	//		return errors.New(`'option go_package="a/b/c"' trailing part "c" must be consistent with 'package diretive'`)
-	//	}
-	//}
-
-	// MUST: service
-	if len(fd.GetServices()) == 0 {
-		return errors.New("service missing")
-	}
-
-	return nil
-}
 
 // ParseProtoFile 解析proto文件，返回一个构造好的可以应用于模板填充的FileDescriptor对象
 //
@@ -125,6 +68,63 @@ func ParseProtoFile(option *params.Option) (*descriptor.FileDescriptor, error) {
 	return fileDescriptor, nil
 }
 
+// parseProtoFile 调用jhump/protoreflect来解析pb文件，拿到proto文件描述信息
+func parseProtoFile(fname string, protodirs ...string) ([]*desc.FileDescriptor, error) {
+
+	parser := protoparse.Parser{
+		ImportPaths:           protodirs,
+		IncludeSourceCodeInfo: true,
+	}
+
+	return parser.ParseFiles(fname)
+}
+
+// checkRequirements 检查是否符合某些约束条件
+//
+// requirements:
+// - pb语法必须为syntax = "proto3";
+// - 必须指定fileoption go_package;
+// - service定义数量不能为0;
+func checkRequirements(fd *desc.FileDescriptor) error {
+
+	// fixme MUST: syntax = "proto3"
+	//if !fd.IsProto3() {
+	//	return errors.New("syntax isn't proto3")
+	//}
+
+	// fixme MUST: option go_package = "github.com/$group/$repo"
+	// fixme MUST: option go_package trailing part, must equal to package directive
+	//opts := fd.GetFileOptions()
+	//if opts == nil {
+	//	return errors.New(`FileOption 'go_package' missing`)
+	//}
+	//
+	//gopkg := opts.GetGoPackage()
+	//if len(gopkg) == 0 {
+	//	return errors.New(`FileOption 'go_package' missing`)
+	//} else {
+	//	var trailing string
+	//	idx := strings.LastIndex(gopkg, "/")
+	//
+	//	if idx < 0 {
+	//		trailing = gopkg
+	//	} else {
+	//		trailing = gopkg[idx+1:]
+	//	}
+	//
+	//	if trailing != fd.GetPackage() {
+	//		return errors.New(`'option go_package="a/b/c"' trailing part "c" must be consistent with 'package diretive'`)
+	//	}
+	//}
+
+	// MUST: service
+	if len(fd.GetServices()) == 0 {
+		return errors.New("service missing")
+	}
+
+	return nil
+}
+
 func withErrorCheck(err error) {
 	if err != nil {
 		panic(err)
@@ -133,10 +133,8 @@ func withErrorCheck(err error) {
 
 func fillDependencies(fd *desc.FileDescriptor, nfd *descriptor.FileDescriptor) error {
 
-	pb2ValidGoPkg := map[string]string{}  // k=pb文件名, v=protoc处理后package名
-	pkg2ValidGoPkg := map[string]string{} // k=pb文件package directive, v=protoc处理后package名
-	pkg2ImportPath := map[string]string{} // k=pb文件package directive, v=go代码中对应importpath
-	pb2ImportPath := map[string]string{}  // k=pb文件名, v=go代码中对应importpath
+	pb2ValidGoPkg := map[string]string{} // k=pb文件名, v=protoc处理后package名
+	pb2ImportPath := map[string]string{} // k=pb文件名, v=go代码中对应importpath
 
 	func() {
 		validGoPkg := lang.PBValidGoPackage(fd.GetPackage())
@@ -165,7 +163,6 @@ func fillDependencies(fd *desc.FileDescriptor, nfd *descriptor.FileDescriptor) e
 			fname := dep.GetFullyQualifiedName()
 			pkg := dep.GetPackage()
 
-			pkg2ImportPath[pkg] = pkg
 			//fixme 可能会影响到java的代码生成，如果java模板中不使用倒也不会受影响
 			pb2ValidGoPkg[fname] = lang.PBValidGoPackage(pkg)
 
@@ -181,8 +178,6 @@ func fillDependencies(fd *desc.FileDescriptor, nfd *descriptor.FileDescriptor) e
 				}
 			}
 			pb2ValidGoPkg[fname] = validGoPkg
-			pkg2ImportPath[pkg] = importPath
-			pkg2ValidGoPkg[pkg] = validGoPkg
 			pb2ImportPath[fname] = importPath
 		}
 	}
@@ -190,8 +185,6 @@ func fillDependencies(fd *desc.FileDescriptor, nfd *descriptor.FileDescriptor) e
 	f(fd)
 
 	nfd.Pb2ValidGoPkg = pb2ValidGoPkg
-	nfd.Pkg2ValidGoPkg = pkg2ValidGoPkg
-	nfd.Pkg2ImportPath = pkg2ImportPath
 	nfd.Pb2ImportPath = pb2ImportPath
 
 	return nil
