@@ -5,7 +5,7 @@ import (
 
 	"github.com/hitzhangjie/gorpc-cli/descriptor"
 	"github.com/hitzhangjie/gorpc-cli/params"
-	"github.com/hitzhangjie/gorpc-cli/util/log"
+	"github.com/hitzhangjie/log"
 )
 
 type GoImportsPlugin struct {

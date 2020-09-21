@@ -24,7 +24,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/hitzhangjie/gorpc-cli/util/log"
+	"github.com/hitzhangjie/log"
 )
 
 var cfgFile string

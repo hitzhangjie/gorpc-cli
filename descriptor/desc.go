@@ -3,7 +3,7 @@ package descriptor
 import (
 	"encoding/json"
 
-	"github.com/hitzhangjie/gorpc-cli/util/log"
+	"github.com/hitzhangjie/log"
 	"github.com/jhump/protoreflect/desc"
 )
 

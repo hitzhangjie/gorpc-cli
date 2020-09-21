@@ -9,7 +9,7 @@ import (
 
 	"github.com/hitzhangjie/gorpc-cli/descriptor"
 	"github.com/hitzhangjie/gorpc-cli/util/lang"
-	"github.com/hitzhangjie/gorpc-cli/util/log"
+	"github.com/hitzhangjie/log"
 )
 
 // Protoc process `protofile` to generate *.pb.go or *.java, which is specified by `language`

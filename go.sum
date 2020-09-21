@@ -178,6 +178,8 @@ github.com/hashicorp/memberlist v0.1.3/go.mod h1:ajVTdAv/9Im8oMAAj5G31PhhMCZJV2p
 github.com/hashicorp/serf v0.8.2/go.mod h1:6hOLApaqBFA1NXqRQAsxw9QxuDEvNxSQRwA/JwenrHc=
 github.com/hitzhangjie/fs v0.0.0-20200921102911-9a2a4209306f h1:SQj4ctSRU0giVHBX223j9BXYRJEZ8ZFZey+ZVE/a638=
 github.com/hitzhangjie/fs v0.0.0-20200921102911-9a2a4209306f/go.mod h1:Ued5Rcevq3jxzqn5oE8Ppi9LweMKcJfzWXBOqfrTw2M=
+github.com/hitzhangjie/log v0.0.0-20200921121103-c3dff383841a h1:icCs//s6cTrKXx1CNwBhu5P4sbl9lz5gdSGmykCAemk=
+github.com/hitzhangjie/log v0.0.0-20200921121103-c3dff383841a/go.mod h1:ZZ+NyWIoGzWSXz0pxxHe9XVvYJ24SaLTsndZATlfw9I=
 github.com/hitzhangjie/tar v0.0.0-20200921101623-6151f636b722 h1:kHxUAYp9r7bcol2g3fGCeHht8S7XTSVTfYLlt/xgMmI=
 github.com/hitzhangjie/tar v0.0.0-20200921101623-6151f636b722/go.mod h1:nn8fPOd0vGFkI8styI5wXRwDUq5Fwqxyyq2MHDf07jk=
 github.com/hpcloud/tail v1.0.0/go.mod h1:ab1qPbhIpdTxEkNHXyeSf5vhxWSCs/tWer42PpOxQnU=

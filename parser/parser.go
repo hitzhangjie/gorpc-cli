@@ -11,7 +11,7 @@ import (
 	"github.com/hitzhangjie/gorpc-cli/extension/swagger"
 	"github.com/hitzhangjie/gorpc-cli/params"
 	"github.com/hitzhangjie/gorpc-cli/util/lang"
-	"github.com/hitzhangjie/gorpc-cli/util/log"
+	"github.com/hitzhangjie/log"
 	"github.com/hitzhangjie/gorpc-cli/util/pb"
 
 	"github.com/golang/protobuf/proto"

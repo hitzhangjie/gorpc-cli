@@ -21,7 +21,7 @@ import (
 
 	_ "github.com/hitzhangjie/gorpc-cli/bindata"
 	"github.com/hitzhangjie/gorpc-cli/cmd"
-	"github.com/hitzhangjie/gorpc-cli/util/log"
+	"github.com/hitzhangjie/log"
 )
 
 // Dependency 依赖工具

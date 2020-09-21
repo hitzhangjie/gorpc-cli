@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/hitzhangjie/gorpc-cli/params"
-	"github.com/hitzhangjie/gorpc-cli/util/log"
+	"github.com/hitzhangjie/log"
 )
 
 // Format 原地格式化代码
