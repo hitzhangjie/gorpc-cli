@@ -1,5 +1,12 @@
 #!/bin/bash -e
 
+# step-2: check and install required dependencies
+which git &> /dev/null || (echo "git not found...install" && exit)
+which gofmt &> /dev/null || (echo "gofmt not found...exit" && exit)
+which goimports &> /dev/null || (echo "goimports not found...install" && go get golang.org/x/tools/cmd/goimports)
+which goi18n &> /dev/null || (echo "goi18n not found...install" && go get -u github.com/nicksnyder/go-i18n/v2/goi18n)
+which bindata &> /dev/null || (echo "bindata not found...install" && go get -u github.com/hitzhangjie/bindata)
+
 # step-1: reformat the code
 #gofmt -s -w .
 #goimports -w -local github.com .
@@ -26,4 +33,3 @@ rm -rf bindata
 tar cvfz install.tgz install
 bindata -file install.tgz
 rm install.tgz
-
