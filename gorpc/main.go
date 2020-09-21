@@ -16,49 +16,20 @@ limitations under the License.
 package main
 
 import (
-	"os"
-	"os/exec"
-
 	_ "github.com/hitzhangjie/gorpc-cli/bindata"
 	"github.com/hitzhangjie/gorpc-cli/cmd"
-	"github.com/hitzhangjie/log"
 )
-
-// Dependency 依赖工具
-type Dependency struct {
-	Name    string
-	Version string
-}
-
-var (
-	dependencies []*Dependency
-)
-
-func loadDependencies(path string) ([]*Dependency, error) {
-	return []*Dependency{
-		{
-			Name:    "protoc",
-			Version: "v3.6.0+",
-		},
-		{
-			Name:    "protoc-gen-go",
-			Version: "",
-		},
-	}, nil
-}
 
 func main() {
 
-	// 检查protoc有没有安装
-	if _, err := exec.LookPath("protoc"); err != nil {
-		log.Error("Please install protoc ... error:\n\t==> %v", err)
-		os.Exit(1)
+	deps, err := loadDependencies()
+	if err != nil {
+		panic(err)
 	}
 
-	// 检查protoc-gen-go有没有安装
-	if _, err := exec.LookPath("protoc-gen-go"); err != nil {
-		log.Error("Please install protoc-gen-go ... error:\n\t==> %v", err)
-		os.Exit(1)
+	err = checkDependencies(deps)
+	if err != nil {
+		panic(err)
 	}
 
 	// 执行命令
