@@ -11,6 +11,10 @@
     "description": "usage of flag --lang",
     "other": "指定使用的编程语言, 如：go, java, python等"
   },
+  "createCmdFlagMock": {
+    "description": "usage of flag --mock",
+    "other": "生成服务mock测试桩代码"
+  },
   "createCmdFlagMod": {
     "description": "usage of flag --mod",
     "other": "指定go module, 默认是: ${pb.package}"

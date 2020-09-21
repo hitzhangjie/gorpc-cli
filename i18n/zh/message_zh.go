@@ -106,9 +106,9 @@ var createCmdFlagSwagger = i18n.Message{
 }
 
 var createCmdFlagMock = i18n.Message{
-	ID: "createCmdFlagMock",
+	ID:          "createCmdFlagMock",
 	Description: "usage of flag --mock",
-	Other: `mockgen生成接口测试代码`,
+	Other:       `生成服务mock测试桩代码`,
 }
 
 // issue cmd

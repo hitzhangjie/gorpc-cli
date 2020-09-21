@@ -11,6 +11,10 @@
     "description": "usage of flag --lang",
     "other": "programming language, including go, java, python"
   },
+  "createCmdFlagMock": {
+    "description": "usage of flag --mock",
+    "other": "enable mockgen to generate mock stub"
+  },
   "createCmdFlagMod": {
     "description": "usage of flag --mod",
     "other": "go module, default: ${pb.package}"
@@ -37,7 +41,7 @@
   },
   "createCmdFlagSwagger": {
     "description": "usage of flag --swagger",
-    "other": "enable swagger to gen swagger api document"
+    "other": "enable swagger to generate swagger api docs"
   },
   "createCmdFlagVerbose": {
     "description": "usage of flag --verbose",
