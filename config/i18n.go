@@ -58,8 +58,6 @@ func GetLocale() (string, error) {
 		// XXX: we can easily override as a nice feature/bug.
 		envlang, ok := os.LookupEnv("LANG")
 		if !ok {
-			//err = errors.New("env LANG not set")
-			//return "", err
 			return "en", nil
 		}
 		locale = strings.Split(envlang, ".")[0]

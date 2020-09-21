@@ -81,23 +81,11 @@ func makeGoOut(fd *descriptor.FileDescriptor, pbpkgMapping map[string]string, pr
 			if strings.HasPrefix(k, "google/protobuf") || len(v) == 0 {
 				continue
 			}
-			//BUG: protoc-gen-go, https://github.com/golang/protobuf/issues/1151
-			//if v == protofileValidGoPkg {
-			//	v = "."
-			//}
-			//if v == protofileValidGoPkg {
-			//	continue
-			//}
-			//pbpkg += ",M" + k + "=" + lang.PBValidGoPackage(v)
 
-			// ISSUE: https://github.com/hitzhangjie/gorpc-cli/issues/129
-			//
 			// 如果指定go_package会简化很多问题，google/protobuf建议为pb文件添加go_package这个fileoption，并将在后续
 			// 新版protoc-gen-go中将其作为一个强制的约束。
 			// 经测试，上述ISSUE在为pb文件指定go_package的情况下可以完美解决，现在为了更好的兼容性做下处理，针对没有指定
 			// go_package这个fileoption的情况也保证生成代码的正确性。
-
-			// 根据pb中是否定义go_package来传递不同的参数选项，以兼容上述两种提及的问题
 			hasGoPackageOpt := true
 
 			rfd := fd.RawFileDescriptor()

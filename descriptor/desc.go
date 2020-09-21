@@ -20,11 +20,9 @@ type FileDescriptor struct {
 	Pb2ValidGoPkg map[string]string // k=pb文件名, v=protoc处理后package名
 	Pb2ImportPath map[string]string // k=pb文件名，v=go代码中对应importpath
 
-	//BUG: https://github.com/hitzhangjie/gorpc-cli/issues/186
 	//Deprecated
 	Pkg2ValidGoPkg map[string]string // k=pb文件package directive, v=protoc处理后package名
 
-	//BUG: https://github.com/hitzhangjie/gorpc-cli/issues/186
 	//Deprecated
 	Pkg2ImportPath map[string]string // k=pb文件package directive, v=go代码中对应importpath
 

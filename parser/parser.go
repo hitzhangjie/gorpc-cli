@@ -73,11 +73,6 @@ func checkRequirements(fd *desc.FileDescriptor) error {
 		return errors.New("service missing")
 	}
 
-	// must: packagename === services[0].name
-	//if fd.GetPackage() != fd.GetServices()[0].GetName() {
-	//	return errors.New(`'packageName' must be consistent with first 'serviceName'`)
-	//}
-
 	return nil
 }
 
@@ -376,32 +371,6 @@ func findMessageDefLocation(typ string, fd *desc.FileDescriptor) (string, error)
 
 	return "", errors.New("not found")
 }
-
-//BUG: getImports遍历了所有的service中的rpc方法名来判断要import哪些package，这个是不完备的，
-//     因为有些被引用的package可能出现在message field
-//func getImports(fd *desc.FileDescriptor, nfd *descriptor.FileDescriptor) []string {
-//	imports := []string{}
-//
-//	// 遍历rpc，检查是否有req\rsp出现在对应的pkg中，是则允许添加到pkgs，否则从中剔除
-//	m := map[string]struct{}{}
-//	for _, service := range fd.GetServices() {
-//		for _, rpc := range service.GetMethods() {
-//
-//			pkg1 := lang.TrimRight(".", rpc.GetInputType().GetFullyQualifiedName())
-//			pkg2 := lang.TrimRight(".", rpc.GetOutputType().GetFullyQualifiedName())
-//
-//			m[pkg1] = struct{}{}
-//			m[pkg2] = struct{}{}
-//		}
-//	}
-//	for k := range m {
-//		if v, ok := nfd.Pkg2ImportPath[k]; ok && len(v) != 0 {
-//			imports = append(imports, v)
-//		}
-//	}
-//
-//	return imports
-//}
 
 func getImports(fd *desc.FileDescriptor, nfd *descriptor.FileDescriptor) []string {
 	imports := []string{}

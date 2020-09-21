@@ -393,27 +393,6 @@ func generateRPCStub(fd *descriptor.FileDescriptor, option *params.Option) (outp
 	// 将stub文件gorpc.go重命名
 	basename := fs.BaseNameWithoutExt(fd.FilePath)
 
-	// fix issue: https://github.com/hitzhangjie/gorpc-cli/issues/178
-	//
-	// 通过generated记录生成的文件列表，解决上述issue，有可能会尝试去重命名path/to/go/pkg/mod/.../gorpc.go，
-	// 这是错误的，只应该遍历生成的文件列表并对生成的gorpc.go进行重命名。
-	// 另外，filepath.Walk的方式可能遍历了不该遍历的文件，比如通过软连接指向pb文件父目录的情况下，然后在HOME下
-	// 执行gorpc create命令，由于默认的outputdir为当前目录（-o可修改输出目录），此时会遍历HOME下文件，非常耗时。
-	//
-	// 这里直接遍历生成的文件列表即可。
-	//err = filepath.Walk(outputdir, func(fpath string, info os.FileInfo, err error) (e error) {
-	//	if _, ok := generated[fpath]; !ok {
-	//		return
-	//	}
-	//	if fname := filepath.Base(fpath); fname == "gorpc.go" {
-	//		e = fs.Move(fpath, filepath.Join(path.Dir(fpath), basename+".gorpc.go"))
-	//	}
-	//	return
-	//})
-	//if err != nil {
-	//	return err
-	//}
-
 	for fpath := range generated {
 		if fname := filepath.Base(fpath); fname != "gorpc.go" {
 			continue
