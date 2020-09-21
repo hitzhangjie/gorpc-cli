@@ -349,7 +349,7 @@ func create(fd *descriptor.FileDescriptor, option *params.Option) (outputdir str
 		return
 	}
 
-	log.Info("Generate project %s```%s```%s success", log.COLOR_RED, basename, log.COLOR_GREEN)
+	log.Info("generate project %s```%s```%s success", log.COLOR_RED, basename, log.COLOR_GREEN)
 	return
 }
 
@@ -438,7 +438,7 @@ func generateRPCStub(fd *descriptor.FileDescriptor, option *params.Option) (outp
 		err = fmt.Errorf("GenerateFiles: %v", err)
 		return
 	}
-	log.Info("Generate rpc stub success")
+	log.Info("generate rpc stub success")
 	return
 }
 
@@ -584,7 +584,7 @@ func handleDependencies(fd *descriptor.FileDescriptor, option *params.Option, pb
 		src := p
 		dst := filepath.Join(pbOutDir, baseName)
 
-		log.Debug("Copy file %s to %s", src, dst)
+		log.Debug("copy file %s to %s", src, dst)
 		if err := fs.Copy(src, dst); err != nil {
 			return err
 		}
