@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
 	"os/exec"
 	"strconv"
@@ -10,11 +9,12 @@ import (
 
 // dependency 依赖工具
 type dependency struct {
-	Name    string
-	Version string
-	Cmd     string
+	Name    string // 依赖工具名称
+	Version string // 工具最小版本
+	Cmd     string // 获取版本命令
 }
 
+// loadDependencies 加载工具版本信息
 func loadDependencies() ([]*dependency, error) {
 	deps := []*dependency{
 		{
@@ -30,6 +30,7 @@ func loadDependencies() ([]*dependency, error) {
 	return deps, nil
 }
 
+// checkDependencies 检查工具版本
 func checkDependencies(deps []*dependency) error {
 
 	for _, dep := range deps {
@@ -61,6 +62,7 @@ func checkDependencies(deps []*dependency) error {
 	return nil
 }
 
+// checkVersion 检查版本是否满足要求
 func checkVersion(version, required string) error {
 
 	if len(version) != 0 && version[0] == 'v' || version[0] == 'V' {
@@ -81,6 +83,7 @@ func checkVersion(version, required string) error {
 	return nil
 }
 
+// versions 获取主、副、修订版本
 func versions(ver string) (major, minor, revision int) {
 
 	var err error
@@ -109,53 +112,4 @@ func versions(ver string) (major, minor, revision int) {
 	}
 
 	return
-}
-
-// Pipeline strings together the given exec.Cm
-// to the Unix pipeline.  Each command's standard output is connected to the
-// standard input of the next command, and the output of the final command in
-// the pipeline is returned, along with the collected standard error of all
-// commands and the first error found (if any).
-//
-// To provide input to the pipeline, assign an io.Reader to the first's Stdin.
-func Pipeline(cmds ...*exec.Cmd) (pipeLineOutput, collectedStandardError []byte, pipeLineError error) {
-	// Require at least one command
-	if len(cmds) < 1 {
-		return nil, nil, nil
-	}
-
-	// Collect the output from the command(s)
-	var output bytes.Buffer
-	var stderr bytes.Buffer
-
-	last := len(cmds) - 1
-	for i, cmd := range cmds[:last] {
-		var err error
-		// Connect each command's stdin to the previous command's stdout
-		if cmds[i+1].Stdin, err = cmd.StdoutPipe(); err != nil {
-			return nil, nil, err
-		}
-		// Connect each command's stderr to a buffer
-		cmd.Stderr = &stderr
-	}
-
-	// Connect the output and error for the last command
-	cmds[last].Stdout, cmds[last].Stderr = &output, &stderr
-
-	// Start each command
-	for _, cmd := range cmds {
-		if err := cmd.Start(); err != nil {
-			return output.Bytes(), stderr.Bytes(), err
-		}
-	}
-
-	// Wait for each command to complete
-	for _, cmd := range cmds {
-		if err := cmd.Wait(); err != nil {
-			return output.Bytes(), stderr.Bytes(), err
-		}
-	}
-
-	// Return the pipeline output and the collected standard error
-	return output.Bytes(), stderr.Bytes(), nil
 }
