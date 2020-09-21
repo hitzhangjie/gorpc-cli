@@ -22,8 +22,8 @@ goi18n extract -format json i18n/en/message_en.go
 mv active.en.json install/
 
 #step3: compress the templates
-rm bindata
+rm -rf bindata
 tar cvfz install.tgz install
-go run util/bindata.go -file install.tgz
+bindata -file install.tgz
 rm install.tgz
 
