@@ -25,8 +25,8 @@ import (
 	"time"
 
 	"git.code.oa.com/go-neat/tencent/polaris/selector"
-	"git.code.oa.com/trpc-go/trpc-go/client"
-	"git.code.oa.com/trpc-go/trpc-go/codec"
+	"github.com/hitzhangjie/gorpc/client"
+	"github.com/hitzhangjie/gorpc/codec"
 
 	"github.com/golang/protobuf/proto"
 	"github.com/hitzhangjie/gorpc-cli/config"
