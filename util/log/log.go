@@ -20,7 +20,7 @@ func Info(format string, vals ...interface{}) {
 	if verbose {
 		fmt.Printf("%s[Info][%s] %s%s\n", COLOR_GREEN, fn, fmt.Sprintf(format, vals...), COLOR_RESET)
 	} else {
-		fmt.Printf("%s[Info] %s%s\n", COLOR_GREEN, fmt.Sprintf(format, vals...), COLOR_RESET)
+		fmt.Printf("%s%s%s\n", COLOR_GREEN, fmt.Sprintf(format, vals...), COLOR_RESET)
 	}
 }
 
@@ -38,7 +38,7 @@ func Error(format string, vals ...interface{}) {
 	if verbose {
 		fmt.Printf("%s[Error][%s] %s%s\n", COLOR_RED, fn, fmt.Sprintf(format, vals...), COLOR_RESET)
 	} else {
-		fmt.Printf("%s[Error] %s%s\n", COLOR_RED, fmt.Sprintf(format, vals...), COLOR_RESET)
+		fmt.Printf("%s%s%s\n", COLOR_RED, fmt.Sprintf(format, vals...), COLOR_RESET)
 	}
 }
 
