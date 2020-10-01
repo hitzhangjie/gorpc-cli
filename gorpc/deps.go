@@ -7,11 +7,11 @@ import (
 	"strings"
 )
 
-// dependency 依赖工具
+// dependency describes a dependency
 type dependency struct {
-	Name    string // 依赖工具名称
-	Version string // 工具最小版本
-	Cmd     string // 获取版本命令
+	Name    string // name of dependency
+	Version string // minimum version, a.b.c
+	Cmd     string // cmd to get version
 }
 
 // loadDependencies load dependencies and version requirements
