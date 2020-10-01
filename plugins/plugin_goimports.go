@@ -11,6 +11,10 @@ import (
 type GoImportsPlugin struct {
 }
 
+func (m *GoImportsPlugin) Name() string {
+	return "goimports"
+}
+
 func (m *GoImportsPlugin) Run(fd *descriptor.FileDescriptor, opts *params.Option) error {
 
 	// run goimports to format your code

@@ -17,9 +17,9 @@ import (
 	_ "github.com/hitzhangjie/gorpc-selector-cl5"
 	_ "go.uber.org/automaxprocs"
 
-	"github.com/hitzhangjie/gorpc-cli/log"
+	"github.com/hitzhangjie/gorpc"
+	"github.com/hitzhangjie/gorpc/log"
 
-	gorpc "github.com/hitzhangjie/gorpc"
     {{ if ne $goPkgOption "" -}}
    	pb "{{$goPkgOption}}"
     {{- else -}}

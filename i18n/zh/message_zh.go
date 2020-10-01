@@ -99,16 +99,10 @@ var createCmdFlagForce = i18n.Message{
 	Other:       `强制覆盖已存在的代码`,
 }
 
-var createCmdFlagSwagger = i18n.Message{
-	ID:          "createCmdFlagSwagger",
-	Description: "usage of flag --swagger",
-	Other:       `生成swagger api文档`,
-}
-
-var createCmdFlagMock = i18n.Message{
-	ID:          "createCmdFlagMock",
-	Description: "usage of flag --mock",
-	Other:       `生成服务mock测试桩代码`,
+var createCmdFlagPlugins = i18n.Message{
+	ID:          "createCmdFlagPlugins",
+	Description: "gorpc create --plugins, enable plugins",
+	Other:       "激活插件，多个请用+分割，支持goimports, mock, swagger",
 }
 
 // issue cmd
@@ -171,3 +165,4 @@ var updateCmdUsageLong = i18n.Message{
 	Description: "usage of updateCmd",
 	Other:       `指定pb文件快速更新工程或者rpcstub，当前未完全实现`,
 }
+

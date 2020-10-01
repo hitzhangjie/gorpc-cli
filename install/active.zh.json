@@ -19,10 +19,6 @@
     "description": "usage of flag --lang",
     "other": "指定使用的编程语言, 如：go, java, python等"
   },
-  "createCmdFlagMock": {
-    "description": "usage of flag --mock",
-    "other": "生成服务mock测试桩代码"
-  },
   "createCmdFlagMod": {
     "description": "usage of flag --mod",
     "other": "指定go module, 默认是: ${pb.package}"
@@ -30,6 +26,10 @@
   "createCmdFlagOutput": {
     "description": "usage of flag --output",
     "other": "指定生成代码的输出路径"
+  },
+  "createCmdFlagPlugins": {
+    "description": "gorpc create --plugins, enable plugins",
+    "other": "激活插件，多个请用+分割，支持goimports, mock, swagger"
   },
   "createCmdFlagProtocol": {
     "description": "usage of flag --protocol",
@@ -46,10 +46,6 @@
   "createCmdFlagRpcOnly": {
     "description": "usage of flag --rpconly",
     "other": "仅生成rpcstub而非完整工程"
-  },
-  "createCmdFlagSwagger": {
-    "description": "usage of flag --swagger",
-    "other": "生成swagger api文档"
   },
   "createCmdFlagVerbose": {
     "description": "usage of flag --verbose",

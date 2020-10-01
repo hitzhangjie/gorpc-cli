@@ -19,10 +19,6 @@
     "description": "usage of flag --lang",
     "other": "programming language, including go, java, python"
   },
-  "createCmdFlagMock": {
-    "description": "usage of flag --mock",
-    "other": "enable mockgen to generate mock stub"
-  },
   "createCmdFlagMod": {
     "description": "usage of flag --mod",
     "other": "go module, default: ${pb.package}"
@@ -30,6 +26,10 @@
   "createCmdFlagOutput": {
     "description": "usage of flag --output",
     "other": "output directory"
+  },
+  "createCmdFlagPlugins": {
+    "description": "gorpc create --plugins, enable plugins",
+    "other": "enabled plugins list, joined by '+', support goimports, mock, swagger"
   },
   "createCmdFlagProtocol": {
     "description": "usage of flag --protocol",
@@ -46,10 +46,6 @@
   "createCmdFlagRpcOnly": {
     "description": "usage of flag --rpconly",
     "other": "generate rpc stub only"
-  },
-  "createCmdFlagSwagger": {
-    "description": "usage of flag --swagger",
-    "other": "enable swagger to generate swagger api docs"
   },
   "createCmdFlagVerbose": {
     "description": "usage of flag --verbose",

@@ -11,6 +11,10 @@ import (
 type MockgenPlugin struct {
 }
 
+func (m *MockgenPlugin) Name() string {
+	return "mock"
+}
+
 func (m *MockgenPlugin) Run(fd *descriptor.FileDescriptor, opts *params.Option) error {
 
 	if opts.Language != "go" {

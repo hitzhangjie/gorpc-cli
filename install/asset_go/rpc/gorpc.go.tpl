@@ -16,15 +16,11 @@ import (
 	"context"
 
    _ "github.com/hitzhangjie/gorpc"
-   _ "github.com/hitzhangjie/gorpc-cli/http"
+   _ "github.com/hitzhangjie/gorpc/http"
 
-   	{{ if and (ne .Protocol "gorpc") (ne .Protocol "http") }}
-   	_ "github.com/hitzhangjie/gorpc-codec/{{.Protocol}}"
-   	{{ end }}
-
-    "github.com/hitzhangjie/gorpc-cli/server"
-    "github.com/hitzhangjie/gorpc-cli/client"
-    "github.com/hitzhangjie/gorpc-cli/codec"
+    "github.com/hitzhangjie/gorpc/server"
+    "github.com/hitzhangjie/gorpc/client"
+    "github.com/hitzhangjie/gorpc/codec"
 
     {{ range .Imports }}
     {{ if ne $goPkgName . }}

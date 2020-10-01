@@ -11,6 +11,10 @@ import (
 type SwaggerPlugin struct {
 }
 
+func (s *SwaggerPlugin) Name() string {
+	return "swagger"
+}
+
 func (s *SwaggerPlugin) Run(fd *descriptor.FileDescriptor, opts *params.Option) error {
 
 	if opts.Language != "go" {
