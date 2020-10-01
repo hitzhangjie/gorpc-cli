@@ -8,7 +8,7 @@ require (
 	github.com/hitzhangjie/gostyle v0.0.0-20200921132849-f1aec6c91dae
 	github.com/hitzhangjie/log v0.0.0-20200921121103-c3dff383841a
 	github.com/hitzhangjie/tar v0.0.0-20200921101623-6151f636b722
-	github.com/iancoleman/strcase v0.1.1
+	github.com/iancoleman/strcase v0.1.2
 	github.com/jhump/protoreflect v1.7.0
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/nicksnyder/go-i18n/v2 v2.0.3
