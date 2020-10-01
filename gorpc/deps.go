@@ -15,6 +15,8 @@ type dependency struct {
 }
 
 // loadDependencies 加载工具版本信息
+//
+// TODO load dependencies from configuration file
 func loadDependencies() ([]*dependency, error) {
 	deps := []*dependency{
 		{
