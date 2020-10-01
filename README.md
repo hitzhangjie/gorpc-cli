@@ -3,7 +3,7 @@
 ***gorpc*** is an efficient tool to help developers :
 - `gorpc create`, generate service template or rpc stub
 - `gorpc update`, update service template or rpc stub
-- `gorpc issue`, fire your browser at issue page
+- `gorpc bug`, create a bug/issue at issue page
 - `gorpc version`, show the version
 - `gorpc rpc`, launch rpc test to your work
 
