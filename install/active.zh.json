@@ -1,4 +1,12 @@
 {
+  "bugCmdUsage": {
+    "description": "usage of bugCmd",
+    "other": "反馈一个bug/issue"
+  },
+  "bugCmdUsageLong": {
+    "description": "usage of bugCmd",
+    "other": "浏览器打开issue页面，反馈一个bug/issue."
+  },
   "createCmdFlagAssetdir": {
     "description": "usage of flag --assetdir",
     "other": "指定代码模板的路径"
@@ -54,14 +62,6 @@
   "createCmdUsageLong": {
     "description": "usage of createCmd",
     "other": "指定pb文件快速创建工程或rpcstub，\n\ngorpc create 有两种模式:\n- 生成一个完整的服务工程\n- 生成被调服务的rpcstub，需指定'--rpconly'选项."
-  },
-  "issueCmdUsage": {
-    "description": "usage of issueCmd",
-    "other": "反馈一个issue"
-  },
-  "issueCmdUsageLong": {
-    "description": "usage of issueCmd",
-    "other": "浏览器打开issue页面，反馈一个issue."
   },
   "rootCmdUsage": {
     "description": "usage of rootCmd",

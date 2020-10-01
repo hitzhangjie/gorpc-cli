@@ -1,4 +1,12 @@
 {
+  "bugCmdUsage": {
+    "description": "usage of issueCmd",
+    "other": "report an issue"
+  },
+  "bugCmdUsageLong": {
+    "description": "usage of issueCmd",
+    "other": "fire your browser at the issue page to report an issue."
+  },
   "createCmdFlagAssetdir": {
     "description": "usage of flag --assetdir",
     "other": "path of project template"
@@ -54,14 +62,6 @@
   "createCmdUsageLong": {
     "description": "usage of createCmd",
     "other": "quickly create project or rpcstub, based on pb.\n\n'gorpc create' works in 2 modes:\n- generate a complete project\n- generate only the rpcstub, with option '--rpconly'."
-  },
-  "issueCmdUsage": {
-    "description": "usage of issueCmd",
-    "other": "report an issue"
-  },
-  "issueCmdUsageLong": {
-    "description": "usage of issueCmd",
-    "other": "fire your browser at the issue page to report an issue."
   },
   "rootCmdUsage": {
     "description": "usage of rootCmd",

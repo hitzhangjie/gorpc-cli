@@ -112,14 +112,14 @@ var createCmdFlagMock = i18n.Message{
 }
 
 // issue cmd
-var issueCmdUsage = i18n.Message{
-	ID:          "issueCmdUsage",
+var bugCmdUsage = i18n.Message{
+	ID:          "bugCmdUsage",
 	Description: "usage of issueCmd",
 	Other:       "report an issue",
 }
 
-var issueCmdUsageLong = i18n.Message{
-	ID:          "issueCmdUsageLong",
+var bugCmdUsageLong = i18n.Message{
+	ID:          "bugCmdUsageLong",
 	Description: "usage of issueCmd",
 	Other:       `fire your browser at the issue page to report an issue.`,
 }

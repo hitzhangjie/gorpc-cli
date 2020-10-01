@@ -112,16 +112,16 @@ var createCmdFlagMock = i18n.Message{
 }
 
 // issue cmd
-var issueCmdUsage = i18n.Message{
-	ID:          "issueCmdUsage",
-	Description: "usage of issueCmd",
-	Other:       "反馈一个issue",
+var bugCmdUsage = i18n.Message{
+	ID:          "bugCmdUsage",
+	Description: "usage of bugCmd",
+	Other:       "反馈一个bug/issue",
 }
 
-var issueCmdUsageLong = i18n.Message{
-	ID:          "issueCmdUsageLong",
-	Description: "usage of issueCmd",
-	Other:       `浏览器打开issue页面，反馈一个issue.`,
+var bugCmdUsageLong = i18n.Message{
+	ID:          "bugCmdUsageLong",
+	Description: "usage of bugCmd",
+	Other:       `浏览器打开issue页面，反馈一个bug/issue.`,
 }
 
 // rpc cmd
