@@ -107,6 +107,12 @@ var createCmd = &cobra.Command{
 	},
 	PostRunE: func(cmd *cobra.Command, args []string) error {
 
+		value, _ := cmd.Flags().GetString("plugins")
+		enabled := map[string]bool{}
+		for _, v := range strings.Split(value, "+") {
+			enabled[v] = true
+		}
+
 		if !createSuccess {
 			return nil
 		}
@@ -117,6 +123,9 @@ var createCmd = &cobra.Command{
 		}
 
 		for _, p := range plugins.Plugins {
+			if !enabled[p.Name()] {
+				continue
+			}
 			err := p.Run(createDescriptor, createOption)
 			if err != nil {
 				return err
@@ -149,8 +158,9 @@ func init() {
 	createCmd.Flags().StringP("mod", "m", "", config.LoadTranslation("createCmdFlagMod", nil))
 	createCmd.Flags().StringP("output", "o", "", config.LoadTranslation("createCmdFlagOutput", nil))
 	createCmd.Flags().BoolP("force", "f", false, config.LoadTranslation("createCmdFlagForce", nil))
-	createCmd.Flags().Bool("swagger", false, config.LoadTranslation("createCmdFlagSwagger", nil))
-	createCmd.Flags().Bool("mock", false, config.LoadTranslation("createCmdFlagMock", nil))
+
+	// plugins
+	createCmd.Flags().String("plugins", "goimports", config.LoadTranslation("createCmdFlagForce", nil))
 
 	createCmd.MarkFlagRequired("protofile")
 }

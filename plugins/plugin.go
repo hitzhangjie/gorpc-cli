@@ -15,5 +15,6 @@ var (
 
 // Plugin 插件接口
 type Plugin interface {
+	Name() string
 	Run(fd *descriptor.FileDescriptor, opts *params.Option) error
 }

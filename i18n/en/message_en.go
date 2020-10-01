@@ -99,16 +99,10 @@ var createCmdFlagForce = i18n.Message{
 	Other:       `enable overwritten existed code forcibly`,
 }
 
-var createCmdFlagSwagger = i18n.Message{
-	ID:          "createCmdFlagSwagger",
-	Description: "usage of flag --swagger",
-	Other:       `enable swagger to generate swagger api docs`,
-}
-
-var createCmdFlagMock = i18n.Message{
-	ID:          "createCmdFlagMock",
-	Description: "usage of flag --mock",
-	Other:       `enable mockgen to generate mock stub`,
+var createCmdFlagPlugins = i18n.Message{
+	ID:          "createCmdFlagPlugins",
+	Description: "gorpc create --plugins, enable plugins",
+	Other:       "enabled plugins list, joined by '+', support goimports, mock, swagger",
 }
 
 // issue cmd
@@ -160,6 +154,7 @@ var versionMsgFormat = i18n.Message{
 	Other:       "gorpc version: {{.Hash}}",
 }
 
+// update cmd
 var updateCmdUsage = i18n.Message{
 	ID:          "updateCmdUsage",
 	Description: "usage of updateCmd",
@@ -173,3 +168,4 @@ var updateCmdUsageLong = i18n.Message{
 
 so far, this feature hasn't beed fully implemented, coming soon.`,
 }
+
