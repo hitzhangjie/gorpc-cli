@@ -14,7 +14,7 @@ type dependency struct {
 	Cmd     string // 获取版本命令
 }
 
-// loadDependencies 加载工具版本信息
+// loadDependencies load dependencies and version requirements
 //
 // TODO load dependencies from configuration file
 func loadDependencies() ([]*dependency, error) {
@@ -32,22 +32,22 @@ func loadDependencies() ([]*dependency, error) {
 	return deps, nil
 }
 
-// checkDependencies 检查工具版本
+// checkDependencies check if dependencies meet the version requirements
 func checkDependencies(deps []*dependency) error {
 
 	for _, dep := range deps {
-		// 检查依赖是否存在
+		// check installed or not
 		_, err := exec.LookPath(dep.Name)
 		if err != nil {
 			return fmt.Errorf("%s not found, %v", dep.Name, err)
 		}
 
-		// 不需要检查版本就跳过
+		// skip checking if cmd/version not specified
 		if len(dep.Cmd) == 0 || len(dep.Version) == 0 {
 			continue
 		}
 
-		// 执行自定义命令获取版本信息
+		// run specified cmd to get version
 		cmd := exec.Command("sh", "-c", dep.Cmd)
 
 		buf, err := cmd.CombinedOutput()
@@ -64,7 +64,7 @@ func checkDependencies(deps []*dependency) error {
 	return nil
 }
 
-// checkVersion 检查版本是否满足要求
+// checkVersion check if version meet the requirement
 func checkVersion(version, required string) error {
 
 	if len(version) != 0 && version[0] == 'v' || version[0] == 'V' {
@@ -85,7 +85,7 @@ func checkVersion(version, required string) error {
 	return nil
 }
 
-// versions 获取主、副、修订版本
+// versions extract the major, minor and revision (patching) version
 func versions(ver string) (major, minor, revision int) {
 
 	var err error
