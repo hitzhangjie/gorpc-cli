@@ -32,6 +32,5 @@ func main() {
 		panic(err)
 	}
 
-	// 执行命令
 	cmd.Execute()
 }

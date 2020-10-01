@@ -28,7 +28,12 @@ mv active.en.json install/active.zh.json
 goi18n extract -format json i18n/en/message_en.go
 mv active.en.json install/
 
-#step5: compress the templates
+#step5: update gorpc.pb.go
+cd extension
+go generate
+cd -
+
+#step6: compress the templates
 rm -rf bindata
 tar cvfz install.tgz install
 bindata -file install.tgz

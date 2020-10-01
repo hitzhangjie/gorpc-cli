@@ -12,16 +12,16 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/hitzhangjie/gorpc-cli/bindata"
 	"github.com/hitzhangjie/fs"
+	"github.com/hitzhangjie/gorpc-cli/bindata"
 	"github.com/hitzhangjie/tar"
 )
 
 // LanguageCfg 开发语言相关的配置信息，如对应的模板工程目录、模板工程中的serverstub文件、clientstub文件
 type LanguageCfg struct {
-	Language          string   `json:"language"` // required: 语言名称，如go、java
-	LangFileExt       string   `json:"lang_file_ext"`
-	AssetDir          string   `json:"asset_dir"`            // required: 语言对应的工程目录
+	Language          string   `json:"language"`             // required: 语言名称，如go、java
+	LangFileExt       string   `json:"lang_file_ext"`        // required: 文件扩展名，如.go
+	AssetDir          string   `json:"asset_dir"`            // required: 语言对应的模板工程目录，如asset_go
 	TplFileExt        string   `json:"tpl_file_ext"`         // required: 工程中模板文件的后缀名，如.tpl
 	RPCServerStub     string   `json:"rpc_server_stub"`      // optional: 工程中对应的rpc server stub文件名（按service.method分文件生成时有用)
 	RPCServerImplStub string   `json:"rpc_server_impl_stub"` // optional: 工程中对应的rpc server impl stub文件名（按service.method分文件生成时有用)

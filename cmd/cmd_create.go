@@ -47,6 +47,26 @@ var (
 	createDescriptor *descriptor.FileDescriptor
 )
 
+func init() {
+	rootCmd.AddCommand(createCmd)
+
+	createCmd.Flags().StringArray("protodir", []string{"."}, config.LoadTranslation("createCmdFlagProtodir", nil))
+	createCmd.Flags().StringP("protofile", "p", "", config.LoadTranslation("createCmdFlagProtofile", nil))
+	createCmd.Flags().String("protocol", "gorpc", config.LoadTranslation("createCmdFlagProtocol", nil))
+	createCmd.Flags().BoolP("verbose", "v", false, config.LoadTranslation("createCmdFlagVerbose", nil))
+	createCmd.Flags().String("assetdir", "", config.LoadTranslation("createCmdFlagAssetdir", nil))
+	createCmd.Flags().Bool("rpconly", false, config.LoadTranslation("createCmdFlagRpcOnly", nil))
+	createCmd.Flags().String("lang", "go", config.LoadTranslation("createCmdFlagLang", nil))
+	createCmd.Flags().StringP("mod", "m", "", config.LoadTranslation("createCmdFlagMod", nil))
+	createCmd.Flags().StringP("output", "o", "", config.LoadTranslation("createCmdFlagOutput", nil))
+	createCmd.Flags().BoolP("force", "f", false, config.LoadTranslation("createCmdFlagForce", nil))
+
+	// plugins
+	createCmd.Flags().String("plugins", "goimports", config.LoadTranslation("createCmdFlagForce", nil))
+
+	createCmd.MarkFlagRequired("protofile")
+}
+
 // createCmd represents the create command
 var createCmd = &cobra.Command{
 	Use:   "create",
@@ -136,35 +156,6 @@ var createCmd = &cobra.Command{
 	},
 }
 
-func init() {
-	rootCmd.AddCommand(createCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// createCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// createCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-	createCmd.Flags().StringArray("protodir", []string{"."}, config.LoadTranslation("createCmdFlagProtodir", nil))
-	createCmd.Flags().StringP("protofile", "p", "", config.LoadTranslation("createCmdFlagProtofile", nil))
-	createCmd.Flags().String("protocol", "gorpc", config.LoadTranslation("createCmdFlagProtocol", nil))
-	createCmd.Flags().BoolP("verbose", "v", false, config.LoadTranslation("createCmdFlagVerbose", nil))
-	createCmd.Flags().String("assetdir", "", config.LoadTranslation("createCmdFlagAssetdir", nil))
-	createCmd.Flags().Bool("rpconly", false, config.LoadTranslation("createCmdFlagRpcOnly", nil))
-	createCmd.Flags().String("lang", "go", config.LoadTranslation("createCmdFlagLang", nil))
-	createCmd.Flags().StringP("mod", "m", "", config.LoadTranslation("createCmdFlagMod", nil))
-	createCmd.Flags().StringP("output", "o", "", config.LoadTranslation("createCmdFlagOutput", nil))
-	createCmd.Flags().BoolP("force", "f", false, config.LoadTranslation("createCmdFlagForce", nil))
-
-	// plugins
-	createCmd.Flags().String("plugins", "goimports", config.LoadTranslation("createCmdFlagForce", nil))
-
-	createCmd.MarkFlagRequired("protofile")
-}
-
 func loadCreateOption(flagSet *pflag.FlagSet) (*params.Option, error) {
 
 	option := loadCreateFlagsetToOption(flagSet)
@@ -221,7 +212,6 @@ func loadCreateFlagsetToOption(flagSet *pflag.FlagSet) *params.Option {
 	option.GoMod, _ = flagSet.GetString("mod")
 	option.OutputDir, _ = flagSet.GetString("output")
 	option.Force, _ = flagSet.GetBool("force")
-	option.SwaggerOn, _ = flagSet.GetBool("swagger")
 
 	return option
 }

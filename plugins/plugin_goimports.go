@@ -17,6 +17,11 @@ func (m *GoImportsPlugin) Name() string {
 
 func (m *GoImportsPlugin) Run(fd *descriptor.FileDescriptor, opts *params.Option) error {
 
+	// check if language is go
+	if opts.Language != "go" {
+		return nil
+	}
+
 	// run goimports to format your code
 	goimports, err := exec.LookPath("goimports")
 	if err != nil {
@@ -24,7 +29,8 @@ func (m *GoImportsPlugin) Run(fd *descriptor.FileDescriptor, opts *params.Option
 		return nil
 	}
 
-	cmd := exec.Command(goimports, "-w", ".")
+	// goimports -w -local github.com .
+	cmd := exec.Command(goimports, "-w", "-local", "github.com", ".")
 	if buf, err := cmd.CombinedOutput(); err != nil {
 		log.Error("run goimports error: %v,\n%s", err, string(buf))
 		return err

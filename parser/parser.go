@@ -8,7 +8,6 @@ import (
 
 	"github.com/hitzhangjie/gorpc-cli/descriptor"
 	"github.com/hitzhangjie/gorpc-cli/extension/gorpc"
-	"github.com/hitzhangjie/gorpc-cli/extension/swagger"
 	"github.com/hitzhangjie/gorpc-cli/params"
 	"github.com/hitzhangjie/gorpc-cli/util/lang"
 	"github.com/hitzhangjie/gorpc-cli/util/pb"
@@ -284,8 +283,8 @@ func fillServices(fd *desc.FileDescriptor, nfd *descriptor.FileDescriptor) error
 			}
 
 			// check method option, if gorpc.swagger exists, fill the rpc.swagger_info
-			if v, err := proto.GetExtension(m.GetMethodOptions(), swagger.E_Swagger); err == nil {
-				swagger := v.(*swagger.SwaggerRule)
+			if v, err := proto.GetExtension(m.GetMethodOptions(), gorpc.E_Swagger); err == nil {
+				swagger := v.(*gorpc.SwaggerRule)
 				if swagger == nil {
 					log.Debug("method:%s.%s parse methodOptions option gorpc.swagger not specified", sd.GetName(), m.GetName())
 				} else {

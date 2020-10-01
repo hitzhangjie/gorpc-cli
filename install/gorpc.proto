@@ -3,5 +3,12 @@ import "google/protobuf/descriptor.proto";
 package gorpc;
 
 extend google.protobuf.MethodOptions {
-    string alias = 50001;
+    string alias = 50001; // rpc alias
+    SwaggerRule swagger = 50002; // swagger api
+}
+
+message SwaggerRule {
+    string title = 50103;
+    string method = 50104;
+    string description = 50105;
 }

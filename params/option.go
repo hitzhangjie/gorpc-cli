@@ -30,7 +30,4 @@ type Option struct {
 	// logging option
 	OutputDir string // 项目输出路径
 	Force     bool   // 强制写入
-
-	// swagger option
-	SwaggerOn bool // 解析 MethodOption 的swagger
 }
