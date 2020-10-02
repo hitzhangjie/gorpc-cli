@@ -62,7 +62,7 @@ func init() {
 	createCmd.Flags().BoolP("force", "f", false, config.LoadTranslation("createCmdFlagForce", nil))
 
 	// plugins
-	createCmd.Flags().String("plugins", "goimports", config.LoadTranslation("createCmdFlagForce", nil))
+	createCmd.Flags().String("plugins", "goimports", config.LoadTranslation("createCmdFlagPlugins", nil))
 
 	createCmd.MarkFlagRequired("protofile")
 }
