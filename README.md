@@ -103,3 +103,9 @@ Flags:
 ## Contribution
 
 Welcome the contribution from you !
+
+# Thanks
+
+![jetbrains.svg](https://github.com/hitzhangjie/gorpc/blob/master/docs/jetbrains.svg)
+
+Special thanks to the [Jetbrains Team](https://www.jetbrains.com/?from=gorpc) for their support.
