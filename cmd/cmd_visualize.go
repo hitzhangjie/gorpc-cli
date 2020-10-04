@@ -16,7 +16,6 @@ limitations under the License.
 package cmd
 
 import (
-	"bytes"
 	"fmt"
 	"go/ast"
 	"go/format"
@@ -25,6 +24,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -58,23 +58,97 @@ var visualizeCmd = &cobra.Command{
 	Long:  `visualize workflow`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 
-		d, _ := cmd.Flags().GetString("projectdir")
+		d, err := cmd.Flags().GetString("projectdir")
+		if err != nil {
+			return err
+		}
 
-		return parse(d)
+		// 解析main.go
+		fset, astFile, err := parseFile(filepath.Join(d, "main.go"))
+		if err != nil {
+			return err
+		}
+
+		// 检查main.main中注册了哪几个逻辑service
+		services, err := registeredServices(fset, astFile)
+		fmt.Printf("found registered services: %s\n", strings.Join(services, ", "))
+
+		// 解析pb文件，检查service接口定义的method
+
+		// 解析工程找到service定义，从接口方法开始展开，还原整个流程图
+		fset, pkgs, err := parseDir(d)
+		if err != nil {
+			return err
+		}
+
+		for _, service := range services {
+			parseServiceMethods(fset, pkgs, service)
+		}
+
+		return err
+
 	},
 }
 
-func parse(dir string) error {
-
-	dirs := []string{dir}
-	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
-		if info.IsDir() {
-			dirs = append(dirs, path)
-		}
-		return nil
-	})
+func parseFile(file string) (*token.FileSet, *ast.File, error) {
+	fset := token.NewFileSet()
+	astFile, err := parser.ParseFile(fset, file, nil, parser.ParseComments)
 	if err != nil {
-		return err
+		return nil, nil, err
+	}
+	return fset, astFile, nil
+}
+
+func registeredServices(fset *token.FileSet, file *ast.File) ([]string, error) {
+
+	services := []string{}
+
+	ast.Inspect(file, func(n ast.Node) bool {
+
+		// only main.main needed analyzing
+		fn, ok := n.(*ast.FuncDecl)
+		if !ok {
+			return true
+		}
+		if fn.Name.Name != "main" {
+			return true
+		}
+
+		// traverse all pb.Register${Service}Service statements,
+		// it must be x := *ast.ExprStatement.(*ast.CallExpr).(*ast.SelectorExpr),
+		//
+		// see and test at: https://yuroyoro.github.io/goast-viewer/index.html.
+		for _, stmt := range fn.Body.List {
+			exprStmt, ok := stmt.(*ast.ExprStmt)
+			if !ok {
+				continue
+			}
+			callExpr, ok := exprStmt.X.(*ast.CallExpr)
+			if !ok {
+				continue
+			}
+			selectorExpr, ok := callExpr.Fun.(*ast.SelectorExpr)
+			if !ok {
+				continue
+			}
+			if !regex.MatchString(selectorExpr.Sel.Name) {
+				continue
+			}
+
+			service := callExpr.Args[1].(*ast.UnaryExpr).X.(*ast.CompositeLit).Type.(*ast.Ident).Name
+			services = append(services, service)
+		}
+		return true
+	})
+
+	return services, nil
+}
+
+func parseDir(dir string) (*token.FileSet, map[string]*ast.Package, error) {
+
+	dirs, err := traverseDirs(dir)
+	if err != nil {
+		return nil, nil, err
 	}
 
 	fset := token.NewFileSet()
@@ -83,67 +157,98 @@ func parse(dir string) error {
 	for _, dir := range dirs {
 		pkgs, err := parser.ParseDir(fset, dir, nil, parser.ParseComments)
 		if err != nil {
-			return err
+			return nil, nil, err
 		}
 		for k, v := range pkgs {
 			allPkgs[k] = v
 		}
 	}
 
-	for _, pkg := range allPkgs {
+	return fset, allPkgs, nil
+}
+
+func parseServiceMethods(fset *token.FileSet, pkgs map[string]*ast.Package, service string) {
+
+	for _, pkg := range pkgs {
 		for fname, file := range pkg.Files {
-			fmt.Printf("------------- %s --------------\n", fname)
 			ast.Inspect(file, func(n ast.Node) bool {
-				// perform analysis here
-				// ...
 
 				fn, ok := n.(*ast.FuncDecl)
 				if !ok {
 					return true
 				}
-				switch fn.Name.Name {
-				case FuncMain:
-					buf := bytes.Buffer{}
-					err := format.Node(&buf, fset, fn)
-					if err != nil {
-						panic(err)
-					}
-					fmt.Printf("%s\n", buf.String())
-					for _, stmt := range fn.Body.List {
-						exprStmt, ok := stmt.(*ast.ExprStmt)
-						if !ok {
-							continue
-						}
-						callExpr, ok := exprStmt.X.(*ast.CallExpr)
-						if !ok {
-							continue
-						}
-						selectorExpr, ok := callExpr.Fun.(*ast.SelectorExpr)
-						if !ok {
-							continue
-						}
-						if regex.MatchString(selectorExpr.Sel.Name) {
-							fmt.Println("func:", selectorExpr.Sel.Name, "found")
-							service := callExpr.Args[1].(*ast.UnaryExpr).X.(*ast.CompositeLit).Type.(*ast.Ident).Name
-							fmt.Println("service:", service)
-						}
-					}
 
-				case FuncRegisterService:
-					buf := bytes.Buffer{}
-					err := format.Node(&buf, fset, fn)
-					if err != nil {
-						panic(err)
-					}
-					fmt.Printf("%s\n", buf.String())
-				default:
+				// function, rather than methods
+				if fn.Recv == nil || len(fn.Recv.List) == 0 || fn.Recv.List[0] == nil || fn.Recv.List[0].Type == nil {
 					return true
 				}
 
-				return true
+				typ, ok := fn.Recv.List[0].Type.(*ast.StarExpr)
+				if !ok {
+					return true
+				}
+
+				ident, ok := typ.X.(*ast.Ident)
+				if !ok || service != ident.Name {
+					return true
+				}
+
+				fmt.Println()
+				fmt.Printf("%s@%s:\n", service, fname)
+				fmt.Println("-------------------------------------------------")
+
+				// TODO what should we visualize?
+				// - OOP communication, this depicts the dependencies btw different components
+				// - control flow, if, for, switch, this depicts some important logic
+
+				for _, stmt := range fn.Body.List {
+					exprStmt, ok := stmt.(*ast.ExprStmt)
+					if !ok {
+						continue
+					}
+					callExpr, ok := exprStmt.X.(*ast.CallExpr)
+					if !ok {
+						continue
+					}
+					selectorExpr, ok := callExpr.Fun.(*ast.SelectorExpr)
+					if !ok {
+						continue
+					}
+
+					// TODO OOP communication
+
+					// ss := &student{}
+					// ss.Name()
+					recv := selectorExpr.X.(*ast.Ident).Name
+					rhs := selectorExpr.X.(*ast.Ident).Obj.Decl.(*ast.AssignStmt).Rhs
+					typ := rhs[0].(*ast.UnaryExpr).X.(*ast.CompositeLit).Type.(*ast.Ident).Name
+					if op := rhs[0].(*ast.UnaryExpr).Op.String(); len(op) != 0 {
+						typ = op + typ
+					}
+					fun := selectorExpr.Sel.Name
+					// TODO arguments
+					args := "..."
+					fmt.Printf("[oop communication] calling %s(%s).%s(%s)\n", recv, typ, fun, args)
+
+					for _, arg := range callExpr.Args {
+						format.Node(os.Stdout, fset, arg)
+					}
+					//service := callExpr.Args[1].(*ast.UnaryExpr).X.(*ast.CompositeLit).Type.(*ast.Ident).Name
+				}
+
+				return false
 			})
 		}
 	}
+}
 
-	return nil
+func traverseDirs(dir string) ([]string, error) {
+	dirs := []string{dir}
+	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
+		if info.IsDir() {
+			dirs = append(dirs, path)
+		}
+		return nil
+	})
+	return dirs, err
 }
