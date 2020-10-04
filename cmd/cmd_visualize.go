@@ -24,6 +24,7 @@ import (
 	"go/token"
 	"os"
 	"path/filepath"
+	"regexp"
 
 	"github.com/spf13/cobra"
 )
@@ -34,6 +35,10 @@ const (
 	FuncRegisterPattern = "Register.*Service"
 )
 
+var (
+	regex *regexp.Regexp
+)
+
 func init() {
 	rootCmd.AddCommand(visualizeCmd)
 
@@ -41,6 +46,8 @@ func init() {
 	visualizeCmd.Flags().StringP("projectdir", "d", "", "specify the directory of existed project")
 
 	visualizeCmd.MarkFlagRequired("projectdir")
+
+	regex, _ = regexp.Compile(FuncRegisterPattern)
 }
 
 // updateCmd represents the update command
@@ -115,8 +122,8 @@ func parse(dir string) error {
 						if !ok {
 							continue
 						}
-						if selectorExpr.Sel.Name == FuncRegisterService {
-							fmt.Println("func:", FuncRegisterService, "found")
+						if regex.MatchString(selectorExpr.Sel.Name) {
+							fmt.Println("func:", selectorExpr.Sel.Name, "found")
 							service := callExpr.Args[1].(*ast.UnaryExpr).X.(*ast.CompositeLit).Type.(*ast.Ident).Name
 							fmt.Println("service:", service)
 						}
