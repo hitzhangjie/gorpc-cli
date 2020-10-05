@@ -18,7 +18,6 @@ package cmd
 import (
 	"fmt"
 	"go/ast"
-	"go/format"
 	"go/parser"
 	"go/token"
 	"os"
@@ -217,8 +216,12 @@ func parseServiceMethods(fset *token.FileSet, pkgs map[string]*ast.Package, serv
 
 					// TODO OOP communication
 
+					// case1 : communication btw components by calling obj's method
 					// ss := &student{}
 					// ss.Name()
+					//
+					// case2: communication btw components by calling pkg's exported function
+					// pkg.Func()
 					x := selectorExpr.X.(*ast.Ident)
 					xName := x.Name
 					selName := selectorExpr.Sel.Name
@@ -236,11 +239,6 @@ func parseServiceMethods(fset *token.FileSet, pkgs map[string]*ast.Package, serv
 					} else { // package exported function
 						fmt.Printf("[pkg communication] calling %s.%s(%s)\n", xName, selName, args)
 					}
-
-					for _, arg := range callExpr.Args {
-						format.Node(os.Stdout, fset, arg)
-					}
-					//service := callExpr.Args[1].(*ast.UnaryExpr).X.(*ast.CompositeLit).Type.(*ast.Ident).Name
 				}
 
 				return false
