@@ -23,8 +23,8 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"strings"
 
+	"github.com/hitzhangjie/log"
 	"github.com/spf13/cobra"
 )
 
@@ -70,7 +70,7 @@ var visualizeCmd = &cobra.Command{
 
 		// 检查main.main中注册了哪几个逻辑service
 		services, err := registeredServices(fset, astFile)
-		fmt.Printf("found registered services: %s\n", strings.Join(services, ", "))
+		//fmt.Printf("found registered services: %s\n", strings.Join(services, ", "))
 
 		// 解析pb文件，检查service接口定义的method
 
@@ -81,7 +81,10 @@ var visualizeCmd = &cobra.Command{
 		}
 
 		for _, service := range services {
-			parseServiceMethods(fset, pkgs, service)
+			methodSteps, _ := parseServiceMethods(fset, pkgs, service)
+			for method, steps := range methodSteps {
+				_ = renderSteps(method, steps)
+			}
 		}
 
 		return err
@@ -166,12 +169,15 @@ func parseDir(dir string) (*token.FileSet, map[string]*ast.Package, error) {
 	return fset, allPkgs, nil
 }
 
-func parseServiceMethods(fset *token.FileSet, pkgs map[string]*ast.Package, service string) {
+func parseServiceMethods(fset *token.FileSet, pkgs map[string]*ast.Package, service string) (map[string][]string, error) {
+
+	methodSteps := map[string][]string{}
 
 	for _, pkg := range pkgs {
 		for fname, file := range pkg.Files {
-			ast.Inspect(file, func(n ast.Node) bool {
+			_ = fname
 
+			ast.Inspect(file, func(n ast.Node) bool {
 				fn, ok := n.(*ast.FuncDecl)
 				if !ok {
 					return true
@@ -192,9 +198,8 @@ func parseServiceMethods(fset *token.FileSet, pkgs map[string]*ast.Package, serv
 					return true
 				}
 
-				fmt.Println()
-				fmt.Printf("%s@%s:\n", service, fname)
-				fmt.Println("-------------------------------------------------")
+				method := fmt.Sprintf("%s.%s", service, fn.Name)
+				steps := []string{}
 
 				// TODO what should we visualize?
 				// - OOP communication, this depicts the dependencies btw different components
@@ -228,23 +233,38 @@ func parseServiceMethods(fset *token.FileSet, pkgs map[string]*ast.Package, serv
 
 					// TODO arguments
 					args := "..."
+					step := ""
+					pos := fset.Position(stmt.Pos())
 
 					if x.Obj != nil { // method
 						rhs := selectorExpr.X.(*ast.Ident).Obj.Decl.(*ast.AssignStmt).Rhs
 						typ := rhs[0].(*ast.UnaryExpr).X.(*ast.CompositeLit).Type.(*ast.Ident).Name
 						if op := rhs[0].(*ast.UnaryExpr).Op.String(); len(op) != 0 {
+							if op == "&" {
+								op = "*"
+							}
 							typ = op + typ
 						}
-						fmt.Printf("[oop communication] calling %s(%s).%s(%s)\n", xName, typ, selName, args)
+						step = fmt.Sprintf("%s%s%s (%s)%s.%s(%s)",
+							log.COLOR_GREEN, pos, log.COLOR_RESET, typ, xName, selName, args)
 					} else { // package exported function
-						fmt.Printf("[pkg communication] calling %s.%s(%s)\n", xName, selName, args)
+						step = fmt.Sprintf("%s%s%s %s.%s(%s)\n",
+							log.COLOR_GREEN, pos, log.COLOR_RESET, xName, selName, args)
+					}
+
+					if len(step) != 0 {
+						steps = append(steps, step)
 					}
 				}
 
-				return false
+				methodSteps[method] = steps
+
+				return true
 			})
 		}
 	}
+
+	return methodSteps, nil
 }
 
 func traverseDirs(dir string) ([]string, error) {
@@ -256,4 +276,16 @@ func traverseDirs(dir string) ([]string, error) {
 		return nil
 	})
 	return dirs, err
+}
+
+func renderSteps(method string, steps []string) error {
+	fmt.Printf("%s*%s%s", log.COLOR_RED, method, log.COLOR_RESET)
+	for _, step := range steps {
+		// 递归的使用\v\b进行绘制
+		// 串行的使用\v\r进行绘制
+		fmt.Printf("\v\r|\v\r|\v\rv\v\r")
+		fmt.Printf("%s\v\r", step)
+	}
+	fmt.Println()
+	return nil
 }
