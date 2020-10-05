@@ -44,6 +44,7 @@ func init() {
 
 	// TODO use i18n to generate translations for English/Chinese
 	visualizeCmd.Flags().StringP("projectdir", "d", "", "specify the directory of existed project")
+	visualizeCmd.Flags().StringP("rendermode", "m", "console", "specify the render mode, console or plantuml")
 
 	visualizeCmd.MarkFlagRequired("projectdir")
 
@@ -59,6 +60,11 @@ var visualizeCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 
 		d, err := cmd.Flags().GetString("projectdir")
+		if err != nil {
+			return err
+		}
+
+		m, err := cmd.Flags().GetString("rendermode")
 		if err != nil {
 			return err
 		}
@@ -84,9 +90,14 @@ var visualizeCmd = &cobra.Command{
 		for _, service := range services {
 			methodSteps, _ := parseServiceMethods(fset, pkgs, service)
 			for method, steps := range methodSteps {
-				//_ = renderSteps(method, steps)
-				//fmt.Println("--------------------------------------------")
-				_ = renderStepsWithPlantUML(method, steps)
+				switch m {
+				case "console":
+					renderSteps(method, steps)
+				case "plantuml":
+					renderStepsWithPlantUML(method, steps)
+				default:
+					panic(errors.New("invalid --rendermode"))
+				}
 			}
 		}
 
@@ -312,8 +323,7 @@ func inspectFn(fn *ast.FuncDecl, fset *token.FileSet, pkgs map[string]*ast.Packa
 
 		if len(statement) != 0 {
 			tmp := strings.TrimSpace(findNode.Doc.Text())
-			idx := strings.IndexAny(tmp, " \t")
-			comment := tmp[idx+1:]
+			comment := strings.TrimPrefix(tmp,findNode.Name.Name)
 
 			steps = append(steps, StatementX{
 				Position:           pos,
