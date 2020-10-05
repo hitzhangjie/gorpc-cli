@@ -16,6 +16,8 @@ limitations under the License.
 package cmd
 
 import (
+	"bytes"
+	"errors"
 	"fmt"
 	"go/ast"
 	"go/parser"
@@ -23,19 +25,18 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strings"
 
 	"github.com/hitzhangjie/log"
 	"github.com/spf13/cobra"
 )
 
 const (
-	FuncMain            = "main"
-	FuncRegisterService = "RegisterHelloSvrService"
 	FuncRegisterPattern = "Register.*Service"
 )
 
 var (
-	regex *regexp.Regexp
+	regexFuncRegisterPattern *regexp.Regexp
 )
 
 func init() {
@@ -46,7 +47,7 @@ func init() {
 
 	visualizeCmd.MarkFlagRequired("projectdir")
 
-	regex, _ = regexp.Compile(FuncRegisterPattern)
+	regexFuncRegisterPattern, _ = regexp.Compile(FuncRegisterPattern)
 }
 
 // updateCmd represents the update command
@@ -70,7 +71,7 @@ var visualizeCmd = &cobra.Command{
 
 		// 检查main.main中注册了哪几个逻辑service
 		services, err := registeredServices(fset, astFile)
-		//fmt.Printf("found registered services: %s\n", strings.Join(services, ", "))
+		fmt.Printf("found registered services: %s\n", strings.Join(services, ", "))
 
 		// 解析pb文件，检查service接口定义的method
 
@@ -84,11 +85,12 @@ var visualizeCmd = &cobra.Command{
 			methodSteps, _ := parseServiceMethods(fset, pkgs, service)
 			for method, steps := range methodSteps {
 				_ = renderSteps(method, steps)
+				fmt.Println("--------------------------------------------")
+				_ = renderStepsWithPlantUML(method, steps)
 			}
 		}
 
 		return err
-
 	},
 }
 
@@ -133,7 +135,7 @@ func registeredServices(fset *token.FileSet, file *ast.File) ([]string, error) {
 			if !ok {
 				continue
 			}
-			if !regex.MatchString(selectorExpr.Sel.Name) {
+			if !regexFuncRegisterPattern.MatchString(selectorExpr.Sel.Name) {
 				continue
 			}
 
@@ -177,12 +179,12 @@ const (
 	PhaseEnd
 )
 
-func parseServiceMethods(fset *token.FileSet, pkgs map[string]*ast.Package, service string) (map[string][]string, error) {
+func parseServiceMethods(fset *token.FileSet, pkgs map[string]*ast.Package, service string) (map[string][]StatementX, error) {
 
-	methodSteps := map[string][]string{}
+	methodSteps := map[string][]StatementX{}
 
 	// TODO remove hardcoded chan capcity 16
-	rpcMethods := make(chan *ast.FuncDecl, 16)
+	funcNodesCh := make(chan *ast.FuncDecl, 16)
 
 	for _, pkg := range pkgs {
 		for fname, file := range pkg.Files {
@@ -196,94 +198,149 @@ func parseServiceMethods(fset *token.FileSet, pkgs map[string]*ast.Package, serv
 				}
 
 				// record the rpc methods ast node
-				rpcMethods <- fn
+				funcNodesCh <- fn
 
 				return true
 			})
 		}
 	}
-	close(rpcMethods)
+	close(funcNodesCh)
 
-	for fn := range rpcMethods {
-		inspectFn(fn, fset, methodSteps)
+	// analyze every service method
+	for fn := range funcNodesCh {
+		funcName, steps := inspectFn(fn, fset, pkgs, -1)
+		methodSteps[funcName] = steps
 	}
 
 	return methodSteps, nil
 }
 
-func inspectFn(fn *ast.FuncDecl, fset *token.FileSet, methodSteps map[string][]string) {
+// inspectFn analyze function code flow, like rpc call hierarchy, control flow, etc
+//
+// what should we visualize?
+// - OOP communication, this depicts the dependencies btw different components
+//
+// 	 case1 : communication btw components by calling obj's method
+// 	 ss := &student{}
+// 	 ss.Name()
+//
+// 	 case2: communication btw components by calling pkg's exported function
+// 	 pkg.Statement()
+//
+// - TODO control flow, if, for, switch, this depicts some important logic
+// - TODO concurrency like go func(), serialization like wg.Wait()
+func inspectFn(fn *ast.FuncDecl, fset *token.FileSet, pkgs map[string]*ast.Package, depth int) (string, []StatementX) {
 
-	typ, ok := fn.Recv.List[0].Type.(*ast.StarExpr)
-	if !ok {
-		panic("not *ast.StarExpr")
+	depth++
+
+	steps := []StatementX{}
+	service, _ := parseFuncRecvType(fn)
+	funcName := fn.Name.Name
+
+	if len(service) != 0 {
+		funcName = fmt.Sprintf("%s.%s", service, fn.Name.Name)
 	}
-
-	ident, ok := typ.X.(*ast.Ident)
-	if !ok {
-		panic("not *ast.Ident")
-	}
-	service := ident.Name
-
-	method := fmt.Sprintf("%s.%s", service, fn.Name)
-	steps := []string{}
-
-	// TODO what should we visualize?
-	// - OOP communication, this depicts the dependencies btw different components
-	// - control flow, if, for, switch, this depicts some important logic
 
 	for _, stmt := range fn.Body.List {
-		exprStmt, ok := stmt.(*ast.ExprStmt)
-		if !ok {
+
+		//fmt.Printf("found statement: %+v\n", stmt)
+
+		// TODO arguments
+		var (
+			pos       = fset.Position(stmt.Pos())
+			args      = "..."
+			statement = ""
+			typ       = ""
+			xName     = ""
+			selName   = ""
+			callExpr  *ast.CallExpr
+		)
+
+		switch stmt.(type) {
+		case *ast.ExprStmt:
+			exprStmt, ok := stmt.(*ast.ExprStmt)
+			if !ok {
+				fmt.Printf("fuck\n")
+				continue
+			}
+			call, ok := exprStmt.X.(*ast.CallExpr)
+			if !ok {
+				continue
+			}
+			callExpr = call
+		case *ast.AssignStmt:
+			call, ok := stmt.(*ast.AssignStmt).Rhs[0].(*ast.CallExpr)
+			if !ok {
+				continue
+			}
+			callExpr = call
+		default:
 			continue
 		}
-		callExpr, ok := exprStmt.X.(*ast.CallExpr)
-		if !ok {
-			continue
-		}
+
 		selectorExpr, ok := callExpr.Fun.(*ast.SelectorExpr)
 		if !ok {
 			continue
 		}
 
 		// TODO OOP communication
-
-		// case1 : communication btw components by calling obj's method
-		// ss := &student{}
-		// ss.Name()
-		//
-		// case2: communication btw components by calling pkg's exported function
-		// pkg.Func()
 		x := selectorExpr.X.(*ast.Ident)
-		xName := x.Name
-		selName := selectorExpr.Sel.Name
+		xName = x.Name
+		selName = selectorExpr.Sel.Name
 
-		// TODO arguments
-		args := "..."
-		step := ""
-		pos := fset.Position(stmt.Pos())
-
-		if x.Obj != nil { // method
+		// x.Obj != nil, it's funcName
+		// x.Obj == nil, it's package exported function
+		if x.Obj != nil { // funcName
 			rhs := selectorExpr.X.(*ast.Ident).Obj.Decl.(*ast.AssignStmt).Rhs
-			typ := rhs[0].(*ast.UnaryExpr).X.(*ast.CompositeLit).Type.(*ast.Ident).Name
+			typ = rhs[0].(*ast.UnaryExpr).X.(*ast.CompositeLit).Type.(*ast.Ident).Name
 			if op := rhs[0].(*ast.UnaryExpr).Op.String(); len(op) != 0 {
 				if op == "&" {
 					op = "*"
 				}
 				typ = op + typ
 			}
-			step = fmt.Sprintf("%s%s%s (%s)%s.%s(%s)",
+		}
+
+		if len(typ) != 0 {
+			statement = fmt.Sprintf("%s%s%s (%s)%s.%s(%s)",
 				log.COLOR_GREEN, pos, log.COLOR_RESET, typ, xName, selName, args)
-		} else { // package exported function
-			step = fmt.Sprintf("%s%s%s %s.%s(%s)\n",
+		} else {
+			statement = fmt.Sprintf("%s%s%s %s.%s(%s)\n",
 				log.COLOR_GREEN, pos, log.COLOR_RESET, xName, selName, args)
 		}
 
-		if len(step) != 0 {
-			steps = append(steps, step)
+		// TODO recursively expand the body at function
+		findNode := findFuncNode(pkgs, typ, selName)
+
+		if len(statement) != 0 {
+			tmp := strings.TrimSpace(findNode.Doc.Text())
+			idx := strings.IndexAny(tmp, " \t")
+			comment := tmp[idx+1:]
+
+			steps = append(steps, StatementX{
+				Position:           pos,
+				Statement:          statement,
+				Comment:            comment,
+				Caller:             funcName,
+				CallHierarchyDepth: depth,
+				X:                  xName,
+				Seletor:            selName,
+				Args:               []string{args},
+			})
+		}
+
+		if findNode != nil {
+			//fmt.Printf("found funcNode, %s.%s, %+v\n", typ, selName, findNode)
+
+			// recursive expand function body
+			_, nestedSteps := inspectFn(findNode, fset, pkgs, depth)
+			steps = append(steps, nestedSteps...)
+		} else {
+			fmt.Printf("not found funcNode, %s.%s\n", typ, selName)
 		}
 	}
 
-	methodSteps[method] = steps
+	return funcName, steps
 }
 
 func traverseDirs(dir string) ([]string, error) {
@@ -297,18 +354,68 @@ func traverseDirs(dir string) ([]string, error) {
 	return dirs, err
 }
 
-func renderSteps(method string, steps []string) error {
-	fmt.Printf("%s*%s%s", log.COLOR_RED, method, log.COLOR_RESET)
-	for _, step := range steps {
-		// 递归的使用\v\b进行绘制
-		// 串行的使用\v\r进行绘制
-		fmt.Printf("\v\r|\v\r|\v\rv\v\r")
-		fmt.Printf("%s\v\r", step)
+func renderSteps(method string, steps []StatementX) error {
+	fmt.Printf("%s%s%s\v\r", log.COLOR_RED, method, log.COLOR_RESET)
+	for phase, step := range steps {
+		prefix := strings.Repeat("\t", step.CallHierarchyDepth)
+		idx := strings.IndexAny(step.Comment, " \t")
+		comment := step.Comment[idx+1:]
+		fmt.Printf("\v\r%s|\v\r%s|%d-%s\v\r%s|\v\r%sv\v\r", prefix, prefix, phase, comment, prefix, prefix)
+		fmt.Printf("\v\r%s%s", prefix, step.Statement)
 	}
-	fmt.Println()
 	return nil
 }
 
+func renderStepsWithPlantUML(method string, steps []StatementX) error {
+	buf := &bytes.Buffer{}
+
+	buf.WriteString("@startuml\n")
+
+	vals := strings.Split(method, ".")
+	actor := vals[0]
+	action := vals[1]
+
+	fmt.Fprintf(buf, "participant \"%s\"\n", actor)
+	fmt.Fprintf(buf, "activate \"%s\"\n", actor)
+	fmt.Fprintf(buf, "note left\n")
+	fmt.Fprintf(buf, "%s\n", action)
+	fmt.Fprintf(buf, "end note\n")
+
+	entities := map[string]bool{
+		actor: true,
+	}
+
+	for phase, statement := range steps {
+		fmt.Println(phase, statement)
+
+		entity := statement.X
+		entity = strings.TrimPrefix(entity, "(*")
+		entity = strings.TrimSuffix(entity, ")")
+
+		operation := statement.Seletor
+
+		if _, ok := entities[entity]; !ok {
+			fmt.Fprintf(buf, "participant \"%s\"\n", entity)
+			entities[entity] = true
+		}
+
+		fmt.Fprintf(buf, "\"%s\" -> \"%s\" : %d-%s\n", statement.Caller, entity, phase, operation)
+		fmt.Fprintf(buf, "activate \"%s\"\n", entity)
+		fmt.Fprintf(buf, "note right\n")
+		fmt.Fprintf(buf, "%s\n", statement.Comment)
+		fmt.Fprintf(buf, "end note\n")
+		fmt.Fprintf(buf, "deactivate \"%s\"\n", entity)
+	}
+
+	fmt.Fprintf(buf, "deactivate \"%s\"\n", actor)
+	buf.WriteString("@enduml\n")
+
+	fmt.Printf("plantuml data: \n\n%s", buf.String())
+
+	return nil
+}
+
+// isServiceMethod check with node `n` is a method definition node of service `service`
 func isServiceMethod(n ast.Node, service string) (*ast.FuncDecl, bool) {
 
 	// must be a func declaration
@@ -336,4 +443,99 @@ func isServiceMethod(n ast.Node, service string) (*ast.FuncDecl, bool) {
 	}
 
 	return fn, true
+}
+
+func isTargetMethod(n ast.Node, recvType, funcName string) (*ast.FuncDecl, bool) {
+
+	// must be a func declaration
+	fn, ok := n.(*ast.FuncDecl)
+	if !ok {
+		return nil, false
+	}
+
+	if len(recvType) != 0 {
+		// fn is function, rather than methods
+		if fn.Recv == nil || len(fn.Recv.List) == 0 || fn.Recv.List[0] == nil || fn.Recv.List[0].Type == nil {
+			return nil, false
+		}
+
+		// gorpc template make sure receiver type of methods of generated implemention of service interface
+		// always conforms to form `(s *${service}) RPCMethod(ctx, req, rsp) error`.
+		typ, ok := fn.Recv.List[0].Type.(*ast.StarExpr)
+		if !ok {
+			return nil, false
+		}
+
+		// filter out the methods whose receiver type has the same type as registered services
+		ident, ok := typ.X.(*ast.Ident)
+		if !ok || recvType != ident.Name {
+			return nil, false
+		}
+	}
+
+	// filter out the methods whose name not matches
+	if funcName != fn.Name.Name {
+		return nil, false
+	}
+
+	return fn, true
+}
+
+func findFuncNode(pkgs map[string]*ast.Package, recvType, funcName string) *ast.FuncDecl {
+
+	// TODO how to seperate *Student and Student
+	recvType = strings.TrimPrefix(recvType, "*")
+
+	var findNode *ast.FuncDecl
+
+NEXT:
+	for _, pkg := range pkgs {
+		for _, file := range pkg.Files {
+			ast.Inspect(file, func(n ast.Node) bool {
+				fn, ok := isTargetMethod(n, recvType, funcName)
+				if !ok {
+					return true
+				}
+				findNode = fn
+				return false
+			})
+			if findNode != nil {
+				break NEXT
+			}
+		}
+	}
+
+	return findNode
+}
+
+func parseFuncRecvType(fn *ast.FuncDecl) (string, error) {
+
+	if fn.Recv == nil || len(fn.Recv.List) == 0 {
+		return "", errors.New("invalid receiver type")
+	}
+
+	typ, ok := fn.Recv.List[0].Type.(*ast.StarExpr)
+	if !ok {
+		return "", errors.New("not *ast.StarExpr")
+	}
+
+	ident, ok := typ.X.(*ast.Ident)
+	if !ok {
+		panic("not *ast.Ident")
+	}
+
+	// TODO seperate value and pointer?
+	// `(s Student) xxx()` or `(s *Student) xxx()`
+	return ident.Name, nil
+}
+
+type StatementX struct {
+	Position           token.Position
+	Statement          string
+	Comment            string
+	Caller             string
+	CallHierarchyDepth int
+	X                  string   // receiver type, or package name
+	Seletor            string   // member function or package exported function
+	Args               []string // function args
 }
