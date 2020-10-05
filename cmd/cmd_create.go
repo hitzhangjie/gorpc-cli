@@ -76,7 +76,7 @@ var createCmd = &cobra.Command{
 		// 解析命令行参数
 		err := cmd.ParseFlags(args)
 		if err != nil {
-			return fmt.Errorf("parse flags error: %v", err)
+			return fmt.Errorf("parseDir flags error: %v", err)
 		}
 
 		// 检查命令行参数
