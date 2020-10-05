@@ -219,16 +219,23 @@ func parseServiceMethods(fset *token.FileSet, pkgs map[string]*ast.Package, serv
 
 					// ss := &student{}
 					// ss.Name()
-					recv := selectorExpr.X.(*ast.Ident).Name
-					rhs := selectorExpr.X.(*ast.Ident).Obj.Decl.(*ast.AssignStmt).Rhs
-					typ := rhs[0].(*ast.UnaryExpr).X.(*ast.CompositeLit).Type.(*ast.Ident).Name
-					if op := rhs[0].(*ast.UnaryExpr).Op.String(); len(op) != 0 {
-						typ = op + typ
-					}
-					fun := selectorExpr.Sel.Name
+					x := selectorExpr.X.(*ast.Ident)
+					xName := x.Name
+					selName := selectorExpr.Sel.Name
+
 					// TODO arguments
 					args := "..."
-					fmt.Printf("[oop communication] calling %s(%s).%s(%s)\n", recv, typ, fun, args)
+
+					if x.Obj != nil { // method
+						rhs := selectorExpr.X.(*ast.Ident).Obj.Decl.(*ast.AssignStmt).Rhs
+						typ := rhs[0].(*ast.UnaryExpr).X.(*ast.CompositeLit).Type.(*ast.Ident).Name
+						if op := rhs[0].(*ast.UnaryExpr).Op.String(); len(op) != 0 {
+							typ = op + typ
+						}
+						fmt.Printf("[oop communication] calling %s(%s).%s(%s)\n", xName, typ, selName, args)
+					} else { // package exported function
+						fmt.Printf("[pkg communication] calling %s.%s(%s)\n", xName, selName, args)
+					}
 
 					for _, arg := range callExpr.Args {
 						format.Node(os.Stdout, fset, arg)
