@@ -169,102 +169,121 @@ func parseDir(dir string) (*token.FileSet, map[string]*ast.Package, error) {
 	return fset, allPkgs, nil
 }
 
+type Phase int
+
+const (
+	PhaseStart = iota
+	PhaseExpand
+	PhaseEnd
+)
+
 func parseServiceMethods(fset *token.FileSet, pkgs map[string]*ast.Package, service string) (map[string][]string, error) {
 
 	methodSteps := map[string][]string{}
+
+	// TODO remove hardcoded chan capcity 16
+	rpcMethods := make(chan *ast.FuncDecl, 16)
 
 	for _, pkg := range pkgs {
 		for fname, file := range pkg.Files {
 			_ = fname
 
 			ast.Inspect(file, func(n ast.Node) bool {
-				fn, ok := n.(*ast.FuncDecl)
+
+				fn, ok := isServiceMethod(n, service)
 				if !ok {
 					return true
 				}
 
-				// function, rather than methods
-				if fn.Recv == nil || len(fn.Recv.List) == 0 || fn.Recv.List[0] == nil || fn.Recv.List[0].Type == nil {
-					return true
-				}
-
-				typ, ok := fn.Recv.List[0].Type.(*ast.StarExpr)
-				if !ok {
-					return true
-				}
-
-				ident, ok := typ.X.(*ast.Ident)
-				if !ok || service != ident.Name {
-					return true
-				}
-
-				method := fmt.Sprintf("%s.%s", service, fn.Name)
-				steps := []string{}
-
-				// TODO what should we visualize?
-				// - OOP communication, this depicts the dependencies btw different components
-				// - control flow, if, for, switch, this depicts some important logic
-
-				for _, stmt := range fn.Body.List {
-					exprStmt, ok := stmt.(*ast.ExprStmt)
-					if !ok {
-						continue
-					}
-					callExpr, ok := exprStmt.X.(*ast.CallExpr)
-					if !ok {
-						continue
-					}
-					selectorExpr, ok := callExpr.Fun.(*ast.SelectorExpr)
-					if !ok {
-						continue
-					}
-
-					// TODO OOP communication
-
-					// case1 : communication btw components by calling obj's method
-					// ss := &student{}
-					// ss.Name()
-					//
-					// case2: communication btw components by calling pkg's exported function
-					// pkg.Func()
-					x := selectorExpr.X.(*ast.Ident)
-					xName := x.Name
-					selName := selectorExpr.Sel.Name
-
-					// TODO arguments
-					args := "..."
-					step := ""
-					pos := fset.Position(stmt.Pos())
-
-					if x.Obj != nil { // method
-						rhs := selectorExpr.X.(*ast.Ident).Obj.Decl.(*ast.AssignStmt).Rhs
-						typ := rhs[0].(*ast.UnaryExpr).X.(*ast.CompositeLit).Type.(*ast.Ident).Name
-						if op := rhs[0].(*ast.UnaryExpr).Op.String(); len(op) != 0 {
-							if op == "&" {
-								op = "*"
-							}
-							typ = op + typ
-						}
-						step = fmt.Sprintf("%s%s%s (%s)%s.%s(%s)",
-							log.COLOR_GREEN, pos, log.COLOR_RESET, typ, xName, selName, args)
-					} else { // package exported function
-						step = fmt.Sprintf("%s%s%s %s.%s(%s)\n",
-							log.COLOR_GREEN, pos, log.COLOR_RESET, xName, selName, args)
-					}
-
-					if len(step) != 0 {
-						steps = append(steps, step)
-					}
-				}
-
-				methodSteps[method] = steps
+				// record the rpc methods ast node
+				rpcMethods <- fn
 
 				return true
 			})
 		}
 	}
+	close(rpcMethods)
+
+	for fn := range rpcMethods {
+		inspectFn(fn, fset, methodSteps)
+	}
 
 	return methodSteps, nil
+}
+
+func inspectFn(fn *ast.FuncDecl, fset *token.FileSet, methodSteps map[string][]string) {
+
+	typ, ok := fn.Recv.List[0].Type.(*ast.StarExpr)
+	if !ok {
+		panic("not *ast.StarExpr")
+	}
+
+	ident, ok := typ.X.(*ast.Ident)
+	if !ok {
+		panic("not *ast.Ident")
+	}
+	service := ident.Name
+
+	method := fmt.Sprintf("%s.%s", service, fn.Name)
+	steps := []string{}
+
+	// TODO what should we visualize?
+	// - OOP communication, this depicts the dependencies btw different components
+	// - control flow, if, for, switch, this depicts some important logic
+
+	for _, stmt := range fn.Body.List {
+		exprStmt, ok := stmt.(*ast.ExprStmt)
+		if !ok {
+			continue
+		}
+		callExpr, ok := exprStmt.X.(*ast.CallExpr)
+		if !ok {
+			continue
+		}
+		selectorExpr, ok := callExpr.Fun.(*ast.SelectorExpr)
+		if !ok {
+			continue
+		}
+
+		// TODO OOP communication
+
+		// case1 : communication btw components by calling obj's method
+		// ss := &student{}
+		// ss.Name()
+		//
+		// case2: communication btw components by calling pkg's exported function
+		// pkg.Func()
+		x := selectorExpr.X.(*ast.Ident)
+		xName := x.Name
+		selName := selectorExpr.Sel.Name
+
+		// TODO arguments
+		args := "..."
+		step := ""
+		pos := fset.Position(stmt.Pos())
+
+		if x.Obj != nil { // method
+			rhs := selectorExpr.X.(*ast.Ident).Obj.Decl.(*ast.AssignStmt).Rhs
+			typ := rhs[0].(*ast.UnaryExpr).X.(*ast.CompositeLit).Type.(*ast.Ident).Name
+			if op := rhs[0].(*ast.UnaryExpr).Op.String(); len(op) != 0 {
+				if op == "&" {
+					op = "*"
+				}
+				typ = op + typ
+			}
+			step = fmt.Sprintf("%s%s%s (%s)%s.%s(%s)",
+				log.COLOR_GREEN, pos, log.COLOR_RESET, typ, xName, selName, args)
+		} else { // package exported function
+			step = fmt.Sprintf("%s%s%s %s.%s(%s)\n",
+				log.COLOR_GREEN, pos, log.COLOR_RESET, xName, selName, args)
+		}
+
+		if len(step) != 0 {
+			steps = append(steps, step)
+		}
+	}
+
+	methodSteps[method] = steps
 }
 
 func traverseDirs(dir string) ([]string, error) {
@@ -288,4 +307,33 @@ func renderSteps(method string, steps []string) error {
 	}
 	fmt.Println()
 	return nil
+}
+
+func isServiceMethod(n ast.Node, service string) (*ast.FuncDecl, bool) {
+
+	// must be a func declaration
+	fn, ok := n.(*ast.FuncDecl)
+	if !ok {
+		return nil, false
+	}
+
+	// fn is function, rather than methods
+	if fn.Recv == nil || len(fn.Recv.List) == 0 || fn.Recv.List[0] == nil || fn.Recv.List[0].Type == nil {
+		return nil, false
+	}
+
+	// gorpc template make sure receiver type of methods of generated implemention of service interface
+	// always conforms to form `(s *${service}) RPCMethod(ctx, req, rsp) error`.
+	typ, ok := fn.Recv.List[0].Type.(*ast.StarExpr)
+	if !ok {
+		return nil, false
+	}
+
+	// filter out the methods whose receiver type has the same type as registered services
+	ident, ok := typ.X.(*ast.Ident)
+	if !ok || service != ident.Name {
+		return nil, false
+	}
+
+	return fn, true
 }
