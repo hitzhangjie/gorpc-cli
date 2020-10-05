@@ -84,8 +84,8 @@ var visualizeCmd = &cobra.Command{
 		for _, service := range services {
 			methodSteps, _ := parseServiceMethods(fset, pkgs, service)
 			for method, steps := range methodSteps {
-				_ = renderSteps(method, steps)
-				fmt.Println("--------------------------------------------")
+				//_ = renderSteps(method, steps)
+				//fmt.Println("--------------------------------------------")
 				_ = renderStepsWithPlantUML(method, steps)
 			}
 		}
@@ -251,7 +251,6 @@ func inspectFn(fn *ast.FuncDecl, fset *token.FileSet, pkgs map[string]*ast.Packa
 			args      = "..."
 			statement = ""
 			typ       = ""
-			xName     = ""
 			selName   = ""
 			callExpr  *ast.CallExpr
 		)
@@ -283,9 +282,8 @@ func inspectFn(fn *ast.FuncDecl, fset *token.FileSet, pkgs map[string]*ast.Packa
 			continue
 		}
 
-		// TODO OOP communication
+		// x.Name represents receiver variable, or package name
 		x := selectorExpr.X.(*ast.Ident)
-		xName = x.Name
 		selName = selectorExpr.Sel.Name
 
 		// x.Obj != nil, it's funcName
@@ -303,10 +301,10 @@ func inspectFn(fn *ast.FuncDecl, fset *token.FileSet, pkgs map[string]*ast.Packa
 
 		if len(typ) != 0 {
 			statement = fmt.Sprintf("%s%s%s (%s)%s.%s(%s)",
-				log.COLOR_GREEN, pos, log.COLOR_RESET, typ, xName, selName, args)
+				log.COLOR_GREEN, pos, log.COLOR_RESET, typ, x.Name, selName, args)
 		} else {
 			statement = fmt.Sprintf("%s%s%s %s.%s(%s)\n",
-				log.COLOR_GREEN, pos, log.COLOR_RESET, xName, selName, args)
+				log.COLOR_GREEN, pos, log.COLOR_RESET, x.Name, selName, args)
 		}
 
 		// TODO recursively expand the body at function
@@ -323,7 +321,8 @@ func inspectFn(fn *ast.FuncDecl, fset *token.FileSet, pkgs map[string]*ast.Packa
 				Comment:            comment,
 				Caller:             funcName,
 				CallHierarchyDepth: depth,
-				X:                  xName,
+				X:                  x.Name,
+				Typ:                typ,
 				Seletor:            selName,
 				Args:               []string{args},
 			})
@@ -331,7 +330,6 @@ func inspectFn(fn *ast.FuncDecl, fset *token.FileSet, pkgs map[string]*ast.Packa
 
 		if findNode != nil {
 			//fmt.Printf("found funcNode, %s.%s, %+v\n", typ, selName, findNode)
-
 			// recursive expand function body
 			_, nestedSteps := inspectFn(findNode, fset, pkgs, depth)
 			steps = append(steps, nestedSteps...)
@@ -366,32 +364,29 @@ func renderSteps(method string, steps []StatementX) error {
 	return nil
 }
 
-func renderStepsWithPlantUML(method string, steps []StatementX) error {
+func renderStepsWithPlantUML(method string, statements []StatementX) error {
 	buf := &bytes.Buffer{}
 
 	buf.WriteString("@startuml\n")
 
-	vals := strings.Split(method, ".")
-	actor := vals[0]
-	action := vals[1]
+	entities := map[string]bool{}
 
-	fmt.Fprintf(buf, "participant \"%s\"\n", actor)
-	fmt.Fprintf(buf, "activate \"%s\"\n", actor)
-	fmt.Fprintf(buf, "note left\n")
-	fmt.Fprintf(buf, "%s\n", action)
-	fmt.Fprintf(buf, "end note\n")
-
-	entities := map[string]bool{
-		actor: true,
+	for _, statement := range statements {
+		vals := strings.Split(statement.Caller, ".")
+		callerEntity := vals[0]
+		if _, ok := entities[callerEntity]; !ok {
+			fmt.Fprintf(buf, "participant \"%s\"\n", callerEntity)
+			entities[callerEntity] = true
+		}
 	}
 
-	for phase, statement := range steps {
-		fmt.Println(phase, statement)
-
-		entity := statement.X
-		entity = strings.TrimPrefix(entity, "(*")
-		entity = strings.TrimSuffix(entity, ")")
-
+	for _, statement := range statements {
+		entity := ""
+		if len(statement.Typ) != 0 {
+			entity = strings.TrimPrefix(statement.Typ, "*")
+		} else {
+			entity = statement.X
+		}
 		operation := statement.Seletor
 
 		if _, ok := entities[entity]; !ok {
@@ -399,7 +394,10 @@ func renderStepsWithPlantUML(method string, steps []StatementX) error {
 			entities[entity] = true
 		}
 
-		fmt.Fprintf(buf, "\"%s\" -> \"%s\" : %d-%s\n", statement.Caller, entity, phase, operation)
+		v := strings.Split(statement.Caller, ".")
+		callerEntity, callerAction := v[0], v[1]
+		_ = callerAction
+		fmt.Fprintf(buf, "\"%s\" -> \"%s\" : %s\n", callerEntity, entity, operation)
 		fmt.Fprintf(buf, "activate \"%s\"\n", entity)
 		fmt.Fprintf(buf, "note right\n")
 		fmt.Fprintf(buf, "%s\n", statement.Comment)
@@ -407,7 +405,7 @@ func renderStepsWithPlantUML(method string, steps []StatementX) error {
 		fmt.Fprintf(buf, "deactivate \"%s\"\n", entity)
 	}
 
-	fmt.Fprintf(buf, "deactivate \"%s\"\n", actor)
+	//fmt.Fprintf(buf, "deactivate \"%s\"\n", actor)
 	buf.WriteString("@enduml\n")
 
 	fmt.Printf("plantuml data: \n\n%s", buf.String())
@@ -535,7 +533,8 @@ type StatementX struct {
 	Comment            string
 	Caller             string
 	CallHierarchyDepth int
-	X                  string   // receiver type, or package name
+	X                  string   // receiver variable, or package name
+	Typ                string   // receiver type
 	Seletor            string   // member function or package exported function
 	Args               []string // function args
 }
