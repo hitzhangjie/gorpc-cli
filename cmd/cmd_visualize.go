@@ -380,7 +380,9 @@ func renderStepsWithPlantUML(method string, statements []StatementX) error {
 		}
 	}
 
-	for _, statement := range statements {
+	activated := map[string]bool{}
+
+	for idx, statement := range statements {
 		entity := ""
 		if len(statement.Typ) != 0 {
 			entity = strings.TrimPrefix(statement.Typ, "*")
@@ -399,10 +401,29 @@ func renderStepsWithPlantUML(method string, statements []StatementX) error {
 		_ = callerAction
 		fmt.Fprintf(buf, "\"%s\" -> \"%s\" : %s\n", callerEntity, entity, operation)
 		fmt.Fprintf(buf, "activate \"%s\"\n", entity)
+		activated[entity] = true // record一下
 		fmt.Fprintf(buf, "note right\n")
 		fmt.Fprintf(buf, "%s\n", statement.Comment)
 		fmt.Fprintf(buf, "end note\n")
-		fmt.Fprintf(buf, "deactivate \"%s\"\n", entity)
+
+		if _, ok := activated[callerEntity]; ok {
+			fmt.Fprintf(buf, "deactivate \"%s\"\n", callerEntity)
+			delete(activated, callerEntity)
+		}
+
+		found := false
+		for _, st := range statements[idx+1:] {
+			v := strings.Split(st.Caller, ".")
+			callerEntity, _ := v[0], v[1]
+			if entity == callerEntity {
+				found = true
+				break
+			}
+		}
+		if !found {
+			fmt.Fprintf(buf, "deactivate \"%s\"\n", entity)
+			delete(activated, entity)
+		}
 	}
 
 	//fmt.Fprintf(buf, "deactivate \"%s\"\n", actor)
