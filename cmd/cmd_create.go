@@ -73,11 +73,6 @@ var createCmd = &cobra.Command{
 	Short: config.LoadTranslation("createCmdUsage", nil),
 	Long:  config.LoadTranslation("createCmdUsageLong", nil),
 	PreRunE: func(cmd *cobra.Command, args []string) error {
-		// 解析命令行参数
-		err := cmd.ParseFlags(args)
-		if err != nil {
-			return fmt.Errorf("parseDir flags error: %v", err)
-		}
 
 		// 检查命令行参数
 		option, err := loadCreateOption(cmd.Flags())
@@ -85,6 +80,7 @@ var createCmd = &cobra.Command{
 			return fmt.Errorf("check flags error: %v", err)
 		}
 		createOption = option
+
 		return nil
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
