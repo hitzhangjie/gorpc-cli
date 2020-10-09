@@ -77,7 +77,7 @@ var visualizeCmd = &cobra.Command{
 
 		// 检查main.main中注册了哪几个逻辑service
 		services, err := registeredServices(fset, astFile)
-		fmt.Printf("found registered services: %s\n", strings.Join(services, ", "))
+		//fmt.Printf("found registered services: %s\n", strings.Join(services, ", "))
 
 		// 解析pb文件，检查service接口定义的method
 
@@ -323,7 +323,7 @@ func inspectFn(fn *ast.FuncDecl, fset *token.FileSet, pkgs map[string]*ast.Packa
 
 		if len(statement) != 0 {
 			tmp := strings.TrimSpace(findNode.Doc.Text())
-			comment := strings.TrimPrefix(tmp,findNode.Name.Name)
+			comment := strings.TrimPrefix(tmp, findNode.Name.Name)
 
 			steps = append(steps, StatementX{
 				Position:           pos,
@@ -399,7 +399,6 @@ func renderStepsWithPlantUML(method string, statements []StatementX) error {
 		} else {
 			entity = statement.X
 		}
-		operation := statement.Seletor
 
 		if _, ok := entities[entity]; !ok {
 			fmt.Fprintf(buf, "participant \"%s\"\n", entity)
@@ -409,7 +408,7 @@ func renderStepsWithPlantUML(method string, statements []StatementX) error {
 		v := strings.Split(statement.Caller, ".")
 		callerEntity, callerAction := v[0], v[1]
 		_ = callerAction
-		fmt.Fprintf(buf, "\"%s\" -> \"%s\" : %s\n", callerEntity, entity, operation)
+		fmt.Fprintf(buf, "\"%s\" -> \"%s\" : %s\n", callerEntity, entity, statement.Statement)
 		fmt.Fprintf(buf, "activate \"%s\"\n", entity)
 		activated[entity] = true // record一下
 		fmt.Fprintf(buf, "note right\n")
@@ -439,7 +438,7 @@ func renderStepsWithPlantUML(method string, statements []StatementX) error {
 	//fmt.Fprintf(buf, "deactivate \"%s\"\n", actor)
 	buf.WriteString("@enduml\n")
 
-	fmt.Printf("plantuml data: \n\n%s", buf.String())
+	fmt.Printf("%s", buf.String())
 
 	return nil
 }
