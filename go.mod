@@ -3,6 +3,7 @@ module github.com/hitzhangjie/gorpc-cli
 go 1.14
 
 require (
+	github.com/go-delve/delve v1.5.1
 	github.com/golang/protobuf v1.4.2
 	github.com/hitzhangjie/fs v0.0.0-20200921102911-9a2a4209306f
 	github.com/hitzhangjie/gostyle v0.0.0-20200921132849-f1aec6c91dae
@@ -12,6 +13,7 @@ require (
 	github.com/jhump/protoreflect v1.7.0
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/nicksnyder/go-i18n/v2 v2.0.3
+	github.com/phayes/freeport v0.0.0-20180830031419-95f893ade6f2
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/cobra v1.0.0
 	github.com/spf13/pflag v1.0.5

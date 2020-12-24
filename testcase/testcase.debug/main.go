@@ -2,12 +2,17 @@ package main
 
 import (
 	"context"
-	"errors"
 	"fmt"
+	"time"
 )
 
 func main() {
-	cli := NewClientProxy("HelloService")
+	go func() {
+		for {
+			time.Sleep(time.Second)
+		}
+	}()
+	cli := NewXXXClientProxy("HelloService")
 
 	type arg struct {
 		req *helloReq
@@ -16,20 +21,24 @@ func main() {
 
 	args := []arg{
 		{
-			req: "",
+			req: &helloReq{msg: ""},
 		},
 		{
-			req: "xx",
+			req: &helloReq{msg: "xx"},
 		},
 	}
 	for _, v := range args {
 		// set breakpoints here
 		rsp, err := cli.Invoke(context.TODO(), v.req)
+		if err != nil {
+			panic("invalid rsp")
+		}
+		fmt.Println(rsp, err)
 	}
 }
 
-func NewClientProxy(name string) Client {
-	return &client{}
+func NewXXXClientProxy(name string) *Client {
+	return &Client{}
 }
 
 type helloReq struct {
@@ -41,21 +50,12 @@ type helloRsp struct {
 	msg  string
 }
 
-// Client ...
-type Client interface {
-	Invoke(ctx context.Context, req interface{}) (rsp interface{}, err error)
-}
-
 // client ...
-type client struct {
+type Client struct {
 }
 
-func (c *client) Invoke(ctx context.Context, req interface{}) (rsp interface{}, err error) {
-	v, ok := req.(*helloReq)
-	if !ok || v == nil {
-		return nil, errors.New("invalid req")
-	}
-	if len(v.msg) == 0 {
+func (c *Client) Invoke(ctx context.Context, req *helloReq) (rsp *helloRsp, err error) {
+	if len(req.msg) == 0 {
 		return &helloRsp{100, "req.msg empty"}, nil
 	}
 	return &helloRsp{0, "ok"}, nil

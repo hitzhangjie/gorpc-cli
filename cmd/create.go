@@ -173,7 +173,7 @@ func loadCreateOption(flagSet *pflag.FlagSet) (*params.Option, error) {
 	// 加载gorpc.json中定义的语言相关的配置
 	option.GoRPCCfg, err = config.GetLanguageCfg(option.Language)
 	if err != nil {
-		return nil, fmt.Errorf("load config via gorpc.json error: %v", err)
+		return nil, fmt.Errorf("load apiLoadConfig via gorpc.json error: %v", err)
 	}
 	if len(option.Assetdir) == 0 {
 		option.Assetdir = option.GoRPCCfg.AssetDir

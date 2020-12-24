@@ -16,8 +16,18 @@ limitations under the License.
 package cmd
 
 import (
+	"errors"
 	"fmt"
+	"net"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"time"
 
+	"github.com/go-delve/delve/service/api"
+	"github.com/go-delve/delve/service/rpc2"
+	"github.com/hitzhangjie/gorpc-cli/util/debug"
+	"github.com/phayes/freeport"
 	"github.com/spf13/cobra"
 )
 
@@ -64,8 +74,150 @@ and usage of using your command. For example:
 Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("debug called")
+	RunE: func(cmd *cobra.Command, args []string) (err error) {
+		// 获取要分析的微服务目录
+		pkg, _ := cmd.Flags().GetString("package")
+		if len(pkg) == 0 {
+			return errors.New("package empty")
+		}
+
+		if pkg == "." {
+			pkg, err = os.Getwd()
+			if err != nil {
+				return err
+			}
+		}
+		fmt.Printf("----------------------------------\n")
+		fmt.Printf("debug `%s`\n", pkg)
+
+		// 准备进行go代码编译
+		bin, err := buildDebugVersion(pkg)
+		if err != nil {
+			return err
+		}
+		fmt.Printf("build `%s`\n", bin)
+
+		port, err := freeport.GetFreePort()
+		if err != nil {
+			return err
+		}
+		fmt.Printf("allocate port: %d\n", port)
+
+		// start debugger in headerless mode
+		addr := fmt.Sprintf("127.0.0.1:%d", port)
+		pid, err := debugInHeadlessMode(bin, addr)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "start debugger error: %v\n", err)
+			return
+		}
+		fmt.Printf("----------------------------------\n")
+		fmt.Printf("start debugger ok, tracee: %d\n", pid)
+
+		// 等debugger server起来
+		//for !detectAddrInUse(addr) {
+		//	time.Sleep(time.Millisecond*100)
+		//}
+		time.Sleep(time.Second * 2)
+
+		// 初始化rpc client，并开始设置好断点
+		rpc := rpc2.NewClient(addr)
+		if rpc == nil {
+			return errors.New("start debugger client error")
+		}
+		rpc.SetReturnValuesLoadConfig(&apiLoadConfig)
+
+		// set breakpoints at statements of RPC
+		bp, err := rpc.CreateBreakpoint(&api.Breakpoint{
+			//File: "/Users/zhangjie/gorpc101/gorpc-cli/testcase/testcase.debug/main.go",
+			//Line: 60,
+			FunctionName: "main.(*Client).Invoke",
+			//Cond:          "",
+		})
+		if err != nil {
+			return err
+		}
+		fmt.Printf("create breakpoint ok, pos: %#x, %s\n", bp.Addr, bp.FunctionName)
+		fmt.Printf("create breakpoint ok, pos: %s:%d\n", bp.File, bp.Line)
+
+		// state, err := rpc.StepInstruction()
+		// BUG: thread blocked in function prologue, using rpc.Step() instead
+		state, err := rpc.Step()
+		if err != nil {
+			return err
+		}
+		fmt.Printf("stepin into the function: pc: %#x\n", state.CurrentThread.PC)
+
+		// TODO 这里应该通过FDE计算得到返回值，然后将其设置到rip，然后直接stepin
+		// 现在是图省事，走了stepout，函数体还是被完整执行了，不想完整执行，比如：
+		// 希望绕过真正的网络io的ctx超时部分，这部分可能比较耗时间.
+		state, err = rpc.StepOut()
+		if err != nil {
+			return err
+		}
+
+		tab, err := debug.BuildLineTable(bin)
+		if err != nil {
+			return fmt.Errorf("build lntab error: %v", err)
+		}
+		f, l, fn := tab.PCToLine(state.CurrentThread.PC)
+
+		// note: main.go:30 -> main.go:60 -> main.go:30
+		fmt.Printf("stepout the function: pos: %#x %s\n", state.CurrentThread.PC, fn.Name)
+		fmt.Printf("stepout the function: pos: %s:%d\n", f, l)
+
+		scope := api.EvalScope{
+			GoroutineID:  state.SelectedGoroutine.ID,
+			Frame:        0,
+			DeferredCall: 0,
+		}
+		//err = printLocalVariables(rpc, scope)
+		//if err != nil {
+		//	return err
+		//}
+		rpc.Next()
+
+		// TODO rsp可能为nil，没想到什么好办法，delve不支持
+		// 可以用修改桩代码的方式，始终返回一个非指针类型的结构体
+		//err0 := rpc.SetVariable(scope, "rsp", "&helloRsp{}")
+		//err1 := rpc.SetVariable(scope, "rsp.code", "1024")
+		//err2 := rpc.SetVariable(scope, "rsp.msg", `"hello, world"`)
+		//err3 := rpc.SetVariable(scope, "err", "nil")
+		// can not call function with nil ReturnInfoLoadConfig
+		//_, err2 := rpc.Call(state.SelectedGoroutine.ID, `rsp.msg="cool"`, false)
+		//_, err3 := rpc.Call(state.SelectedGoroutine.ID, `err=errors.New("xxxxx")`, false)
+		//v, err0 := rpc.EvalVariable(scope, "rsp", apiLoadConfig)
+		//fmt.Printf("var %+v, error: %v\n", v, err0)
+
+		fmt.Printf("----------------------------------\n")
+		fmt.Printf("check the values before mocked\n")
+		// 显示rsp.code
+		v, err := rpc.EvalVariable(scope, "rsp.code", apiLoadConfig)
+		if err != nil {
+			return err
+		}
+		fmt.Printf("var rsp.code = %s, error: %v\n", v.Value, err)
+
+		// 显示rsp.msg
+		v, err = rpc.EvalVariable(scope, "rsp.msg", apiLoadConfig)
+		if err != nil {
+			return err
+		}
+		fmt.Printf("var rsp.msg = %s, error: %v\n", v.Value, err)
+
+		// 使用输入的值mock这里的变量值
+		fmt.Printf("----------------------------------\n")
+		fmt.Printf("mock the return values using input\n")
+		err = rpc.SetVariable(scope, "rsp.code", "9999")
+		if err != nil {
+			return err
+		}
+		v, err = rpc.EvalVariable(scope, "rsp.code", apiLoadConfig)
+		if err != nil {
+			return err
+		}
+		fmt.Printf("var rsp.code = %s\n", v.Value)
+
+		return nil
 	},
 }
 
@@ -81,4 +233,80 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// debugCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	debugCmd.Flags().StringP("package", "p", ".", "package to debug") // TODO add i18n translations
+}
+
+func buildDebugVersion(pkg string) (string, error) {
+	bin := filepath.Join(filepath.Dir(pkg), "_debug_"+filepath.Base(pkg))
+
+	wd, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+
+	err = os.Chdir(pkg)
+	if err != nil {
+		return "", err
+	}
+	defer os.Chdir(wd)
+
+	// note: don't use exec.Command("go", "build", `-gcflags="all=-N -l"`, "-o", bin)
+	// only shell consumes the double quotes "all and -l", so drop this in exec.Command.
+	// see: https://github.com/golang/go/issues/42482.
+	cmd := exec.Command("go", "build", "-gcflags=all=-N -l", "-o", bin)
+	buf, err := cmd.CombinedOutput()
+	if err != nil {
+		return "", fmt.Errorf("error: %v, details: %s", err, string(buf))
+	}
+	return bin, nil
+}
+
+func debugInHeadlessMode(bin string, addr string) (pid int, err error) {
+	cmd := exec.Command("dlv", "exec", bin,
+		"--headless", "--api-version=2", "--log", fmt.Sprintf("--listen=%s", addr))
+	err = cmd.Start()
+	if err != nil {
+		return -1, err
+	}
+	go cmd.Wait()
+	return cmd.Process.Pid, nil
+}
+
+// TODO not working as expected
+func detectAddrInUse(addr string) bool {
+	timeout := time.Second
+	conn, err := net.DialTimeout("tcp", addr, timeout)
+	if err != nil {
+		return false
+	}
+	if conn != nil {
+		conn.Close()
+		return true
+	}
+	return false
+}
+
+func printLocalVariables(rpc *rpc2.RPCClient, scope api.EvalScope) error {
+	vars, err := rpc.ListLocalVariables(scope, api.LoadConfig{
+		FollowPointers:     true,
+		MaxVariableRecurse: 8,
+		MaxStringLen:       1024,
+		MaxArrayValues:     1024,
+		MaxStructFields:    64,
+	})
+	if err != nil {
+		return fmt.Errorf("local variables error: %v", err)
+	}
+	for i, v := range vars {
+		fmt.Printf("%d-%#x %s %s = %s\n", i, v.Addr, v.Name, v.RealType, v.Value)
+	}
+	return nil
+}
+
+var apiLoadConfig = api.LoadConfig{
+	FollowPointers:     true,
+	MaxVariableRecurse: 8,
+	MaxStringLen:       256,
+	MaxArrayValues:     64,
+	MaxStructFields:    16,
 }
