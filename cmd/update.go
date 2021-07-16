@@ -34,7 +34,7 @@ var updateCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 
 		// 当前用户对应的模板候选目录列表
-		paths, err := config.TemplateSearchPath()
+		paths, err := config.TemplateSearchPaths()
 		if err != nil {
 			panic(err)
 		}

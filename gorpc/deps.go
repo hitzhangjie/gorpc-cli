@@ -1,71 +1,64 @@
 package main
 
 import (
+	"encoding/json"
+	"errors"
 	"fmt"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"strconv"
 	"strings"
+
+	"github.com/hitzhangjie/gorpc-cli/config"
 )
 
 // dependency describes a dependency
 type dependency struct {
-	Name    string // name of dependency
-	Version string // minimum version, a.b.c
-	Cmd     string // cmd to get version
+	Executable string `json:"executable"`  // name of dependency
+	VersionMin string `json:"version_min"` // minimum version, a.b.c
+	VersionCmd string `json:"version_cmd"` // cmd to get version
+	InstallCmd string `json:"install_cmd"` // cmd to install
+	Fallback   string `json:"fallback"`    // fallback message
 }
 
-// loadDependencies load dependencies and version requirements
-//
-// TODO load dependencies from configuration file
-func loadDependencies() ([]*dependency, error) {
-	deps := []*dependency{
-		{
-			Name:    "protoc",
-			Version: "v3.6.0",
-			Cmd:     "protoc --version | awk '{print $2}'",
-		}, {
-			Name:    "protoc-gen-go",
-			Version: "",
-			Cmd:     "",
-		},
-	}
-	return deps, nil
-}
-
-// checkDependencies check if dependencies meet the version requirements
-func checkDependencies(deps []*dependency) error {
-
-	for _, dep := range deps {
-		// check installed or not
-		_, err := exec.LookPath(dep.Name)
-		if err != nil {
-			return fmt.Errorf("%s not found, %v", dep.Name, err)
-		}
-
-		// skip checking if cmd/version not specified
-		if len(dep.Cmd) == 0 || len(dep.Version) == 0 {
-			continue
-		}
-
-		// run specified cmd to get version
-		cmd := exec.Command("sh", "-c", dep.Cmd)
-
-		buf, err := cmd.CombinedOutput()
-		if err != nil {
-			return fmt.Errorf("%s load version, %v, \n\t%s\n", dep.Name, err, string(buf))
-		}
-
-		err = checkVersion(string(buf), dep.Version)
-		if err != nil {
-			return fmt.Errorf("%s mismatch, %v", dep.Name, err)
-		}
+func (d *dependency) version() (string, error) {
+	if len(d.VersionCmd) == 0 {
+		return "", errors.New("install cmd empty")
 	}
 
-	return nil
+	// run specified cmd to get version
+	cmd := exec.Command("sh", "-c", d.VersionCmd)
+
+	buf, err := cmd.CombinedOutput()
+	if err != nil {
+		return "", err
+	}
+	return string(buf), nil
 }
 
-// checkVersion check if version meet the requirement
-func checkVersion(version, required string) error {
+// check installed or not
+func (d *dependency) installed() (bool, error) {
+	_, err := exec.LookPath(d.Executable)
+	if err != nil {
+		return false, fmt.Errorf("not found in PATH")
+	}
+	return true, nil
+}
+
+func (d *dependency) checkVersion() (passed bool, err error) {
+	// skip checking if cmd/version not specified
+	if len(d.VersionMin) == 0 {
+		return true, nil
+	}
+
+	v, err := d.version()
+	if err != nil {
+		return false, err
+	}
+
+	version := v
+	required := d.VersionMin
 
 	if len(version) != 0 && version[0] == 'v' || version[0] == 'V' {
 		version = version[1:]
@@ -79,7 +72,52 @@ func checkVersion(version, required string) error {
 	m2, n2, r2 := versions(required)
 
 	if !(m1 >= m2 && n1 >= n2 && r1 >= r2) {
-		return fmt.Errorf("require version: %s", required)
+		return false, fmt.Errorf("version too old")
+	}
+	return true, nil
+}
+
+// loadDependencies load dependencies and version requirements
+func loadDependencies() ([]dependency, error) {
+
+	d, err := config.LocateTemplatePath()
+	if err != nil {
+		return nil, err
+	}
+
+	f := filepath.Join(d, "dependencies.json")
+	b, err := os.ReadFile(f)
+	if err != nil {
+		return nil, err
+	}
+
+	deps := []dependency{}
+	err = json.Unmarshal(b, &deps)
+	if err != nil {
+		return nil, err
+	}
+
+	return deps, nil
+}
+
+// checkDependencies check if dependencies meet the version requirements
+func checkDependencies(deps []dependency) error {
+
+	for _, dep := range deps {
+		// check installed or not
+		_, err := dep.installed()
+		if err != nil {
+			return fmt.Errorf("check %s, not installed: %v", dep.Executable, err)
+		}
+
+		// check if `dep's version` meet the requirement of `versionCmd`
+		ok, err := dep.checkVersion()
+		if err != nil {
+			return fmt.Errorf("check %s, check error: %v", dep.Executable, err)
+		}
+		if !ok {
+			return fmt.Errorf("check %s, version too old", dep.Executable)
+		}
 	}
 
 	return nil

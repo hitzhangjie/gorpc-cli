@@ -13,8 +13,8 @@ import (
 	"strings"
 
 	"github.com/hitzhangjie/codeblocks/fs"
-	"github.com/hitzhangjie/gorpc-cli/bindata"
 	"github.com/hitzhangjie/codeblocks/tar"
+	"github.com/hitzhangjie/gorpc-cli/bindata"
 )
 
 // LanguageCfg 开发语言相关的配置信息，如对应的模板工程目录、模板工程中的serverstub文件、clientstub文件
@@ -35,7 +35,7 @@ var configs = map[string]*LanguageCfg{}
 func init() {
 
 	// 当前用户对应的模板候选目录列表
-	paths, err := TemplateSearchPath()
+	paths, err := TemplateSearchPaths()
 	if err != nil {
 		panic(err)
 	}
@@ -66,6 +66,16 @@ func init() {
 
 	// 加载i18n配置
 	initializeI18NMessages(installTo)
+}
+
+// LocateTemplatePath locate where templates are installed
+func LocateTemplatePath() (string, error) {
+	paths, err := TemplateSearchPaths()
+	if err != nil {
+		panic(err)
+	}
+
+	return TemplateInstallPath(paths)
 }
 
 func hasSameTplVersion(fp string) bool {
@@ -144,9 +154,9 @@ func GetLanguageCfg(lang string) (*LanguageCfg, error) {
 
 var ErrTemplateNotFound = errors.New("template not found")
 
-// TemplateSearchPath 获取gorpc安装路径
+// TemplateSearchPaths 获取gorpc安装路径
 // root安装到/etc/gorpc，非root用户安装到$HOME/.gorpc
-func TemplateSearchPath() (dirs []string, err error) {
+func TemplateSearchPaths() (dirs []string, err error) {
 
 	u, err := user.Current()
 	if err != nil {
@@ -172,13 +182,7 @@ func TemplateInstallPath(dirs []string) (dir string, err error) {
 }
 
 func validate(lang string, cfg *LanguageCfg) error {
-
-	dirs, err := TemplateSearchPath()
-	if err != nil {
-		return err
-	}
-
-	dir, err := TemplateInstallPath(dirs)
+	dir, err := LocateTemplatePath()
 	if err != nil {
 		return err
 	}
