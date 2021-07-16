@@ -1,0 +1,37 @@
+[
+  {
+    "Executable": "protoc",
+    "VersionMin": "v3.6.0",
+    "VersionCmd": "protoc --version | awk '{print $2}'",
+    "InstallCmd": "",
+    "Fallback": "please install protoc first, see https://developers.google.com/protocol-buffers"
+  },
+  {
+    "Executable": "protoc-gen-go",
+    "VersionMin": "",
+    "VersionCmd": "",
+    "InstallCmd": "go get github.com/golang/protobuf/protoc-gen-go",
+    "Fallback": ""
+  },
+  {
+    "Executable": "protoc-gen-validate",
+    "VersionMin": "",
+    "VersionCmd": "",
+    "InstallCmd": "go get github.com/envoyproxy/protoc-gen-validate",
+    "Fallback": ""
+  },
+  {
+    "Executable": "goimports",
+    "VersionMin": "",
+    "VersionCmd": "",
+    "InstallCmd": "go get golang.org/x/tools/cmd/goimports",
+    "Fallback": ""
+  },
+  {
+    "Executable": "mockgen",
+    "VersionMin": "",
+    "VersionCmd": "",
+    "InstallCmd": "go install github.com/golang/mock/mockgen@v1.6.0",
+    "Fallback": ""
+  }
+]

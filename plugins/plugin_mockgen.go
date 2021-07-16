@@ -5,7 +5,7 @@ import (
 
 	"github.com/hitzhangjie/gorpc-cli/descriptor"
 	"github.com/hitzhangjie/gorpc-cli/params"
-	"github.com/hitzhangjie/log"
+	"github.com/hitzhangjie/codeblocks/log"
 )
 
 type MockgenPlugin struct {

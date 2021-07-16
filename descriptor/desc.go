@@ -3,7 +3,7 @@ package descriptor
 import (
 	"encoding/json"
 
-	"github.com/hitzhangjie/log"
+	"github.com/hitzhangjie/codeblocks/log"
 	"github.com/jhump/protoreflect/desc"
 )
 

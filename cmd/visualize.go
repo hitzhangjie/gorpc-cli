@@ -27,7 +27,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/hitzhangjie/log"
+	"github.com/hitzhangjie/codeblocks/log"
 	"github.com/spf13/cobra"
 )
 

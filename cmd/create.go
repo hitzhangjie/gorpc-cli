@@ -33,9 +33,9 @@ import (
 	"github.com/hitzhangjie/gorpc-cli/util/lang"
 	"github.com/hitzhangjie/gorpc-cli/util/pb"
 
-	"github.com/hitzhangjie/fs"
-	"github.com/hitzhangjie/gostyle"
-	"github.com/hitzhangjie/log"
+	"github.com/hitzhangjie/codeblocks/format"
+	"github.com/hitzhangjie/codeblocks/fs"
+	"github.com/hitzhangjie/codeblocks/log"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
@@ -316,7 +316,7 @@ func create(fd *descriptor.FileDescriptor, option *params.Option) (outputdir str
 	}
 
 	// 格式化操作
-	if err = gostyle.FormatSourceDir(outputdir, option.Language); err != nil {
+	if err = format.FormatDir(outputdir); err != nil {
 		return
 	}
 
@@ -353,7 +353,7 @@ func generateRPCStub(fd *descriptor.FileDescriptor, option *params.Option) (outp
 			return
 		}
 
-		if err = gostyle.FormatSource(out, option.Language); err != nil {
+		if err = format.Format(out); err != nil {
 			return
 		}
 

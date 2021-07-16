@@ -9,9 +9,9 @@ import (
 
 	"github.com/hitzhangjie/gorpc-cli/descriptor"
 	"github.com/hitzhangjie/gorpc-cli/params"
-	"github.com/hitzhangjie/log"
+	"github.com/hitzhangjie/codeblocks/log"
 
-	"github.com/hitzhangjie/fs"
+	"github.com/hitzhangjie/codeblocks/fs"
 	"github.com/iancoleman/strcase"
 	"github.com/pkg/errors"
 )

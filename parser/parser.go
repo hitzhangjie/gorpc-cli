@@ -11,7 +11,7 @@ import (
 	"github.com/hitzhangjie/gorpc-cli/params"
 	"github.com/hitzhangjie/gorpc-cli/util/lang"
 	"github.com/hitzhangjie/gorpc-cli/util/pb"
-	"github.com/hitzhangjie/log"
+	"github.com/hitzhangjie/codeblocks/log"
 
 	"github.com/golang/protobuf/proto"
 	"github.com/jhump/protoreflect/desc"
