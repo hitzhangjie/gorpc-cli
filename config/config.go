@@ -14,6 +14,7 @@ import (
 
 	"github.com/hitzhangjie/codeblocks/fs"
 	"github.com/hitzhangjie/codeblocks/tar"
+
 	"github.com/hitzhangjie/gorpc-cli/bindata"
 )
 
@@ -130,7 +131,7 @@ func InstallTemplate(installTo string) error {
 		panic(err)
 	}
 
-	err = tar.Untar(tmpDir, bytes.NewBuffer(bindata.InstallTgzBytes))
+	err = tar.Untar(tmpDir, bytes.NewBuffer(bindata.AssetsGo))
 	if err != nil {
 		return err
 	}

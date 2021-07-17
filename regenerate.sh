@@ -36,5 +36,5 @@ cd -
 #step6: compress the templates
 rm -rf bindata
 tar cvfz install.tgz install
-bindata -file install.tgz
+bindata -input install.tgz -output bindata/assets.go -gopkg bindata
 rm install.tgz

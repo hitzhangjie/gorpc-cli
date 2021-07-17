@@ -1,4 +1,4 @@
-package main
+package config
 
 import (
 	"encoding/json"
@@ -10,19 +10,19 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/hitzhangjie/gorpc-cli/config"
+	"github.com/hitzhangjie/codeblocks/log"
 )
 
-// dependency describes a dependency
-type dependency struct {
-	Executable string `json:"executable"`  // name of dependency
+// Dependency describes a Dependency
+type Dependency struct {
+	Executable string `json:"executable"`  // name of Dependency
 	VersionMin string `json:"version_min"` // minimum version, a.b.c
 	VersionCmd string `json:"version_cmd"` // cmd to get version
 	InstallCmd string `json:"install_cmd"` // cmd to install
 	Fallback   string `json:"fallback"`    // fallback message
 }
 
-func (d *dependency) version() (string, error) {
+func (d *Dependency) Version() (string, error) {
 	if len(d.VersionCmd) == 0 {
 		return "", errors.New("install cmd empty")
 	}
@@ -38,7 +38,7 @@ func (d *dependency) version() (string, error) {
 }
 
 // check installed or not
-func (d *dependency) installed() (bool, error) {
+func (d *Dependency) Installed() (bool, error) {
 	_, err := exec.LookPath(d.Executable)
 	if err != nil {
 		return false, fmt.Errorf("not found in PATH")
@@ -46,13 +46,26 @@ func (d *dependency) installed() (bool, error) {
 	return true, nil
 }
 
-func (d *dependency) checkVersion() (passed bool, err error) {
+func (d *Dependency) Install() error {
+	if len(d.InstallCmd) == 0 {
+		return fmt.Errorf("install cmd empty, tips: %s", d.Fallback)
+	}
+
+	cmd := exec.Command("sh", "-c", d.InstallCmd)
+	buf, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("install cmd error: %v, \n%s", err, string(buf))
+	}
+	return nil
+}
+
+func (d *Dependency) CheckVersion() (passed bool, err error) {
 	// skip checking if cmd/version not specified
 	if len(d.VersionMin) == 0 {
 		return true, nil
 	}
 
-	v, err := d.version()
+	v, err := d.Version()
 	if err != nil {
 		return false, err
 	}
@@ -77,10 +90,10 @@ func (d *dependency) checkVersion() (passed bool, err error) {
 	return true, nil
 }
 
-// loadDependencies load dependencies and version requirements
-func loadDependencies() ([]dependency, error) {
+// LoadDependencies load dependencies and version requirements
+func LoadDependencies() ([]Dependency, error) {
 
-	d, err := config.LocateTemplatePath()
+	d, err := LocateTemplatePath()
 	if err != nil {
 		return nil, err
 	}
@@ -91,7 +104,7 @@ func loadDependencies() ([]dependency, error) {
 		return nil, err
 	}
 
-	deps := []dependency{}
+	deps := []Dependency{}
 	err = json.Unmarshal(b, &deps)
 	if err != nil {
 		return nil, err
@@ -100,24 +113,33 @@ func loadDependencies() ([]dependency, error) {
 	return deps, nil
 }
 
-// checkDependencies check if dependencies meet the version requirements
-func checkDependencies(deps []dependency) error {
+// CheckDependencies check if dependencies meet the version requirements
+func CheckDependencies(deps []Dependency) error {
 
 	for _, dep := range deps {
 		// check installed or not
-		_, err := dep.installed()
+		_, err := dep.Installed()
 		if err != nil {
-			return fmt.Errorf("check %s, not installed: %v", dep.Executable, err)
+			log.Info("check %s, not installed, try installing", dep.Executable)
+			err = dep.Install()
+			if err != nil {
+				log.Error("check %s, not installed, try installing failed: %v", dep.Executable, err)
+				return fmt.Errorf("check %s, not installed: %v", dep.Executable, err)
+			}
+			log.Info("check %s, not installed, try installing done", dep.Executable)
 		}
 
 		// check if `dep's version` meet the requirement of `versionCmd`
-		ok, err := dep.checkVersion()
+		ok, err := dep.CheckVersion()
 		if err != nil {
+			log.Error("check %s, check version error: %v", dep.Executable, err)
 			return fmt.Errorf("check %s, check error: %v", dep.Executable, err)
 		}
 		if !ok {
+			log.Error("check %s, check version too old", dep.Executable)
 			return fmt.Errorf("check %s, version too old", dep.Executable)
 		}
+		log.Info("check %s, passed", dep.Executable)
 	}
 
 	return nil

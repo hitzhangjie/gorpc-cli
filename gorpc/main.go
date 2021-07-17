@@ -16,21 +16,9 @@ limitations under the License.
 package main
 
 import (
-	_ "github.com/hitzhangjie/gorpc-cli/bindata"
 	"github.com/hitzhangjie/gorpc-cli/cmd"
 )
 
 func main() {
-
-	deps, err := loadDependencies()
-	if err != nil {
-		panic(err)
-	}
-
-	err = checkDependencies(deps)
-	if err != nil {
-		panic(err)
-	}
-
 	cmd.Execute()
 }
