@@ -13,12 +13,11 @@ type Option struct {
 
 	// template option
 	Assetdir string // 服务模板路径
-	Language string // 开发语言，如go，java，cpp等
 	Protocol string // 协议类型
 	//HttpOn   bool   // 生成http相关代码，使用-protocol=http代替-httpon
 	RpcOnly bool // 只生成rpc相关代码，而非完整工程
 	// gorpc.json
-	GoRPCCfg *config.LanguageCfg
+	GoRPCCfg *config.TemplateCfg
 
 	// gomod option
 	GoMod   string // 当前工程指定的gomod

@@ -15,10 +15,6 @@
     "description": "usage of flag --force",
     "other": "强制覆盖已存在的代码"
   },
-  "createCmdFlagLang": {
-    "description": "usage of flag --lang",
-    "other": "指定使用的编程语言, 如：go, java, python等"
-  },
   "createCmdFlagMod": {
     "description": "usage of flag --mod",
     "other": "指定go module, 默认是: ${pb.package}"

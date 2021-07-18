@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"os/user"
@@ -12,17 +11,15 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/hitzhangjie/codeblocks/fs"
 	"github.com/hitzhangjie/codeblocks/tar"
 
 	"github.com/hitzhangjie/gorpc-cli/bindata"
 )
 
-// LanguageCfg 开发语言相关的配置信息，如对应的模板工程目录、模板工程中的serverstub文件、clientstub文件
-type LanguageCfg struct {
-	Language          string   `json:"language"`             // required: 语言名称，如go、java
-	LangFileExt       string   `json:"lang_file_ext"`        // required: 文件扩展名，如.go
+// TemplateCfg 开发语言相关的配置信息，如对应的模板工程目录、模板工程中的serverstub文件、clientstub文件
+type TemplateCfg struct {
 	AssetDir          string   `json:"asset_dir"`            // required: 语言对应的模板工程目录，如asset_go
+	LangFileExt       string   `json:"lang_file_ext"`        // required: 文件扩展名，如.go
 	TplFileExt        string   `json:"tpl_file_ext"`         // required: 工程中模板文件的后缀名，如.tpl
 	RPCServerStub     string   `json:"rpc_server_stub"`      // optional: 工程中对应的rpc server stub文件名（按service.method分文件生成时有用)
 	RPCServerImplStub string   `json:"rpc_server_impl_stub"` // optional: 工程中对应的rpc server impl stub文件名（按service.method分文件生成时有用)
@@ -30,11 +27,9 @@ type LanguageCfg struct {
 	RPCClientStub     []string `json:"rpc_client_stub"`      // required: 工程中对应的rpc client stub文件列表
 }
 
-// configs 所有语言的配置信息，汇总在此
-var configs = map[string]*LanguageCfg{}
+var templateCfg *TemplateCfg
 
 func init() {
-
 	// 当前用户对应的模板候选目录列表
 	paths, err := TemplateSearchPaths()
 	if err != nil {
@@ -96,61 +91,36 @@ func hasSameTplVersion(fp string) bool {
 }
 
 func initializeConfig(installTo string) {
-
-	fin, err := os.Open(filepath.Join(installTo, "gorpc.json"))
+	dat, err := os.ReadFile(filepath.Join(installTo, "gorpc.json"))
 	if err != nil {
 		panic(err)
 	}
 
-	dat, err := ioutil.ReadAll(fin)
+	cfg := TemplateCfg{}
+	err = json.Unmarshal(dat, &cfg)
 	if err != nil {
 		panic(err)
 	}
 
-	err = json.Unmarshal(dat, &configs)
-	if err != nil {
-		panic(err)
+	if !path.IsAbs(cfg.AssetDir) {
+		cfg.AssetDir = filepath.Join(installTo, cfg.AssetDir)
 	}
 
-	for k, v := range configs {
-		if err := validate(k, v); err != nil {
-			panic(err)
-		}
+	if err := validate(&cfg); err != nil {
+		panic(err)
 	}
+	templateCfg = &cfg
 }
 
 func InstallTemplate(installTo string) error {
-
-	tmpDir := filepath.Join(os.TempDir(), "gorpc")
-
 	_ = os.RemoveAll(installTo)
-	_ = os.RemoveAll(tmpDir)
 
-	err := os.MkdirAll(tmpDir, os.ModePerm)
-	if err != nil {
-		panic(err)
-	}
-
-	err = tar.Untar(tmpDir, bytes.NewBuffer(bindata.AssetsGo))
-	if err != nil {
-		return err
-	}
-
-	err = fs.Move(filepath.Join(tmpDir, "install"), installTo)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return tar.Untar(installTo, bytes.NewBuffer(bindata.AssetsGo))
 }
 
-// GetLanguageCfg 加载开发语言对应的配置信息
-func GetLanguageCfg(lang string) (*LanguageCfg, error) {
-	cfg, ok := configs[lang]
-	if !ok {
-		return nil, fmt.Errorf("language:%s not supported, check config 'gorpc.json'", lang)
-	}
-	return cfg, nil
+// GetTemplateCfg 加载开发语言对应的配置信息
+func GetTemplateCfg() (*TemplateCfg, error) {
+	return templateCfg, nil
 }
 
 var ErrTemplateNotFound = errors.New("template not found")
@@ -182,25 +152,14 @@ func TemplateInstallPath(dirs []string) (dir string, err error) {
 	return "", ErrTemplateNotFound
 }
 
-func validate(lang string, cfg *LanguageCfg) error {
-	dir, err := LocateTemplatePath()
-	if err != nil {
-		return err
-	}
-
-	if len(lang) == 0 {
-		return errors.New("invalid language, check config 'gorpc.json'")
-	}
-	cfg.Language = lang
+func validate(cfg *TemplateCfg) error {
+	// lang_file_ext
 	if cfg.LangFileExt == "" {
-		cfg.LangFileExt = lang
+		return errors.New("invalid lang_file_ext, check config 'gorpc.json'")
 	}
 	// asset dir
 	if len(cfg.AssetDir) == 0 {
 		return errors.New("invalid asset_dir, check config 'gorpc.json'")
-	}
-	if !path.IsAbs(cfg.AssetDir) {
-		cfg.AssetDir = filepath.Join(dir, cfg.AssetDir)
 	}
 	// tpl_file_ext
 	if len(cfg.TplFileExt) == 0 {

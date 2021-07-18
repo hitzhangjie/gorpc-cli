@@ -75,12 +75,6 @@ var createCmdFlagRpcOnly = i18n.Message{
 	Other:       `generate rpc stub only`,
 }
 
-var createCmdFlagLang = i18n.Message{
-	ID:          "createCmdFlagLang",
-	Description: "usage of flag --lang",
-	Other:       `programming language, including go, java, python`,
-}
-
 var createCmdFlagMod = i18n.Message{
 	ID:          "createCmdFlagMod",
 	Description: "usage of flag --mod",

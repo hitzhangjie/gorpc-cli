@@ -15,10 +15,6 @@
     "description": "usage of flag --force",
     "other": "enable overwritten existed code forcibly"
   },
-  "createCmdFlagLang": {
-    "description": "usage of flag --lang",
-    "other": "programming language, including go, java, python"
-  },
   "createCmdFlagMod": {
     "description": "usage of flag --mod",
     "other": "go module, default: ${pb.package}"

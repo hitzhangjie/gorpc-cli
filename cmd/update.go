@@ -18,8 +18,9 @@ package cmd
 import (
 	"os"
 
-	"github.com/hitzhangjie/gorpc-cli/config"
 	"github.com/spf13/cobra"
+
+	"github.com/hitzhangjie/gorpc-cli/config"
 )
 
 func init() {
@@ -41,19 +42,14 @@ var updateCmd = &cobra.Command{
 
 		// 确定一个有效的模板路径，如果未安装则安装模板
 		installTo, err := config.TemplateInstallPath(paths)
-
-		// 已经安装模板，则先删除模板
 		if err == nil {
+			// 已经安装模板，则先删除模板
 			if err = os.RemoveAll(installTo); err != nil {
 				return err
 			}
 		}
 
 		// 重新安装模板
-		installTo = paths[0]
-		if err = config.InstallTemplate(installTo); err != nil {
-			return err
-		}
-		return nil
+		return config.InstallTemplate(paths[0])
 	},
 }

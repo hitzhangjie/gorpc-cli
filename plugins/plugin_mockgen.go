@@ -3,9 +3,10 @@ package plugins
 import (
 	"os/exec"
 
+	"github.com/hitzhangjie/codeblocks/log"
+
 	"github.com/hitzhangjie/gorpc-cli/descriptor"
 	"github.com/hitzhangjie/gorpc-cli/params"
-	"github.com/hitzhangjie/codeblocks/log"
 )
 
 type MockgenPlugin struct {
@@ -16,11 +17,6 @@ func (m *MockgenPlugin) Name() string {
 }
 
 func (m *MockgenPlugin) Run(fd *descriptor.FileDescriptor, opts *params.Option) error {
-
-	if opts.Language != "go" {
-		return nil
-	}
-
 	if _, err := exec.LookPath("mockgen"); err != nil {
 		log.Error("please install mockgen in order to generate mockstub")
 		return nil

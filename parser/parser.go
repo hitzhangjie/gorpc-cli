@@ -6,12 +6,13 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/hitzhangjie/codeblocks/log"
+
 	"github.com/hitzhangjie/gorpc-cli/descriptor"
 	"github.com/hitzhangjie/gorpc-cli/extension/gorpc"
 	"github.com/hitzhangjie/gorpc-cli/params"
 	"github.com/hitzhangjie/gorpc-cli/util/lang"
 	"github.com/hitzhangjie/gorpc-cli/util/pb"
-	"github.com/hitzhangjie/codeblocks/log"
 
 	"github.com/golang/protobuf/proto"
 	"github.com/jhump/protoreflect/desc"
@@ -141,7 +142,6 @@ func fillDependencies(fd *desc.FileDescriptor, nfd *descriptor.FileDescriptor) e
 
 		if opts := fd.GetFileOptions(); opts != nil {
 			if gopkgopt := opts.GetGoPackage(); len(gopkgopt) != 0 {
-				//fixme 可能会影响到java的代码生成，如果java模板中不使用倒也不会受影响
 				validGoPkg = lang.PBValidGoPackage(gopkgopt)
 				importPath = gopkgopt
 			}
@@ -162,7 +162,6 @@ func fillDependencies(fd *desc.FileDescriptor, nfd *descriptor.FileDescriptor) e
 			fname := dep.GetFullyQualifiedName()
 			pkg := dep.GetPackage()
 
-			//fixme 可能会影响到java的代码生成，如果java模板中不使用倒也不会受影响
 			pb2ValidGoPkg[fname] = lang.PBValidGoPackage(pkg)
 
 			var (
@@ -171,7 +170,6 @@ func fillDependencies(fd *desc.FileDescriptor, nfd *descriptor.FileDescriptor) e
 			)
 			if opts := dep.GetFileOptions(); opts != nil {
 				if gopkgopt := opts.GetGoPackage(); len(gopkgopt) != 0 {
-					//fixme 可能会影响到java的代码生成，如果java模板中不使用倒也不会受影响
 					validGoPkg = lang.PBValidGoPackage(gopkgopt)
 					importPath = gopkgopt
 				}
@@ -273,7 +271,7 @@ func fillServices(fd *desc.FileDescriptor, nfd *descriptor.FileDescriptor) error
 				if s == nil {
 					log.Debug("method:%s.%s parse methodOptions option gorpc.alias not specified", sd.GetName(), m.GetName())
 				} else {
-					log.Debug("method:%s.%s parse methodOptions, name:%s = %s ", sd.GetName(), m.GetName(), gorpc.E_Alias, *(v.(*string)))
+					log.Debug("method:%s.%s parse methodOptions, name:%v = %s", sd.GetName(), m.GetName(), gorpc.E_Alias, *(v.(*string)))
 					if s != nil {
 						if cmd := strings.TrimSpace(*s); len(cmd) != 0 {
 							rpc.FullyQualifiedCmd = cmd

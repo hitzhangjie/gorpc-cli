@@ -56,7 +56,6 @@ func init() {
 	createCmd.Flags().BoolP("verbose", "v", false, config.LoadTranslation("createCmdFlagVerbose", nil))
 	createCmd.Flags().String("assetdir", "", config.LoadTranslation("createCmdFlagAssetdir", nil))
 	createCmd.Flags().Bool("rpconly", false, config.LoadTranslation("createCmdFlagRpcOnly", nil))
-	createCmd.Flags().String("lang", "go", config.LoadTranslation("createCmdFlagLang", nil))
 	createCmd.Flags().StringP("mod", "m", "", config.LoadTranslation("createCmdFlagMod", nil))
 	createCmd.Flags().StringP("output", "o", "", config.LoadTranslation("createCmdFlagOutput", nil))
 	createCmd.Flags().BoolP("force", "f", false, config.LoadTranslation("createCmdFlagForce", nil))
@@ -171,7 +170,7 @@ func loadCreateOption(flagSet *pflag.FlagSet) (*params.Option, error) {
 	option.Protodirs = append(option.Protodirs, filepath.Dir(target))
 
 	// 加载gorpc.json中定义的语言相关的配置
-	option.GoRPCCfg, err = config.GetLanguageCfg(option.Language)
+	option.GoRPCCfg, err = config.GetTemplateCfg()
 	if err != nil {
 		return nil, fmt.Errorf("load config via gorpc.json error: %v", err)
 	}
@@ -200,7 +199,6 @@ func loadCreateFlagsetToOption(flagSet *pflag.FlagSet) *params.Option {
 
 	option.Protodirs, _ = flagSet.GetStringArray("protodir")
 	option.Protofile, _ = flagSet.GetString("protofile")
-	option.Language, _ = flagSet.GetString("lang")
 	option.Protocol, _ = flagSet.GetString("protocol")
 	option.RpcOnly, _ = flagSet.GetBool("rpconly")
 	option.Assetdir, _ = flagSet.GetString("assetdir")
@@ -248,20 +246,12 @@ func create(fd *descriptor.FileDescriptor, option *params.Option) (outputdir str
 	stub := filepath.Join(outputdir, "stub")
 
 	// - move outputdir/rpc to outputdir/stub/dir($gopkgdir)
-	fileOption := fmt.Sprintf("%s_package", option.GoRPCCfg.Language)
-	pbPackage, err := parser.GetPbPackage(fd, fileOption)
+	pbPackage, err := parser.GetPbPackage(fd, "go_package")
 	if err != nil {
 		return
 	}
 
-	if fileOption == "java_package" {
-		pathLast := path.Join(strings.Split(pbPackage, ".")...)
-		pbPackage = path.Join("client/src/main/java", strings.ToLower(pathLast))
-	} else if fileOption == "python_package" {
-		pbPackage = strings.Replace(pbPackage, ".", "_", -1)
-	}
-
-	// - generate *.pb.go or *.java or *.pb.h/*.pb.cc under outputdir/rpc/
+	// - generate *.pb.go under outputdir/rpc/
 	pbOutDir := filepath.Join(stub, pbPackage)
 	err = os.MkdirAll(pbOutDir, os.ModePerm)
 	if err != nil {
@@ -271,7 +261,7 @@ func create(fd *descriptor.FileDescriptor, option *params.Option) (outputdir str
 	pb2pkg := fd.Pb2ImportPath
 
 	// 处理-protofile指定的pb文件
-	err = pb.Protoc(fd, option.Protodirs, option.Protofile, option.Language, pbOutDir, pb2pkg)
+	err = pb.Protoc(fd, option.Protodirs, option.Protofile, pbOutDir, pb2pkg)
 	if err != nil {
 		err = fmt.Errorf("GenerateFiles: %v", err)
 		return
@@ -382,9 +372,8 @@ func generateRPCStub(fd *descriptor.FileDescriptor, option *params.Option) (outp
 			protofiles = append(protofiles, fname)
 		}
 	}
-	// - generate *.pb.go or *.java or *.pb.h/*.pb.cc under outputdir/rpc/
-	if err = pb.Protoc(fd, option.Protodirs, option.Protofile, option.Language, outputdir, fd.Pb2ImportPath); err != nil {
-		//if err = pb.Protoc(c.Option.Protodirs, c.Option.Protofile, c.Option.Language, outputdir, fd.Pb2ValidGoPkg); err != nil {
+	// - generate *.pb.go under outputdir/rpc/
+	if err = pb.Protoc(fd, option.Protodirs, option.Protofile, outputdir, fd.Pb2ImportPath); err != nil {
 		err = fmt.Errorf("GenerateFiles: %v", err)
 		return
 	}
@@ -481,9 +470,6 @@ func handleDependencies(fd *descriptor.FileDescriptor, option *params.Option, pb
 		}
 
 		pbOutDir := filepath.Join(outputDir, importPath)
-		if option.Language == "java" {
-			pbOutDir = filepath.Join(outputDir, pbPackage)
-		}
 		if err := os.MkdirAll(pbOutDir, os.ModePerm); err != nil {
 			return err
 		}
@@ -513,7 +499,7 @@ func handleDependencies(fd *descriptor.FileDescriptor, option *params.Option, pb
 			}
 		}
 
-		if err := pb.Protoc(fd, searchPath, fname, option.Language, pbOutDir, fd.Pb2ImportPath); err != nil {
+		if err := pb.Protoc(fd, searchPath, fname, pbOutDir, fd.Pb2ImportPath); err != nil {
 			return fmt.Errorf("GenerateFiles: %v", err)
 		}
 
@@ -541,13 +527,7 @@ func handleDependencies(fd *descriptor.FileDescriptor, option *params.Option, pb
 			continue
 		}
 
-		// TODO 移动到createCmd.PostRun
-
 		// 执行go mod init, 与pbPackage相同也不用初始化
-		if option.Language != "go" {
-			continue
-		}
-
 		if len(importPath) != 0 && importPath != pbPackage {
 			os.Chdir(pbOutDir)
 

@@ -1,16 +1,15 @@
 {
-  "go": {
-    "asset_dir": "asset_go",
-    "tpl_file_ext": ".tpl",
-    "rpc_server_stub": "service_rpc.go.tpl",
-    "rpc_server_test_stub": "service_rpc_test.go.tpl",
-    "rpc_client_stub": [
-      "rpc/gorpc.go.tpl"
-    ],
-    "pb_file_option": "go_package",
-    "scripts": [
-      "mv rpc/* ./",
-      "grep go_package rpc/gorpc.go.tpl; "
-    ]
-  }
+  "asset_dir": "asset_go",
+  "lang_file_ext": ".go",
+  "tpl_file_ext": ".tpl",
+  "rpc_server_stub": "service_rpc.go.tpl",
+  "rpc_server_test_stub": "service_rpc_test.go.tpl",
+  "rpc_client_stub": [
+    "rpc/gorpc.go.tpl"
+  ],
+  "pb_file_option": "go_package",
+  "scripts": [
+    "mv rpc/* ./",
+    "grep go_package rpc/gorpc.go.tpl; "
+  ]
 }

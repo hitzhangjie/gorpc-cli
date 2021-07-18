@@ -20,7 +20,6 @@ func TestMain(m *testing.M) {
 
 func TestProtoc(t *testing.T) {
 
-	languages := []string{"go", "java"}
 	outputdir := wd
 
 	type args struct {
@@ -37,19 +36,16 @@ func TestProtoc(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			for _, lang := range languages {
-				// TODO: nil fd
-				err := Protoc(nil, tt.args.protodirs, tt.args.protofile, lang, outputdir, tt.args.pbpkgMapping)
-				if err != nil {
-					t.Errorf("Protoc() error = %v", err)
-				}
+			err := Protoc(nil, tt.args.protodirs, tt.args.protofile, outputdir, tt.args.pbpkgMapping)
+			if err != nil {
+				t.Errorf("Protoc() error = %v", err)
 			}
 		})
 	}
 
 	// clean
 	err := filepath.Walk(wd, func(path string, info os.FileInfo, err error) error {
-		if strings.HasSuffix(path, ".pb.go") || strings.HasSuffix(path, ".java") {
+		if strings.HasSuffix(path, ".pb.go") {
 			os.RemoveAll(path)
 		}
 		return nil

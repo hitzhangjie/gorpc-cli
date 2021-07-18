@@ -7,9 +7,10 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/hitzhangjie/codeblocks/log"
+
 	"github.com/hitzhangjie/gorpc-cli/descriptor"
 	"github.com/hitzhangjie/gorpc-cli/params"
-	"github.com/hitzhangjie/codeblocks/log"
 
 	"github.com/hitzhangjie/codeblocks/fs"
 	"github.com/iancoleman/strcase"
@@ -123,11 +124,7 @@ func processTemplateFile(entry string, info os.FileInfo, err error, options *mix
 		outPath := filepath.Join(outputdir, relativePath)
 		dir := filepath.Dir(outPath)
 		for idx, sd := range fd.Services {
-			base := strcase.ToSnake(sd.Name) + "." + option.GoRPCCfg.LangFileExt
-			switch option.GoRPCCfg.Language {
-			case "java":
-				base = strcase.ToCamel(sd.Name) + "." + option.GoRPCCfg.Language
-			}
+			base := strcase.ToSnake(sd.Name) + option.GoRPCCfg.LangFileExt
 			outPath = filepath.Join(dir, base)
 			if err := GenerateFile(fd, entry, outPath, option, idx); err != nil {
 				return err
@@ -141,11 +138,7 @@ func processTemplateFile(entry string, info os.FileInfo, err error, options *mix
 		outPath := filepath.Join(outputdir, relativePath)
 		dir := filepath.Dir(outPath)
 		for idx, sd := range fd.Services {
-			base := strings.ToLower(sd.Name) + "." + option.GoRPCCfg.LangFileExt
-			switch option.GoRPCCfg.Language {
-			case "java":
-				base = strcase.ToCamel(sd.Name) + "Impl." + option.GoRPCCfg.LangFileExt
-			}
+			base := strings.ToLower(sd.Name) + option.GoRPCCfg.LangFileExt
 			outPath = filepath.Join(dir, base)
 			if err := GenerateFile(fd, entry, outPath, option, idx); err != nil {
 				return err
@@ -159,7 +152,7 @@ func processTemplateFile(entry string, info os.FileInfo, err error, options *mix
 		outPath := filepath.Join(outputdir, relativePath)
 		dir := filepath.Dir(outPath)
 		for idx, sd := range fd.Services {
-			base := strcase.ToSnake(sd.Name) + "_test." + option.GoRPCCfg.LangFileExt
+			base := strcase.ToSnake(sd.Name) + "_test" + option.GoRPCCfg.LangFileExt
 			outPath = filepath.Join(dir, base)
 			if err := GenerateFile(fd, entry, outPath, option, idx); err != nil {
 				return err

@@ -8,7 +8,6 @@ import (
 )
 
 func GetFileOption(fd *desc.FileDescriptor, option string) (val string, err error) {
-
 	if fd == nil {
 		err = errors.New("fd *desc.FileDescriptor is nil")
 		return
@@ -20,20 +19,15 @@ func GetFileOption(fd *desc.FileDescriptor, option string) (val string, err erro
 		return
 	}
 
-	switch option {
-	case "go_package":
-		val = opts.GetGoPackage()
-	case "java_package":
-		val = opts.GetJavaPackage()
-	default:
+	if option != "go_package" {
 		err = errors.New("fileoption not supported")
 		return
 	}
+	val = opts.GetGoPackage()
 
 	if len(val) == 0 {
 		err = fmt.Errorf("%s not defined", option)
 		return
 	}
-
 	return
 }

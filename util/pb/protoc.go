@@ -7,12 +7,13 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/hitzhangjie/codeblocks/log"
+
 	"github.com/hitzhangjie/gorpc-cli/descriptor"
 	"github.com/hitzhangjie/gorpc-cli/util/lang"
-	"github.com/hitzhangjie/codeblocks/log"
 )
 
-// Protoc process `protofile` to generate *.pb.go or *.java, which is specified by `language`
+// Protoc process `protofile` to generate *.pb.go.
 //
 // Please note protoc whose version is less than 3.6.0 has bug:
 //
@@ -28,7 +29,7 @@ import (
 // protoc --proto_path=. --go_out=paths=source_relative:/root/test/greeter/rpc greeter.proto
 //
 // 下面存在一些"排除--proto_path为当前路径的操作"，纯粹是为了兼容老的protoc处理相对路径、绝对路径的bug
-func Protoc(fd *descriptor.FileDescriptor, protodirs []string, protofile, language, outputdir string, pbpkgMapping map[string]string) error {
+func Protoc(fd *descriptor.FileDescriptor, protodirs []string, protofile, outputdir string, pbpkgMapping map[string]string) error {
 
 	_, baseName := filepath.Split(protofile)
 
@@ -51,7 +52,7 @@ func Protoc(fd *descriptor.FileDescriptor, protodirs []string, protofile, langua
 	}
 
 	// make --go_out
-	argsGoOut := makeGoOut(fd, pbpkgMapping, protofile, language, outputdir)
+	argsGoOut := makeGoOut(fd, pbpkgMapping, protofile, outputdir)
 
 	args = append(args, argsProtoPath...)
 	args = append(args, argsGoOut, baseName)
@@ -66,11 +67,8 @@ func Protoc(fd *descriptor.FileDescriptor, protodirs []string, protofile, langua
 }
 
 // TODO: 这里需要做成插件化的，支持不同语言采用不同实现
-func makeGoOut(fd *descriptor.FileDescriptor, pbpkgMapping map[string]string, protofile string, language string, outputdir string) string {
+func makeGoOut(fd *descriptor.FileDescriptor, pbpkgMapping map[string]string, protofile, outputdir string) string {
 
-	//protofileValidGoPkg := pbpkgMapping[protofile]
-
-	var out string
 	var pbpkg string
 
 	if len(pbpkgMapping) != 0 {
@@ -112,20 +110,7 @@ func makeGoOut(fd *descriptor.FileDescriptor, pbpkgMapping map[string]string, pr
 		}
 	}
 
-	switch language {
-	case "go", "python":
-		out = fmt.Sprintf("--%s_out=paths=source_relative%s:%s", language, pbpkg, outputdir)
-	case "java":
-		out = fmt.Sprintf("--%s_out=%s", language, outputdir)
-	default:
-		os.MkdirAll(outputdir, os.ModePerm)
-		if len(pbpkg) != 0 {
-			pbpkg += ":"
-		}
-		out = fmt.Sprintf("--%s_out=%s%s", language, pbpkg, outputdir)
-	}
-
-	return out
+	return fmt.Sprintf("--go_out=paths=source_relative%s:%s", pbpkg, outputdir)
 }
 
 func makeProtoPath(protodirs []string) ([]string, error) {
